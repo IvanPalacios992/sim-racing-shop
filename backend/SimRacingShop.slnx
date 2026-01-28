@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="src/SimRacingShop.API/SimRacingShop.API.csproj" />
+  <Project Path="src/SimRacingShop.Core/SimRacingShop.Core.csproj" />
+  <Project Path="src/SimRacingShop.Infrastructure/SimRacingShop.Infrastructure.csproj" />
+  <Project Path="tests/SimRacingShop.IntegrationTests/SimRacingShop.IntegrationTests.csproj" />
+  <Project Path="tests/SimRacingShop.PerformanceTests/SimRacingShop.PerformanceTests.csproj" />
+  <Project Path="tests/SimRacingShop.UnitTests/SimRacingShop.UnitTests.csproj" />
+</Solution>
