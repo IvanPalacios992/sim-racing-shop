@@ -1,6 +1,0 @@
-@SimRacingShop.API_HostAddress = http://localhost:5052
-
-GET {{SimRacingShop.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
