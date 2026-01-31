@@ -292,6 +292,13 @@ backend/
     "QueueLimit": 10
   },
   
+  "AdminSeed": {
+    "Email": "admin@tudominio.com",
+    "Password": "AdminPassword123!",
+    "FirstName": "Admin",
+    "LastName": "SimRacing"
+  },
+
   "Features": {
     "EnableSwagger": true,
     "EnableDetailedErrors": true,
@@ -365,6 +372,41 @@ openssl rand -base64 32
 **ExpiryMinutes:** Duración del access token (60 = 1 hora)
 
 **RefreshTokenExpiryDays:** Duración del refresh token (7 días)
+
+---
+
+### AdminSeed (Usuario Admin Inicial)
+
+```json
+"AdminSeed": {
+  "Email": "admin@simracingshop.com",
+  "Password": "TuPasswordSeguro123!",
+  "FirstName": "Admin",
+  "LastName": "SimRacing"
+}
+```
+
+**⚠️ IMPORTANTE:** Estas variables son **requeridas** en el primer inicio si no existe ningún usuario admin en la base de datos. Si no están configuradas, la aplicación fallará con un error.
+
+**Email:** Email del usuario administrador inicial
+- Debe ser un email válido
+- Se usará para login
+
+**Password:** Contraseña del admin
+- Mínimo 8 caracteres
+- Debe contener: mayúscula, minúscula, dígito
+
+**FirstName/LastName:** Nombre del administrador (opcionales, tienen valores por defecto)
+
+**Variables de entorno:**
+```bash
+AdminSeed__Email=admin@simracingshop.com
+AdminSeed__Password=TuPasswordSeguro123!
+AdminSeed__FirstName=Admin
+AdminSeed__LastName=SimRacing
+```
+
+**Nota:** Una vez creado el admin, estas variables pueden quedar vacías. El seeder solo crea el usuario si no existe ningún admin en el sistema.
 
 ---
 
@@ -613,6 +655,10 @@ Email__ApiKey=re_...
 # Sentry
 Sentry__Dsn=https://...@sentry.io/...
 Sentry__Environment=production
+
+# Admin Seed (solo primer deploy)
+AdminSeed__Email=admin@tudominio.com
+AdminSeed__Password=password-seguro-produccion
 ```
 
 **Nota:** Railway usa `__` para anidar en lugar de `:` (formato .NET standard)
@@ -734,6 +780,8 @@ redis-12345.upstash.io:6379,password=tu-password,ssl=true
 - [ ] `Jwt__Secret`
 - [ ] `Stripe__SecretKey`
 - [ ] `Email__ApiKey`
+- [ ] `AdminSeed__Email` (solo primer deploy)
+- [ ] `AdminSeed__Password` (solo primer deploy)
 - [ ] `NEXT_PUBLIC_API_URL`
 - [ ] `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 - [ ] `Cors__AllowedOrigins`
@@ -757,6 +805,10 @@ redis-12345.upstash.io:6379,password=tu-password,ssl=true
 ### Error: "JWT token invalid"
 **Causa:** Secret diferente entre issuer y validator
 **Solución:** Verificar mismo secret en ambos lados
+
+### Error: "No admin user exists and AdminSeed settings are not configured"
+**Causa:** Primera ejecución sin configurar variables AdminSeed
+**Solución:** Configurar `AdminSeed__Email` y `AdminSeed__Password` en variables de entorno
 
 ---
 

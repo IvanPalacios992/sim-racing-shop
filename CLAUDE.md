@@ -72,3 +72,13 @@ dotnet ef database update --project src/SimRacingShop.Infrastructure --startup-p
 ## Configuration
 - Backend: `appsettings.Development.json` (copy from `appsettings.example.json`)
 - Frontend: `.env.local` (copy from `.env.example`)
+
+### Required Environment Variables (Backend)
+
+**Admin Seed** - Initial admin user (required on first run, error if not set and no admin exists):
+| Variable | Description |
+|----------|-------------|
+| `AdminSeed__Email` | Admin user email |
+| `AdminSeed__Password` | Admin user password (min 8 chars, uppercase, lowercase, digit) |
+| `AdminSeed__FirstName` | Admin first name (optional, default: "Admin") |
+| `AdminSeed__LastName` | Admin last name (optional, default: "SimRacing") |
