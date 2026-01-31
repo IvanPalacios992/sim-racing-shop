@@ -52,6 +52,9 @@ dotnet ef database update --project src/SimRacingShop.Infrastructure --startup-p
 - **Backend**: ASP.NET Identity + JWT auth, EF Core + PostgreSQL, Serilog logging
 - **Testing**: Vitest + Playwright (frontend), xUnit + Testcontainers (backend)
 
+### Testing Documentation
+- See `docs/development/testing-plan.md` for detailed test specifications and implementation status
+
 ## Development URLs
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5000
@@ -68,6 +71,11 @@ dotnet ef database update --project src/SimRacingShop.Infrastructure --startup-p
 - **develop**: Staging/integration
 - **feature/***: Feature branches (from develop)
 - **Commits**: Conventional format - `feat(scope): description`, `fix(scope): description`
+
+## CI/CD (GitHub Actions)
+Pipeline en `.github/workflows/ci.yml` ejecuta en push/PR a main y develop:
+- **Backend**: lint (dotnet format) → test → build
+- **Frontend**: lint (ESLint + TypeScript) → test → build
 
 ## Configuration
 - Backend: `appsettings.Development.json` (copy from `appsettings.example.json`)
