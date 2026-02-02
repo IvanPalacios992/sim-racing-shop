@@ -16,7 +16,7 @@ namespace SimRacingShop.Core.Entities
         public string? ShippingState { get; set; }
         public string ShippingPostalCode { get; set; } = null!;
         public string ShippingCountry { get; set; } = "ES";
-        
+
         // Payment
         public Guid? PaymentId { get; set; }
 
@@ -44,7 +44,7 @@ namespace SimRacingShop.Core.Entities
 
         // Navigation properties
         public User? User { get; set; }
-       public Payment? Payment { get; set; }
+        public Payment? Payment { get; set; }
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
     }
 }
