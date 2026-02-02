@@ -1,9 +1,18 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Serilog;
 using Serilog.Events;
+using SimRacingShop.Core.Entities;
+using SimRacingShop.Core.Settings;
+using SimRacingShop.Infrastructure.Data;
+using SimRacingShop.Infrastructure.Services;
+using System.Text;
 
-// Bootstrap logger (usado antes de leer configuración)
+// Bootstrap logger (usado antes de leer configuraciï¿½n)
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
     .Enrich.FromLogContext()
@@ -29,9 +38,68 @@ try
         )
     );
 
+    // Database
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    // ============================================
+    // IDENTITY
+    // ============================================
+
+    builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
+    {
+        // Password settings
+        options.Password.RequireDigit = true;
+        options.Password.RequireLowercase = true;
+        options.Password.RequireUppercase = true;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 8;
+
+        // Lockout settings
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+        options.Lockout.MaxFailedAccessAttempts = 5;
+
+        // User settings
+        options.User.RequireUniqueEmail = true;
+        options.SignIn.RequireConfirmedEmail = false; // Cambiar a true en producciï¿½n
+    })
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
+
+    // ============================================
+    // JWT AUTHENTICATION
+    // ============================================
+
+    var jwtSettings = builder.Configuration.GetSection("JwtSettings").Get<JwtSettings>();
+    builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings!.Issuer,
+            ValidAudience = jwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtSettings.Secret)
+            ),
+            ClockSkew = TimeSpan.Zero
+        };
+    });
+
+    builder.Services.AddAuthorization();
 
 
     // Add services to the container.
+    builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
 
@@ -56,7 +124,7 @@ try
         {
             options.IncludeXmlComments(xmlPath);
         }
-        // Configuración para JWT (lo necesitarás después)
+        // Configuraciï¿½n para JWT (lo necesitarï¿½s despuï¿½s)
         options.AddSecurityDefinition("bearer", new OpenApiSecurityScheme
         {
             Type = SecuritySchemeType.Http,
@@ -114,13 +182,26 @@ try
     }
 
     app.UseHttpsRedirection();
+    app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
+
+    // Seed database
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+        var userManager = services.GetRequiredService<UserManager<User>>();
+        var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        var adminSettings = builder.Configuration.GetSection("AdminSeed").Get<AdminSeedSettings>() ?? new AdminSeedSettings();
+
+        await DbInitializer.SeedAsync(userManager, roleManager, adminSettings, logger);
+    }
 
     // Log startup
     Log.Information("SimRacing Shop API started successfully");
 
-    app.Run();
+    await app.RunAsync();
 }
 catch (Exception ex)
 {
