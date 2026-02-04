@@ -204,6 +204,7 @@ public class AuthServiceTests
             ConfirmPassword = "Password123!",
             Language = "en"
         };
+        var securityStamp = "test-security-stamp";
 
         _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email))
             .ReturnsAsync((User?)null);
@@ -217,6 +218,9 @@ public class AuthServiceTests
         _userManagerMock.Setup(x => x.GetRolesAsync(It.IsAny<User>()))
             .ReturnsAsync(new List<string> { "Customer" });
 
+        _userManagerMock.Setup(x => x.GetSecurityStampAsync(It.IsAny<User>()))
+            .ReturnsAsync(securityStamp);
+
         // Act
         var result = await _authService.RegisterAsync(dto);
 
@@ -228,6 +232,7 @@ public class AuthServiceTests
         token.Claims.Should().Contain(c => c.Type == JwtRegisteredClaimNames.Email && c.Value == dto.Email);
         token.Claims.Should().Contain(c => c.Type == JwtRegisteredClaimNames.Jti);
         token.Claims.Should().Contain(c => c.Type == "language" && c.Value == "en");
+        token.Claims.Should().Contain(c => c.Type == "security_stamp" && c.Value == securityStamp);
     }
 
     [Fact]
@@ -692,6 +697,120 @@ public class AuthServiceTests
 
         principal.Should().NotBeNull();
         validatedToken.Should().NotBeNull();
+    }
+
+    #endregion
+
+    #region LogoutAsync Tests
+
+    [Fact]
+    public async Task Logout_WithValidUserId_UpdatesSecurityStamp()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var user = new User
+        {
+            Id = userId,
+            Email = "test@example.com"
+        };
+
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(user);
+
+        _userManagerMock.Setup(x => x.UpdateSecurityStampAsync(user))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Act
+        await _authService.LogoutAsync(userId);
+
+        // Assert
+        _userManagerMock.Verify(x => x.UpdateSecurityStampAsync(user), Times.Once);
+    }
+
+    [Fact]
+    public async Task Logout_WithInvalidUserId_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync((User?)null);
+
+        // Act
+        var act = () => _authService.LogoutAsync(userId);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Usuario no encontrado*");
+    }
+
+    #endregion
+
+    #region ValidateSecurityStampAsync Tests
+
+    [Fact]
+    public async Task ValidateSecurityStamp_WithMatchingStamp_ReturnsTrue()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var securityStamp = "valid-security-stamp";
+        var user = new User
+        {
+            Id = userId,
+            Email = "test@example.com"
+        };
+
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(user);
+
+        _userManagerMock.Setup(x => x.GetSecurityStampAsync(user))
+            .ReturnsAsync(securityStamp);
+
+        // Act
+        var result = await _authService.ValidateSecurityStampAsync(userId, securityStamp);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task ValidateSecurityStamp_WithDifferentStamp_ReturnsFalse()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var user = new User
+        {
+            Id = userId,
+            Email = "test@example.com"
+        };
+
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(user);
+
+        _userManagerMock.Setup(x => x.GetSecurityStampAsync(user))
+            .ReturnsAsync("current-stamp");
+
+        // Act
+        var result = await _authService.ValidateSecurityStampAsync(userId, "old-stamp");
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task ValidateSecurityStamp_WithNonExistentUser_ReturnsFalse()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync((User?)null);
+
+        // Act
+        var result = await _authService.ValidateSecurityStampAsync(userId, "any-stamp");
+
+        // Assert
+        result.Should().BeFalse();
     }
 
     #endregion

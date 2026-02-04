@@ -110,16 +110,42 @@ namespace SimRacingShop.Infrastructure.Services
             return user != null ? await MapUserToDto(user) : null;
         }
 
+        public async Task LogoutAsync(Guid userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                throw new InvalidOperationException("Usuario no encontrado");
+            }
+
+            // Actualizar SecurityStamp invalida todos los tokens existentes del usuario
+            await _userManager.UpdateSecurityStampAsync(user);
+        }
+
+        public async Task<bool> ValidateSecurityStampAsync(Guid userId, string securityStamp)
+        {
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+            {
+                return false;
+            }
+
+            var currentStamp = await _userManager.GetSecurityStampAsync(user);
+            return currentStamp == securityStamp;
+        }
+
         private async Task<string> GenerateJwtToken(User user)
         {
             var roles = await _userManager.GetRolesAsync(user);
+            var securityStamp = await _userManager.GetSecurityStampAsync(user);
 
             var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, user.Email!),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("language", user.Language)
+            new Claim("language", user.Language),
+            new Claim("security_stamp", securityStamp ?? string.Empty)
         };
 
             // Añadir roles como claims

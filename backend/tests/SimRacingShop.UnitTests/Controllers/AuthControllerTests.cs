@@ -476,4 +476,140 @@ public class AuthControllerTests
     }
 
     #endregion
+
+    #region Logout Tests
+
+    [Fact]
+    public async Task Logout_WithValidToken_ReturnsOk()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        _authServiceMock.Setup(x => x.LogoutAsync(userId))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.Logout();
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+    }
+
+    [Fact]
+    public async Task Logout_WithoutToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity()) // No claims
+            }
+        };
+
+        // Act
+        var result = await _controller.Logout();
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+    }
+
+    [Fact]
+    public async Task Logout_WithInvalidUserId_ReturnsUnauthorized()
+    {
+        // Arrange
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, "not-a-guid")
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        // Act
+        var result = await _controller.Logout();
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+    }
+
+    [Fact]
+    public async Task Logout_LogsSuccessfulLogout()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        _authServiceMock.Setup(x => x.LogoutAsync(userId))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.Logout();
+
+        // Assert
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("User logged out")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Logout_WhenServiceThrows_ReturnsBadRequest()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        _authServiceMock.Setup(x => x.LogoutAsync(userId))
+            .ThrowsAsync(new InvalidOperationException("Usuario no encontrado"));
+
+        // Act
+        var result = await _controller.Logout();
+
+        // Assert
+        var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        badRequestResult.StatusCode.Should().Be(400);
+    }
+
+    #endregion
 }

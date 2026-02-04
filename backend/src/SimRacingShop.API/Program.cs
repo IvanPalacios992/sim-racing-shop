@@ -10,6 +10,8 @@ using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Settings;
 using SimRacingShop.Infrastructure.Data;
 using SimRacingShop.Infrastructure.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 // Bootstrap logger (usado antes de leer configuraci�n)
@@ -92,6 +94,36 @@ try
                 Encoding.UTF8.GetBytes(jwtSettings.Secret)
             ),
             ClockSkew = TimeSpan.Zero
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
+
+                var userIdClaim = context.Principal?.FindFirst(JwtRegisteredClaimNames.Sub)
+                    ?? context.Principal?.FindFirst(ClaimTypes.NameIdentifier);
+                var securityStampClaim = context.Principal?.FindFirst("security_stamp");
+
+                if (userIdClaim == null || securityStampClaim == null)
+                {
+                    context.Fail("Token inválido: faltan claims requeridos");
+                    return;
+                }
+
+                if (!Guid.TryParse(userIdClaim.Value, out var userId))
+                {
+                    context.Fail("Token inválido: userId no válido");
+                    return;
+                }
+
+                var isValid = await authService.ValidateSecurityStampAsync(userId, securityStampClaim.Value);
+                if (!isValid)
+                {
+                    context.Fail("Token revocado");
+                }
+            }
         };
     });
 

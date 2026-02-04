@@ -124,5 +124,36 @@ namespace SimRacingShop.API.Controllers
         {
             return Ok(new { message = "You are an admin!" });
         }
+
+        /// <summary>
+        /// Cerrar sesión del usuario actual
+        /// </summary>
+        [Authorize]
+        [HttpPost("logout")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> Logout()
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                await _authService.LogoutAsync(userId);
+
+                _logger.LogInformation("User logged out: {UserId}", userId);
+
+                return Ok(new { message = "Sesión cerrada exitosamente" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Logout failed for user {UserId}", userId);
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
