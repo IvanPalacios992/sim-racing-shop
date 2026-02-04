@@ -1,7 +1,4 @@
-﻿using SimRacingShop.Core.DTOs;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using SimRacingShop.Core.DTOs;
 
 namespace SimRacingShop.Infrastructure.Services
 {
@@ -12,5 +9,6 @@ namespace SimRacingShop.Infrastructure.Services
         Task<UserDto?> GetUserByIdAsync(Guid userId);
         Task LogoutAsync(Guid userId);
         Task<bool> ValidateSecurityStampAsync(Guid userId, string securityStamp);
+        Task<AuthResponseDto> RefreshTokenAsync(string refreshToken);
     }
 }

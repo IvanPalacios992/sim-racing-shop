@@ -73,6 +73,29 @@ namespace SimRacingShop.API.Controllers
         }
 
         /// <summary>
+        /// Refrescar token JWT usando refresh token
+        /// </summary>
+        [HttpPost("refresh-token")]
+        [ProducesResponseType(typeof(AuthResponseDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenRequestDto dto)
+        {
+            try
+            {
+                var response = await _authService.RefreshTokenAsync(dto.RefreshToken);
+
+                _logger.LogInformation("Token refreshed for user: {UserId}", response.User.Id);
+
+                return Ok(response);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Token refresh failed");
+                return Unauthorized(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Obtener usuario actual
         /// </summary>
         [Authorize]

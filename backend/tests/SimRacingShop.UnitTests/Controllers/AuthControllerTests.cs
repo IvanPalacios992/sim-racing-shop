@@ -612,4 +612,127 @@ public class AuthControllerTests
     }
 
     #endregion
+
+    #region RefreshToken Tests
+
+    [Fact]
+    public async Task RefreshToken_WithValidToken_ReturnsOkWithNewTokens()
+    {
+        // Arrange
+        var dto = new RefreshTokenRequestDto
+        {
+            RefreshToken = "valid-refresh-token"
+        };
+
+        var expectedResponse = new AuthResponseDto
+        {
+            Token = "new-jwt-token",
+            RefreshToken = "new-refresh-token",
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            User = new UserDto
+            {
+                Id = Guid.NewGuid(),
+                Email = "test@example.com",
+                Language = "es",
+                Roles = new[] { "Customer" }
+            }
+        };
+
+        _authServiceMock.Setup(x => x.RefreshTokenAsync(dto.RefreshToken))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _controller.RefreshToken(dto);
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+
+        var response = okResult.Value.Should().BeOfType<AuthResponseDto>().Subject;
+        response.Token.Should().Be(expectedResponse.Token);
+        response.RefreshToken.Should().Be(expectedResponse.RefreshToken);
+    }
+
+    [Fact]
+    public async Task RefreshToken_WithInvalidToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        var dto = new RefreshTokenRequestDto
+        {
+            RefreshToken = "invalid-refresh-token"
+        };
+
+        _authServiceMock.Setup(x => x.RefreshTokenAsync(dto.RefreshToken))
+            .ThrowsAsync(new InvalidOperationException("Refresh token inválido"));
+
+        // Act
+        var result = await _controller.RefreshToken(dto);
+
+        // Assert
+        var unauthorizedResult = result.Should().BeOfType<UnauthorizedObjectResult>().Subject;
+        unauthorizedResult.StatusCode.Should().Be(401);
+    }
+
+    [Fact]
+    public async Task RefreshToken_WithExpiredToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        var dto = new RefreshTokenRequestDto
+        {
+            RefreshToken = "expired-refresh-token"
+        };
+
+        _authServiceMock.Setup(x => x.RefreshTokenAsync(dto.RefreshToken))
+            .ThrowsAsync(new InvalidOperationException("Refresh token expirado o revocado"));
+
+        // Act
+        var result = await _controller.RefreshToken(dto);
+
+        // Assert
+        var unauthorizedResult = result.Should().BeOfType<UnauthorizedObjectResult>().Subject;
+        unauthorizedResult.StatusCode.Should().Be(401);
+    }
+
+    [Fact]
+    public async Task RefreshToken_LogsSuccessfulRefresh()
+    {
+        // Arrange
+        var dto = new RefreshTokenRequestDto
+        {
+            RefreshToken = "valid-refresh-token"
+        };
+
+        var userId = Guid.NewGuid();
+        var expectedResponse = new AuthResponseDto
+        {
+            Token = "new-jwt-token",
+            RefreshToken = "new-refresh-token",
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            User = new UserDto
+            {
+                Id = userId,
+                Email = "test@example.com",
+                Language = "es",
+                Roles = new[] { "Customer" }
+            }
+        };
+
+        _authServiceMock.Setup(x => x.RefreshTokenAsync(dto.RefreshToken))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        await _controller.RefreshToken(dto);
+
+        // Assert
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Token refreshed")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    #endregion
 }

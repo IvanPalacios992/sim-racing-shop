@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Settings;
-using System;
-using System.Collections.Generic;
+using SimRacingShop.Infrastructure.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace SimRacingShop.Infrastructure.Services
@@ -16,28 +17,29 @@ namespace SimRacingShop.Infrastructure.Services
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly ApplicationDbContext _context;
         private readonly JwtSettings _jwtSettings;
 
         public AuthService(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
+            ApplicationDbContext context,
             IOptions<JwtSettings> jwtSettings)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
             _jwtSettings = jwtSettings.Value;
         }
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
         {
-            // Verificar si el usuario ya existe
             var existingUser = await _userManager.FindByEmailAsync(dto.Email);
             if (existingUser != null)
             {
                 throw new InvalidOperationException("El email ya está registrado");
             }
 
-            // Crear usuario
             var user = new User
             {
                 UserName = dto.Email,
@@ -57,17 +59,15 @@ namespace SimRacingShop.Infrastructure.Services
                 throw new InvalidOperationException($"Error al crear usuario: {errors}");
             }
 
-            // Asignar rol por defecto
             await _userManager.AddToRoleAsync(user, "Customer");
 
-            // Generar token
             var token = await GenerateJwtToken(user);
-            var refreshToken = GenerateRefreshToken();
+            var refreshToken = await CreateRefreshTokenAsync(user);
 
             return new AuthResponseDto
             {
                 Token = token,
-                RefreshToken = refreshToken,
+                RefreshToken = refreshToken.Token,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
                 User = await MapUserToDto(user)
             };
@@ -93,12 +93,51 @@ namespace SimRacingShop.Infrastructure.Services
             }
 
             var token = await GenerateJwtToken(user);
-            var refreshToken = GenerateRefreshToken();
+            var refreshToken = await CreateRefreshTokenAsync(user);
 
             return new AuthResponseDto
             {
                 Token = token,
-                RefreshToken = refreshToken,
+                RefreshToken = refreshToken.Token,
+                ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
+                User = await MapUserToDto(user)
+            };
+        }
+
+        public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken)
+        {
+            var storedToken = await _context.RefreshTokens
+                .Include(rt => rt.User)
+                .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+
+            if (storedToken == null)
+            {
+                throw new InvalidOperationException("Refresh token inválido");
+            }
+
+            if (!storedToken.IsActive)
+            {
+                throw new InvalidOperationException("Refresh token expirado o revocado");
+            }
+
+            var user = storedToken.User;
+
+            // Revocar el token actual
+            storedToken.RevokedAt = DateTime.UtcNow;
+
+            // Crear nuevo refresh token
+            var newRefreshToken = await CreateRefreshTokenAsync(user);
+            storedToken.ReplacedByToken = newRefreshToken.Token;
+
+            await _context.SaveChangesAsync();
+
+            // Generar nuevo JWT
+            var token = await GenerateJwtToken(user);
+
+            return new AuthResponseDto
+            {
+                Token = token,
+                RefreshToken = newRefreshToken.Token,
                 ExpiresAt = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
                 User = await MapUserToDto(user)
             };
@@ -118,7 +157,19 @@ namespace SimRacingShop.Infrastructure.Services
                 throw new InvalidOperationException("Usuario no encontrado");
             }
 
-            // Actualizar SecurityStamp invalida todos los tokens existentes del usuario
+            // Revocar todos los refresh tokens activos del usuario
+            var activeTokens = await _context.RefreshTokens
+                .Where(rt => rt.UserId == userId && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow)
+                .ToListAsync();
+
+            foreach (var token in activeTokens)
+            {
+                token.RevokedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
+
+            // Actualizar SecurityStamp para invalidar JWTs existentes
             await _userManager.UpdateSecurityStampAsync(user);
         }
 
@@ -134,21 +185,37 @@ namespace SimRacingShop.Infrastructure.Services
             return currentStamp == securityStamp;
         }
 
+        private async Task<RefreshToken> CreateRefreshTokenAsync(User user)
+        {
+            var refreshToken = new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                Token = GenerateRefreshTokenString(),
+                UserId = user.Id,
+                ExpiresAt = DateTime.UtcNow.AddDays(_jwtSettings.RefreshTokenExpiryDays),
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.RefreshTokens.Add(refreshToken);
+            await _context.SaveChangesAsync();
+
+            return refreshToken;
+        }
+
         private async Task<string> GenerateJwtToken(User user)
         {
             var roles = await _userManager.GetRolesAsync(user);
             var securityStamp = await _userManager.GetSecurityStampAsync(user);
 
             var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email!),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("language", user.Language),
-            new Claim("security_stamp", securityStamp ?? string.Empty)
-        };
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email!),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim("language", user.Language),
+                new Claim("security_stamp", securityStamp ?? string.Empty)
+            };
 
-            // Añadir roles como claims
             claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));
@@ -165,9 +232,12 @@ namespace SimRacingShop.Infrastructure.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        private string GenerateRefreshToken()
+        private static string GenerateRefreshTokenString()
         {
-            return Guid.NewGuid().ToString();
+            var randomBytes = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes);
         }
 
         private async Task<UserDto> MapUserToDto(User user)
