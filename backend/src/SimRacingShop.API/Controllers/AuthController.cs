@@ -96,6 +96,56 @@ namespace SimRacingShop.API.Controllers
         }
 
         /// <summary>
+        /// Solicitar restablecimiento de contraseña
+        /// </summary>
+        /// <remarks>
+        /// Por motivos de seguridad, este endpoint siempre devuelve 200 OK
+        /// independientemente de si el email existe o no.
+        /// </remarks>
+        [HttpPost("forgot-password")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequestDto dto)
+        {
+            try
+            {
+                await _authService.ForgotPasswordAsync(dto.Email);
+
+                _logger.LogInformation("Password reset requested for email: {Email}", dto.Email);
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't reveal it to the user
+                _logger.LogError(ex, "Error processing password reset for {Email}", dto.Email);
+            }
+
+            // Always return success for security reasons
+            return Ok(new { message = "Si el email existe, recibirás un correo con instrucciones para restablecer tu contraseña." });
+        }
+
+        /// <summary>
+        /// Restablecer contraseña con token
+        /// </summary>
+        [HttpPost("reset-password")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequestDto dto)
+        {
+            try
+            {
+                await _authService.ResetPasswordAsync(dto);
+
+                _logger.LogInformation("Password reset completed for email: {Email}", dto.Email);
+
+                return Ok(new { message = "Contraseña restablecida exitosamente" });
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "Password reset failed for {Email}", dto.Email);
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Obtener usuario actual
         /// </summary>
         [Authorize]

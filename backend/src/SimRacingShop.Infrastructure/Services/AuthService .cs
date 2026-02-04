@@ -19,17 +19,20 @@ namespace SimRacingShop.Infrastructure.Services
         private readonly SignInManager<User> _signInManager;
         private readonly ApplicationDbContext _context;
         private readonly JwtSettings _jwtSettings;
+        private readonly IEmailService _emailService;
 
         public AuthService(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             ApplicationDbContext context,
-            IOptions<JwtSettings> jwtSettings)
+            IOptions<JwtSettings> jwtSettings,
+            IEmailService emailService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _context = context;
             _jwtSettings = jwtSettings.Value;
+            _emailService = emailService;
         }
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
@@ -183,6 +186,64 @@ namespace SimRacingShop.Infrastructure.Services
 
             var currentStamp = await _userManager.GetSecurityStampAsync(user);
             return currentStamp == securityStamp;
+        }
+
+        public async Task ForgotPasswordAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            // Por seguridad, no revelamos si el email existe o no
+            if (user == null)
+            {
+                return;
+            }
+
+            // Generar token de reset (ASP.NET Identity lo maneja internamente)
+            // El token es de un solo uso y tiene expiración configurable
+            var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var userName = user.FirstName ?? user.Email ?? "Usuario";
+
+            await _emailService.SendPasswordResetEmailAsync(user.Email!, resetToken, userName);
+        }
+
+        public async Task ResetPasswordAsync(ResetPasswordRequestDto dto)
+        {
+            var user = await _userManager.FindByEmailAsync(dto.Email);
+            if (user == null)
+            {
+                throw new InvalidOperationException("Token inválido o expirado");
+            }
+
+            var result = await _userManager.ResetPasswordAsync(user, dto.Token, dto.NewPassword);
+
+            if (!result.Succeeded)
+            {
+                var errors = result.Errors.Select(e => e.Description).ToList();
+
+                // Verificar si el error es por token inválido/expirado
+                if (errors.Any(e => e.Contains("Invalid token", StringComparison.OrdinalIgnoreCase)))
+                {
+                    throw new InvalidOperationException("Token inválido o expirado");
+                }
+
+                throw new InvalidOperationException($"Error al restablecer contraseña: {string.Join(", ", errors)}");
+            }
+
+            // Actualizar SecurityStamp para invalidar tokens JWT existentes
+            await _userManager.UpdateSecurityStampAsync(user);
+
+            // Revocar todos los refresh tokens activos
+            var activeTokens = await _context.RefreshTokens
+                .Where(rt => rt.UserId == user.Id && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow)
+                .ToListAsync();
+
+            foreach (var token in activeTokens)
+            {
+                token.RevokedAt = DateTime.UtcNow;
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         private async Task<RefreshToken> CreateRefreshTokenAsync(User user)

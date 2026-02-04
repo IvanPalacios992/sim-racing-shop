@@ -68,6 +68,12 @@ try
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+    // Configurar duración de tokens de Identity (24 horas para reset de contraseña)
+    builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+    {
+        options.TokenLifespan = TimeSpan.FromHours(24);
+    });
+
     // ============================================
     // JWT AUTHENTICATION
     // ============================================
@@ -129,6 +135,14 @@ try
 
     builder.Services.AddAuthorization();
 
+    // ============================================
+    // EMAIL SERVICE (Resend)
+    // ============================================
+
+    builder.Services.Configure<ResendSettings>(builder.Configuration.GetSection("ResendSettings"));
+    builder.Services.AddOptions();
+    builder.Services.AddHttpClient<Resend.IResend, Resend.ResendClient>();
+    builder.Services.AddScoped<IEmailService, ResendEmailService>();
 
     // Add services to the container.
     builder.Services.AddScoped<IAuthService, AuthService>();

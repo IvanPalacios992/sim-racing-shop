@@ -10,5 +10,7 @@ namespace SimRacingShop.Infrastructure.Services
         Task LogoutAsync(Guid userId);
         Task<bool> ValidateSecurityStampAsync(Guid userId, string securityStamp);
         Task<AuthResponseDto> RefreshTokenAsync(string refreshToken);
+        Task ForgotPasswordAsync(string email);
+        Task ResetPasswordAsync(ResetPasswordRequestDto dto);
     }
 }
