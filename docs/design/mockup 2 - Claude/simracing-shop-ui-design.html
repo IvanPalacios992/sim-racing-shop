@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SimRacing Shop - Premium Racing Equipment</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* Primary Colors */
+            --obsidian-black: #0A0A0A;
+            --carbon-gray: #171717;
+            --graphite: #262626;
+            
+            /* Accent Colors */
+            --racing-red: #E53935;
+            --electric-blue: #2196F3;
+            --champagne-gold: #C9AF89;
+            
+            /* Neutral Colors */
+            --pure-white: #FFFFFF;
+            --silver: #9CA3AF;
+            --smoke: #4B5563;
+            
+            /* Semantic Colors */
+            --success: #22C55E;
+            --warning: #F59E0B;
+            --error: #EF4444;
+            
+            /* Shadows */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+            --shadow-glow: 0 0 20px rgba(229, 57, 53, 0.4);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--obsidian-black);
+            color: var(--pure-white);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* Navigation System */
+        .page-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 1rem 2rem;
+            z-index: 1000;
+            border-bottom: 1px solid var(--graphite);
+        }
+
+        .page-nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .page-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            background: transparent;
+            color: var(--silver);
+            border: 1px solid var(--graphite);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page-btn:hover {
+            border-color: var(--electric-blue);
+            color: var(--electric-blue);
+        }
+
+        .page-btn.active {
+            background: var(--racing-red);
+            color: var(--pure-white);
+            border-color: var(--racing-red);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .page-content {
+            display: none;
+            padding-top: 80px;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        /* Header Component */
+        .site-header {
+            position: sticky;
+            top: 60px;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            height: 72px;
+            border-bottom: 1px solid var(--graphite);
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            height: 100%;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: var(--pure-white);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--racing-red);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--pure-white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--electric-blue);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--pure-white);
+            cursor: pointer;
+            transition: color 0.3s;
+            position: relative;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            color: var(--electric-blue);
+        }
+
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            font-feature-settings: 'liga';
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--racing-red);
+            color: var(--pure-white);
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        /* Button System */
+        .btn {
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--racing-red);
+            color: var(--pure-white);
+        }
+
+        .btn-primary:hover {
+            background: #C62828;
+            box-shadow: var(--shadow-glow);
+            transform: scale(1.02);
+        }
+
+        .btn-primary:active {
+            transform: scale(0.98);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--pure-white);
+            border: 1px solid var(--pure-white);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--electric-blue);
+            padding: 0;
+            text-decoration: underline;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, #0A0A0A 0%, #1a1a1a 100%);
+            z-index: 0;
+        }
+
+        .hero-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(229, 57, 53, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(33, 150, 243, 0.1) 0%, transparent 50%);
+            z-index: 1;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60%;
+            background: linear-gradient(to top, rgba(10, 10, 10, 0.9), transparent);
+            z-index: 2;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            max-width: 900px;
+            padding: 0 2rem;
+        }
+
+        .hero-tagline {
+            font-size: 56px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            margin-bottom: 1.5rem;
+            line-height: 1.15;
+        }
+
+        .hero-subtitle {
+            font-size: 18px;
+            color: var(--silver);
+            margin-bottom: 3rem;
+            line-height: 1.6;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 3;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, 0); }
+            50% { transform: translate(-50%, 10px); }
+        }
+
+        /* Bento Grid */
+        .bento-section {
+            padding: 6rem 2rem;
+            background: var(--obsidian-black);
+        }
+
+        .bento-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            grid-auto-rows: 280px;
+        }
+
+        .bento-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--carbon-gray);
+            border: 1px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .bento-item:hover {
+            border-color: var(--graphite);
+            box-shadow: var(--shadow-md);
+        }
+
+        .bento-item:hover .bento-img {
+            transform: scale(1.05);
+        }
+
+        .bento-item.large {
+            grid-column: span 2;
+            grid-row: span 2;
+        }
+
+        .bento-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .bento-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem;
+            background: linear-gradient(to top, rgba(10, 10, 10, 0.95), transparent);
+        }
+
+        .bento-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .bento-link {
+            color: var(--electric-blue);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* Product Cards */
+        .products-section {
+            padding: 6rem 2rem;
+            background: var(--carbon-gray);
+        }
+
+        .section-title {
+            font-size: 40px;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 3rem;
+            letter-spacing: 2px;
+        }
+
+        .products-carousel {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .product-card {
+            background: var(--carbon-gray);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            border-color: var(--graphite);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+        }
+
+        .product-card:hover .product-img {
+            transform: scale(1.05);
+        }
+
+        .product-img-container {
+            position: relative;
+            aspect-ratio: 4/3;
+            background: var(--graphite);
+            overflow: hidden;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-badges {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .badge-new {
+            background: var(--electric-blue);
+            color: var(--pure-white);
+        }
+
+        .badge-sale {
+            background: var(--racing-red);
+            color: var(--pure-white);
+        }
+
+        .wishlist-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(10, 10, 10, 0.8);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--pure-white);
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .wishlist-btn:hover {
+            background: var(--racing-red);
+            transform: scale(1.1);
+        }
+
+        .product-info {
+            padding: 1.5rem;
+        }
+
+        .product-brand {
+            font-size: 14px;
+            color: var(--silver);
+            margin-bottom: 0.5rem;
+        }
+
+        .product-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            line-height: 1.3;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 14px;
+        }
+
+        .stars {
+            color: var(--champagne-gold);
+        }
+
+        .review-count {
+            color: var(--silver);
+        }
+
+        .product-price {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .current-price {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .original-price {
+            font-size: 16px;
+            color: var(--silver);
+            text-decoration: line-through;
+        }
+
+        /* Split Section */
+        .split-section {
+            display: grid;
+            grid-template-columns: 60% 40%;
+            min-height: 100vh;
+            background: var(--obsidian-black);
+        }
+
+        .split-visual {
+            background: var(--carbon-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .configurator-preview {
+            width: 100%;
+            max-width: 600px;
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, var(--graphite) 0%, var(--carbon-gray) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .configurator-preview::before {
+            content: '3D';
+            font-size: 120px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.05);
+            position: absolute;
+        }
+
+        .split-content {
+            padding: 6rem 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .exclusive-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: var(--champagne-gold);
+            color: var(--obsidian-black);
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin: 2rem 0 3rem;
+        }
+
+        .feature-list li {
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--graphite);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .feature-list li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        /* Trust Indicators */
+        .trust-section {
+            padding: 6rem 2rem;
+            background: var(--obsidian-black);
+        }
+
+        .trust-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .trust-item {
+            text-align: center;
+        }
+
+        .trust-icon {
+            font-size: 48px;
+            color: var(--silver);
+            margin-bottom: 1.5rem;
+        }
+
+        .trust-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .trust-desc {
+            color: var(--silver);
+            font-size: 14px;
+        }
+
+        /* Newsletter */
+        .newsletter-section {
+            padding: 6rem 2rem;
+            background: linear-gradient(135deg, var(--racing-red) 0%, #C62828 100%);
+            text-align: center;
+        }
+
+        .newsletter-form {
+            max-width: 500px;
+            margin: 2rem auto 0;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .newsletter-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            color: var(--obsidian-black);
+        }
+
+        .newsletter-input::placeholder {
+            color: var(--smoke);
+        }
+
+        .btn-white {
+            background: var(--pure-white);
+            color: var(--racing-red);
+        }
+
+        .btn-white:hover {
+            background: #f5f5f5;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--obsidian-black);
+            padding: 4rem 2rem 2rem;
+            border-top: 1px solid var(--graphite);
+        }
+
+        .footer-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 1.5rem;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .footer-links a {
+            color: var(--silver);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--electric-blue);
+        }
+
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-top: 2rem;
+            border-top: 1px solid var(--graphite);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--silver);
+            font-size: 14px;
+        }
+
+        /* Product Listing Page */
+        .plp-header {
+            padding: 2rem;
+            background: var(--carbon-gray);
+            border-bottom: 1px solid var(--graphite);
+        }
+
+        .plp-header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 14px;
+            color: var(--silver);
+        }
+
+        .breadcrumb a {
+            color: var(--silver);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            color: var(--electric-blue);
+        }
+
+        .plp-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+        }
+
+        .view-toggles {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .view-btn {
+            background: transparent;
+            border: 1px solid var(--graphite);
+            color: var(--silver);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .view-btn.active,
+        .view-btn:hover {
+            border-color: var(--electric-blue);
+            color: var(--electric-blue);
+        }
+
+        .sort-dropdown {
+            background: var(--obsidian-black);
+            border: 1px solid var(--graphite);
+            color: var(--pure-white);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .plp-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            padding: 2rem;
+        }
+
+        .filters-sidebar {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 160px;
+        }
+
+        .filter-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--graphite);
+        }
+
+        .filter-section:last-child {
+            border-bottom: none;
+        }
+
+        .filter-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 0;
+        }
+
+        .filter-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--racing-red);
+        }
+
+        .filter-option label {
+            flex: 1;
+            cursor: pointer;
+            color: var(--silver);
+        }
+
+        .price-range-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .price-input {
+            background: var(--obsidian-black);
+            border: 1px solid var(--graphite);
+            color: var(--pure-white);
+            padding: 0.5rem;
+            border-radius: 8px;
+        }
+
+        /* Product Detail Page */
+        .pdp-main {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 55% 45%;
+            gap: 3rem;
+        }
+
+        .media-container {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .viewer-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .viewer-tab {
+            background: transparent;
+            border: none;
+            color: var(--silver);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .viewer-tab.active {
+            background: var(--racing-red);
+            color: var(--pure-white);
+        }
+
+        .viewer-display {
+            aspect-ratio: 1;
+            background: var(--graphite);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .viewer-placeholder {
+            text-align: center;
+            color: var(--silver);
+        }
+
+        .viewer-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .pdp-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .pdp-title {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .availability {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .status-dot.in-stock {
+            background: var(--success);
+        }
+
+        .pdp-price {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+        }
+
+        .pdp-current-price {
+            font-size: 40px;
+            font-weight: 700;
+        }
+
+        .quantity-selector {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--carbon-gray);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            width: fit-content;
+        }
+
+        .qty-btn {
+            background: transparent;
+            border: none;
+            color: var(--pure-white);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .qty-value {
+            min-width: 40px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Auth Pages */
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--obsidian-black) 0%, var(--carbon-gray) 100%);
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .auth-card {
+            background: var(--carbon-gray);
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: var(--silver);
+        }
+
+        .auth-subtitle a {
+            color: var(--electric-blue);
+            text-decoration: none;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            background: var(--obsidian-black);
+            border: 1px solid var(--graphite);
+            border-radius: 8px;
+            color: var(--pure-white);
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--silver);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .password-requirements {
+            margin-top: 0.5rem;
+            font-size: 14px;
+        }
+
+        .requirement {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--silver);
+            padding: 0.25rem 0;
+        }
+
+        .requirement.met {
+            color: var(--success);
+        }
+
+        .requirement::before {
+            content: '○';
+        }
+
+        .requirement.met::before {
+            content: '✓';
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: start;
+            gap: 0.75rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-top: 0.25rem;
+            accent-color: var(--racing-red);
+        }
+
+        .checkbox-label {
+            flex: 1;
+            color: var(--silver);
+            font-size: 14px;
+        }
+
+        .checkbox-label a {
+            color: var(--electric-blue);
+            text-decoration: none;
+        }
+
+        .form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            color: var(--silver);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--graphite);
+        }
+
+        .social-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--pure-white);
+            color: var(--obsidian-black);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .social-btn:hover {
+            background: #f5f5f5;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .split-section {
+                grid-template-columns: 1fr;
+            }
+
+            .plp-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-sidebar {
+                position: static;
+            }
+
+            .pdp-main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-tagline {
+                font-size: 32px;
+            }
+
+            .bento-grid {
+                grid-template-columns: 1fr;
+                grid-auto-rows: 200px;
+            }
+
+            .bento-item.large {
+                grid-column: span 1;
+                grid-row: span 1;
+            }
+
+            .products-carousel {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .auth-card {
+                padding: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Navigation -->
+    <nav class="page-nav">
+        <div class="page-nav-content">
+            <div class="page-selector">
+                <button class="page-btn active" data-page="home">Home</button>
+                <button class="page-btn" data-page="plp">Product Listing</button>
+                <button class="page-btn" data-page="pdp">Product Detail</button>
+                <button class="page-btn" data-page="register">Register</button>
+                <button class="page-btn" data-page="login">Login</button>
+                <button class="page-btn" data-page="forgot">Forgot Password</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PAGE 1: HOME -->
+    <div id="home" class="page-content active">
+        <!-- Site Header -->
+        <header class="site-header">
+            <div class="header-container">
+                <a href="#" class="logo">SIM<span>RACING</span></a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#">WHEELS</a></li>
+                        <li><a href="#">PEDALS</a></li>
+                        <li><a href="#">COCKPITS</a></li>
+                        <li><a href="#">ACCESSORIES</a></li>
+                        <li><a href="#">SALE</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="icon-btn" aria-label="Search">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <button class="icon-btn" aria-label="Account">
+                        <span class="material-symbols-outlined">person</span>
+                    </button>
+                    <button class="icon-btn" aria-label="Cart">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        <span class="cart-badge">3</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-bg" style="background-image: url('https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=1920&h=1080&fit=crop&q=80'); background-size: cover; background-position: center;"></div>
+            <div class="hero-pattern"></div>
+            <div class="hero-overlay"></div>
+            <div class="hero-content">
+                <h1 class="hero-tagline">ENGINEERED FOR VICTORY</h1>
+                <p class="hero-subtitle">Premium sim racing equipment for those who demand perfection</p>
+                <div class="hero-cta">
+                    <button class="btn btn-primary">EXPLORE PRODUCTS</button>
+                    <button class="btn btn-secondary">WATCH VIDEO ▶</button>
+                </div>
+            </div>
+            <div class="scroll-indicator">
+                <span class="material-symbols-outlined" style="font-size: 32px; color: var(--silver);">expand_more</span>
+            </div>
+        </section>
+
+        <!-- Featured Categories -->
+        <section class="bento-section">
+            <div class="bento-grid">
+                <div class="bento-item large">
+                    <img class="bento-img" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=800&fit=crop&q=80" alt="Steering Wheels">
+                    <div class="bento-overlay">
+                        <h3 class="bento-title">STEERING WHEELS</h3>
+                        <a href="#" class="bento-link">Explore →</a>
+                    </div>
+                </div>
+                <div class="bento-item large">
+                    <img class="bento-img" src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=800&h=800&fit=crop&q=80" alt="Wheel Bases">
+                    <div class="bento-overlay">
+                        <h3 class="bento-title">WHEEL BASES</h3>
+                        <a href="#" class="bento-link">Explore →</a>
+                    </div>
+                </div>
+                <div class="bento-item">
+                    <img class="bento-img" src="https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=600&h=600&fit=crop&q=80" alt="Pedals">
+                    <div class="bento-overlay">
+                        <h3 class="bento-title" style="font-size: 18px;">PEDALS</h3>
+                        <a href="#" class="bento-link">Explore →</a>
+                    </div>
+                </div>
+                <div class="bento-item">
+                    <img class="bento-img" src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&h=600&fit=crop&q=80" alt="Cockpits">
+                    <div class="bento-overlay">
+                        <h3 class="bento-title" style="font-size: 18px;">COCKPITS</h3>
+                        <a href="#" class="bento-link">Explore →</a>
+                    </div>
+                </div>
+                <div class="bento-item">
+                    <img class="bento-img" src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=600&h=600&fit=crop&q=80" alt="Accessories">
+                    <div class="bento-overlay">
+                        <h3 class="bento-title" style="font-size: 18px;">ACCESSORIES</h3>
+                        <a href="#" class="bento-link">Explore →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products -->
+        <section class="products-section">
+            <h2 class="section-title">BEST SELLERS</h2>
+            <div class="products-carousel">
+                <div class="product-card">
+                    <div class="product-img-container">
+                        <img class="product-img" src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&h=450&fit=crop&q=80" alt="ClubSport Steering Wheel">
+                        <div class="product-badges">
+                            <span class="badge badge-new">NEW</span>
+                        </div>
+                        <button class="wishlist-btn" aria-label="Add to wishlist">♡</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">Fanatec</div>
+                        <h3 class="product-title">ClubSport Steering Wheel Formula V2.5</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="review-count">(248)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">€349.95</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-img-container">
+                        <img class="product-img" src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=600&h=450&fit=crop&q=80" alt="T300 RS GT Racing Wheel">
+                        <div class="product-badges">
+                            <span class="badge badge-sale">SAVE 20%</span>
+                        </div>
+                        <button class="wishlist-btn" aria-label="Add to wishlist">♡</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">Thrustmaster</div>
+                        <h3 class="product-title">T300 RS GT Racing Wheel</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="review-count">(412)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">€319.99</span>
+                            <span class="original-price">€399.99</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-img-container">
+                        <img class="product-img" src="https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=600&h=450&fit=crop&q=80" alt="Sprint Pedal Set">
+                        <button class="wishlist-btn" aria-label="Add to wishlist">♡</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">Heusinkveld</div>
+                        <h3 class="product-title">Sprint Pedal Set</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="review-count">(156)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">€799.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-img-container">
+                        <img class="product-img" src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600&h=450&fit=crop&q=80" alt="GT1 Evo Cockpit">
+                        <button class="wishlist-btn" aria-label="Add to wishlist">♡</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">Sim-Lab</div>
+                        <h3 class="product-title">GT1 Evo Cockpit</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="review-count">(89)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">€599.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3D Configurator Promo -->
+        <section class="split-section">
+            <div class="split-visual" style="background-image: url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=1200&fit=crop&q=80'); background-size: cover; background-position: center;">
+                <div style="position: absolute; inset: 0; background: rgba(10, 10, 10, 0.7); backdrop-filter: blur(2px);"></div>
+                <div class="configurator-preview"></div>
+            </div>
+            <div class="split-content">
+                <span class="exclusive-badge">EXCLUSIVE FEATURE</span>
+                <h2 style="font-size: 40px; font-weight: 600; margin-bottom: 1.5rem;">Build Your Perfect Setup</h2>
+                <p style="color: var(--silver); font-size: 18px; margin-bottom: 2rem;">
+                    Experience our revolutionary 3D configurator. Visualize every detail, customize every component, and see your dream setup come to life in real-time.
+                </p>
+                <ul class="feature-list">
+                    <li>Real-time 3D visualization</li>
+                    <li>Custom colors and materials</li>
+                    <li>Save and share configurations</li>
+                    <li>Instant price updates</li>
+                </ul>
+                <button class="btn btn-primary">START CONFIGURING</button>
+            </div>
+        </section>
+
+        <!-- Trust Indicators -->
+        <section class="trust-section">
+            <div class="trust-grid">
+                <div class="trust-item">
+                    <span class="material-symbols-outlined trust-icon">local_shipping</span>
+                    <h3 class="trust-title">FREE SHIPPING</h3>
+                    <p class="trust-desc">On orders over 100 EUR</p>
+                </div>
+                <div class="trust-item">
+                    <span class="material-symbols-outlined trust-icon">verified_user</span>
+                    <h3 class="trust-title">2 YEAR WARRANTY</h3>
+                    <p class="trust-desc">Full coverage included</p>
+                </div>
+                <div class="trust-item">
+                    <span class="material-symbols-outlined trust-icon">lock</span>
+                    <h3 class="trust-title">SECURE PAYMENT</h3>
+                    <p class="trust-desc">256-bit SSL encryption</p>
+                </div>
+                <div class="trust-item">
+                    <span class="material-symbols-outlined trust-icon">support_agent</span>
+                    <h3 class="trust-title">EXPERT SUPPORT</h3>
+                    <p class="trust-desc">Racing specialists available</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter -->
+        <section class="newsletter-section">
+            <h2 style="font-size: 40px; font-weight: 600; margin-bottom: 1rem;">JOIN THE RACING COMMUNITY</h2>
+            <p style="font-size: 18px; margin-bottom: 2rem;">Get exclusive offers, early access, and racing tips</p>
+            <form class="newsletter-form">
+                <input type="email" class="newsletter-input" placeholder="Enter your email">
+                <button type="submit" class="btn btn-white">SUBSCRIBE</button>
+            </form>
+            <p style="font-size: 14px; margin-top: 1rem; opacity: 0.9;">We respect your privacy. Unsubscribe anytime.</p>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>SIMRACING</h3>
+                    <p style="color: var(--silver); margin-bottom: 1.5rem;">Engineered for Victory</p>
+                    <div style="display: flex; gap: 1rem; font-size: 24px;">
+                        <a href="#" style="color: var(--silver);">f</a>
+                        <a href="#" style="color: var(--silver);">𝕏</a>
+                        <a href="#" style="color: var(--silver);">in</a>
+                        <a href="#" style="color: var(--silver);">▶</a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Shop</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Products</a></li>
+                        <li><a href="#">Categories</a></li>
+                        <li><a href="#">New Arrivals</a></li>
+                        <li><a href="#">Sale</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Support</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Shipping</a></li>
+                        <li><a href="#">Returns</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2024 SimRacing Shop. All rights reserved.</p>
+                <div style="display: flex; gap: 2rem;">
+                    <a href="#" style="color: var(--silver); text-decoration: none;">Privacy Policy</a>
+                    <a href="#" style="color: var(--silver); text-decoration: none;">Terms of Service</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- PAGE 2: PRODUCT LISTING -->
+    <div id="plp" class="page-content">
+        <header class="site-header">
+            <div class="header-container">
+                <a href="#" class="logo">SIM<span>RACING</span></a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#">WHEELS</a></li>
+                        <li><a href="#">PEDALS</a></li>
+                        <li><a href="#">COCKPITS</a></li>
+                        <li><a href="#">ACCESSORIES</a></li>
+                        <li><a href="#">SALE</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">person</span>
+                    </button>
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        <span class="cart-badge">3</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="plp-header">
+            <div class="plp-header-content">
+                <div class="breadcrumb">
+                    <a href="#">Home</a> <span>/</span> <span>Steering Wheels</span>
+                </div>
+                <h1 style="font-size: 40px; font-weight: 600;">Steering Wheels</h1>
+                <p style="color: var(--silver); margin-top: 0.5rem;">Showing 24 of 156 products</p>
+                <div class="plp-controls">
+                    <div class="view-toggles">
+                        <button class="view-btn active">⊞ Grid</button>
+                        <button class="view-btn">☰ List</button>
+                    </div>
+                    <select class="sort-dropdown">
+                        <option>Sort by: Featured</option>
+                        <option>Price: Low to High</option>
+                        <option>Price: High to Low</option>
+                        <option>Newest</option>
+                        <option>Rating</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="plp-layout">
+            <aside class="filters-sidebar">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h3 style="font-size: 18px; font-weight: 600;">Filters</h3>
+                    <button class="btn-ghost" style="font-size: 14px;">Clear All</button>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Price Range</h3>
+                    <div class="price-range-inputs">
+                        <input type="number" class="price-input" placeholder="Min">
+                        <input type="number" class="price-input" placeholder="Max">
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Brand</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="fanatec">
+                        <label for="fanatec">Fanatec</label>
+                        <span style="color: var(--silver); font-size: 14px;">(42)</span>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="thrustmaster">
+                        <label for="thrustmaster">Thrustmaster</label>
+                        <span style="color: var(--silver); font-size: 14px;">(38)</span>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="simucube">
+                        <label for="simucube">Simucube</label>
+                        <span style="color: var(--silver); font-size: 14px;">(24)</span>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Compatibility</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="pc">
+                        <label for="pc">PC</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="ps">
+                        <label for="ps">PlayStation</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="xbox">
+                        <label for="xbox">Xbox</label>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Rating</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="4star">
+                        <label for="4star">★★★★☆ & Up</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="3star">
+                        <label for="3star">★★★☆☆ & Up</label>
+                    </div>
+                </div>
+
+                <div class="filter-section">
+                    <h3>Availability</h3>
+                    <div class="filter-option">
+                        <input type="checkbox" id="instock">
+                        <label for="instock">In Stock Only</label>
+                    </div>
+                    <div class="filter-option">
+                        <input type="checkbox" id="preorder">
+                        <label for="preorder">Include Pre-orders</label>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="products-carousel" style="grid-template-columns: repeat(3, 1fr);">
+                <div class="product-card">
+                    <div class="product-img-container">
+                        <div class="product-img" style="background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%); display: flex; align-items: center; justify-content: center; font-size: 64px;">🏎️</div>
+                        <div class="product-badges">
+                            <span class="badge badge-new">NEW</span>
+                        </div>
+                        <button class="wishlist-btn">♡</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">Fanatec</div>
+                        <h3 class="product-title">ClubSport Steering Wheel Formula V2.5</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="review-count">(248)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">€349.95</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-img-container">
+                        <div class="product-img" style="background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%); display: flex; align-items: center; justify-content: center; font-size: 64px;">🏎️</div>
+                        <div class="product-badges">
+                            <span class="badge badge-sale">SAVE 15%</span>
+                        </div>
+                        <button class="wishlist-btn">♡</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">Thrustmaster</div>
+                        <h3 class="product-title">Ferrari F1 Wheel Add-On</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="review-count">(156)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">€169.99</span>
+                            <span class="original-price">€199.99</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-img-container">
+                        <div class="product-img" style="background: linear-gradient(135deg, #262626 0%, #2a2a2a 100%); display: flex; align-items: center; justify-content: center; font-size: 64px;">🏎️</div>
+                        <button class="wishlist-btn">♡</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">Simucube</div>
+                        <h3 class="product-title">GT Neo Steering Wheel</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="review-count">(89)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">€599.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-img-container">
+                        <div class="product-img" style="background: linear-gradient(135deg, #1a1a1a 0%, #262626 100%); display: flex; align-items: center; justify-content: center; font-size: 64px;">🏎️</div>
+                        <button class="wishlist-btn">♡</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">Fanatec</div>
+                        <h3 class="product-title">Podium Racing Wheel F1</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="review-count">(312)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">€1,299.95</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-img-container">
+                        <div class="product-img" style="background: linear-gradient(135deg, #2a2a2a 0%, #262626 100%); display: flex; align-items: center; justify-content: center; font-size: 64px;">🏎️</div>
+                        <button class="wishlist-btn">♡</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">Cube Controls</div>
+                        <h3 class="product-title">Formula Pro</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★★</span>
+                            <span class="review-count">(67)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">€849.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-img-container">
+                        <div class="product-img" style="background: linear-gradient(135deg, #262626 0%, #1a1a1a 100%); display: flex; align-items: center; justify-content: center; font-size: 64px;">🏎️</div>
+                        <div class="product-badges">
+                            <span class="badge badge-new">NEW</span>
+                        </div>
+                        <button class="wishlist-btn">♡</button>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-brand">Ascher Racing</div>
+                        <h3 class="product-title">F28-SC Steering Wheel</h3>
+                        <div class="product-rating">
+                            <span class="stars">★★★★☆</span>
+                            <span class="review-count">(23)</span>
+                        </div>
+                        <div class="product-price">
+                            <span class="current-price">€729.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 3: PRODUCT DETAIL -->
+    <div id="pdp" class="page-content">
+        <header class="site-header">
+            <div class="header-container">
+                <a href="#" class="logo">SIM<span>RACING</span></a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#">WHEELS</a></li>
+                        <li><a href="#">PEDALS</a></li>
+                        <li><a href="#">COCKPITS</a></li>
+                        <li><a href="#">ACCESSORIES</a></li>
+                        <li><a href="#">SALE</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">person</span>
+                    </button>
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">shopping_cart</span>
+                        <span class="cart-badge">3</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="pdp-main">
+            <div class="media-container">
+                <div class="viewer-tabs">
+                    <button class="viewer-tab active">3D View</button>
+                    <button class="viewer-tab">Gallery</button>
+                    <button class="viewer-tab">Videos</button>
+                </div>
+                <div class="viewer-display">
+                    <div class="viewer-placeholder">
+                        <div style="font-size: 120px; margin-bottom: 1rem;">🏎️</div>
+                        <p style="font-size: 24px; font-weight: 600;">Interactive 3D Model</p>
+                        <p style="color: var(--silver); margin-top: 0.5rem;">Drag to rotate • Scroll to zoom</p>
+                    </div>
+                </div>
+                <div class="viewer-controls">
+                    <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">↻ Reset View</button>
+                    <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">⛶ Fullscreen</button>
+                </div>
+            </div>
+
+            <div class="pdp-info">
+                <div class="breadcrumb">
+                    <a href="#">Home</a> <span>/</span>
+                    <a href="#">Steering Wheels</a> <span>/</span>
+                    <span>Formula V2.5</span>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                    <img src="data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect fill='%23262626' width='40' height='40'/%3E%3C/svg%3E" alt="Fanatec" style="height: 30px;">
+                    <span style="color: var(--silver);">Fanatec</span>
+                </div>
+
+                <h1 class="pdp-title">ClubSport Steering Wheel Formula V2.5</h1>
+
+                <div class="product-rating">
+                    <span class="stars" style="font-size: 16px;">★★★★★</span>
+                    <a href="#" style="color: var(--electric-blue); text-decoration: none;">(248 reviews)</a>
+                </div>
+
+                <div class="pdp-price">
+                    <span class="pdp-current-price">€349.95</span>
+                    <span style="color: var(--silver); font-size: 14px;">or 4x €87.50 with Klarna</span>
+                </div>
+
+                <div class="availability">
+                    <span class="status-dot in-stock"></span>
+                    <span>In Stock - Ships within 24h</span>
+                </div>
+
+                <div style="padding: 1.5rem; background: var(--carbon-gray); border-radius: 12px; border-left: 4px solid var(--champagne-gold);">
+                    <p style="font-weight: 600; margin-bottom: 0.5rem;">✨ Premium Edition</p>
+                    <p style="color: var(--silver); font-size: 14px;">This wheel features advanced carbon fiber construction and customizable RGB lighting</p>
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 0.75rem; font-weight: 600;">Platform Compatibility</label>
+                    <div style="display: flex; gap: 0.75rem;">
+                        <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">💻 PC</button>
+                        <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">🎮 PlayStation</button>
+                        <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem; opacity: 0.5;">Xbox</button>
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display: block; margin-bottom: 0.75rem; font-weight: 600;">Quantity</label>
+                    <div class="quantity-selector">
+                        <button class="qty-btn">−</button>
+                        <span class="qty-value">1</span>
+                        <button class="qty-btn">+</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" style="flex: 1;">ADD TO CART</button>
+                    <button class="btn btn-secondary" style="padding: 1rem 2rem;">♡</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding: 1.5rem; background: var(--carbon-gray); border-radius: 12px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 0.5rem;">🚚</div>
+                        <div style="font-size: 14px; font-weight: 600;">Free Shipping</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 0.5rem;">🛡️</div>
+                        <div style="font-size: 14px; font-weight: 600;">2 Year Warranty</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 0.5rem;">↩️</div>
+                        <div style="font-size: 14px; font-weight: 600;">30 Day Returns</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: REGISTER -->
+    <div id="register" class="page-content">
+        <div class="auth-page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <a href="#" class="logo" style="display: block; margin-bottom: 2rem;">SIM<span>RACING</span></a>
+                        <h1 class="auth-title">Create Account</h1>
+                        <p class="auth-subtitle">Already have an account? <a href="#">Sign In</a></p>
+                    </div>
+
+                    <form>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">First Name*</label>
+                                <input type="text" class="form-input" placeholder="John" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name*</label>
+                                <input type="text" class="form-input" placeholder="Doe" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email*</label>
+                            <input type="email" class="form-input" placeholder="john.doe@example.com" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password*</label>
+                            <input type="password" class="form-input" placeholder="Create a strong password" required>
+                            <div class="password-requirements">
+                                <div class="requirement">Minimum 8 characters</div>
+                                <div class="requirement">One uppercase letter</div>
+                                <div class="requirement">One number</div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Confirm Password*</label>
+                            <input type="password" class="form-input" placeholder="Re-enter your password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="terms" required>
+                                <label class="checkbox-label" for="terms">
+                                    I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="newsletter">
+                                <label class="checkbox-label" for="newsletter">
+                                    Subscribe to newsletter for exclusive offers
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">CREATE ACCOUNT</button>
+
+                        <div class="divider">OR</div>
+
+                        <button type="button" class="social-btn">Continue with Google</button>
+                        <button type="button" class="social-btn">Continue with Apple</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 5: LOGIN -->
+    <div id="login" class="page-content">
+        <div class="auth-page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <a href="#" class="logo" style="display: block; margin-bottom: 2rem;">SIM<span>RACING</span></a>
+                        <h1 class="auth-title">Welcome Back</h1>
+                        <p class="auth-subtitle">Sign in to your account</p>
+                    </div>
+
+                    <form>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" placeholder="Enter your email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-input" placeholder="Enter your password" required>
+                        </div>
+
+                        <div class="form-footer">
+                            <div class="checkbox-group" style="margin-bottom: 0;">
+                                <input type="checkbox" id="remember">
+                                <label class="checkbox-label" for="remember">Remember me</label>
+                            </div>
+                            <a href="#" class="btn-ghost" style="font-size: 14px;">Forgot password?</a>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">SIGN IN</button>
+
+                        <div class="divider">OR CONTINUE WITH</div>
+
+                        <button type="button" class="social-btn">Continue with Google</button>
+                        <button type="button" class="social-btn">Continue with Apple</button>
+
+                        <p style="text-align: center; margin-top: 2rem; color: var(--silver);">
+                            Don't have an account? <a href="#" class="btn-ghost" style="font-size: 16px;">Create one</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 6: FORGOT PASSWORD -->
+    <div id="forgot" class="page-content">
+        <div class="auth-page">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <a href="#" class="logo" style="display: block; margin-bottom: 2rem;">SIM<span>RACING</span></a>
+                        <h1 class="auth-title">Reset Password</h1>
+                        <p class="auth-subtitle">Enter your email address and we'll send you instructions to reset your password.</p>
+                    </div>
+
+                    <form>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-input" placeholder="Enter your email" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">SEND RESET LINK</button>
+
+                        <p style="text-align: center; margin-top: 2rem;">
+                            <a href="#" class="btn-ghost">← Back to Sign In</a>
+                        </p>
+                    </form>
+
+                    <div style="margin-top: 3rem; padding: 1.5rem; background: var(--obsidian-black); border-radius: 12px; text-align: center; display: none;" id="success-message">
+                        <div style="font-size: 48px; margin-bottom: 1rem;">✉️</div>
+                        <h2 style="font-size: 24px; font-weight: 600; margin-bottom: 1rem;">Check Your Email</h2>
+                        <p style="color: var(--silver); margin-bottom: 1.5rem;">
+                            We've sent password reset instructions to your email. The link expires in 1 hour.
+                        </p>
+                        <button class="btn btn-secondary" style="width: 100%; margin-bottom: 1rem;">Open Email App</button>
+                        <a href="#" class="btn-ghost">Resend Email</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Page navigation
+        const pageButtons = document.querySelectorAll('.page-btn');
+        const pages = document.querySelectorAll('.page-content');
+
+        pageButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const targetPage = btn.dataset.page;
+                
+                // Update active button
+                pageButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Show target page
+                pages.forEach(page => {
+                    page.classList.remove('active');
+                    if (page.id === targetPage) {
+                        page.classList.add('active');
+                    }
+                });
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Password requirements validation
+        const passwordInputs = document.querySelectorAll('input[type="password"]');
+        passwordInputs.forEach(input => {
+            input.addEventListener('input', (e) => {
+                const password = e.target.value;
+                const requirements = e.target.parentElement.querySelectorAll('.requirement');
+                
+                if (requirements.length > 0) {
+                    // Check length
+                    if (password.length >= 8) {
+                        requirements[0].classList.add('met');
+                    } else {
+                        requirements[0].classList.remove('met');
+                    }
+                    
+                    // Check uppercase
+                    if (/[A-Z]/.test(password)) {
+                        requirements[1].classList.add('met');
+                    } else {
+                        requirements[1].classList.remove('met');
+                    }
+                    
+                    // Check number
+                    if (/[0-9]/.test(password)) {
+                        requirements[2].classList.add('met');
+                    } else {
+                        requirements[2].classList.remove('met');
+                    }
+                }
+            });
+        });
+
+        // Wishlist toggle
+        document.querySelectorAll('.wishlist-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                btn.innerHTML = btn.innerHTML === '♡' ? '♥' : '♡';
+                btn.style.color = btn.innerHTML === '♥' ? 'var(--racing-red)' : 'var(--pure-white)';
+            });
+        });
+
+        // Quantity selector
+        document.querySelectorAll('.qty-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qtyValue = btn.parentElement.querySelector('.qty-value');
+                let value = parseInt(qtyValue.textContent);
+                
+                if (btn.textContent === '−' && value > 1) {
+                    value--;
+                } else if (btn.textContent === '+') {
+                    value++;
+                }
+                
+                qtyValue.textContent = value;
+            });
+        });
+    </script>
+</body>
+</html>
