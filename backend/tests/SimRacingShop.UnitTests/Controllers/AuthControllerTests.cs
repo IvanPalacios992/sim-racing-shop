@@ -476,4 +476,594 @@ public class AuthControllerTests
     }
 
     #endregion
+
+    #region Logout Tests
+
+    [Fact]
+    public async Task Logout_WithValidToken_ReturnsOk()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        _authServiceMock.Setup(x => x.LogoutAsync(userId))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.Logout();
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+    }
+
+    [Fact]
+    public async Task Logout_WithoutToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity()) // No claims
+            }
+        };
+
+        // Act
+        var result = await _controller.Logout();
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+    }
+
+    [Fact]
+    public async Task Logout_WithInvalidUserId_ReturnsUnauthorized()
+    {
+        // Arrange
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, "not-a-guid")
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        // Act
+        var result = await _controller.Logout();
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+    }
+
+    [Fact]
+    public async Task Logout_LogsSuccessfulLogout()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        _authServiceMock.Setup(x => x.LogoutAsync(userId))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.Logout();
+
+        // Assert
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("User logged out")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Logout_WhenServiceThrows_ReturnsBadRequest()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        _authServiceMock.Setup(x => x.LogoutAsync(userId))
+            .ThrowsAsync(new InvalidOperationException("Usuario no encontrado"));
+
+        // Act
+        var result = await _controller.Logout();
+
+        // Assert
+        var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        badRequestResult.StatusCode.Should().Be(400);
+    }
+
+    #endregion
+
+    #region ForgotPassword Tests
+
+    [Fact]
+    public async Task ForgotPassword_WithValidEmail_ReturnsOk()
+    {
+        // Arrange
+        var dto = new ForgotPasswordRequestDto
+        {
+            Email = "test@example.com"
+        };
+
+        _authServiceMock.Setup(x => x.ForgotPasswordAsync(dto.Email))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.ForgotPassword(dto);
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+    }
+
+    [Fact]
+    public async Task ForgotPassword_WithNonExistentEmail_StillReturnsOk()
+    {
+        // Arrange - For security, always returns 200 even if email doesn't exist
+        var dto = new ForgotPasswordRequestDto
+        {
+            Email = "nonexistent@example.com"
+        };
+
+        _authServiceMock.Setup(x => x.ForgotPasswordAsync(dto.Email))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.ForgotPassword(dto);
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+    }
+
+    [Fact]
+    public async Task ForgotPassword_WhenServiceThrows_StillReturnsOk()
+    {
+        // Arrange - For security, always returns 200 even on error
+        var dto = new ForgotPasswordRequestDto
+        {
+            Email = "test@example.com"
+        };
+
+        _authServiceMock.Setup(x => x.ForgotPasswordAsync(dto.Email))
+            .ThrowsAsync(new Exception("Email service error"));
+
+        // Act
+        var result = await _controller.ForgotPassword(dto);
+
+        // Assert - Should still return Ok for security reasons
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+    }
+
+    [Fact]
+    public async Task ForgotPassword_LogsRequest()
+    {
+        // Arrange
+        var dto = new ForgotPasswordRequestDto
+        {
+            Email = "test@example.com"
+        };
+
+        _authServiceMock.Setup(x => x.ForgotPasswordAsync(dto.Email))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.ForgotPassword(dto);
+
+        // Assert
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Password reset requested")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ForgotPassword_WhenServiceThrows_LogsError()
+    {
+        // Arrange
+        var dto = new ForgotPasswordRequestDto
+        {
+            Email = "test@example.com"
+        };
+
+        _authServiceMock.Setup(x => x.ForgotPasswordAsync(dto.Email))
+            .ThrowsAsync(new Exception("Email service error"));
+
+        // Act
+        await _controller.ForgotPassword(dto);
+
+        // Assert
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Error processing password reset")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    #endregion
+
+    #region ResetPassword Tests
+
+    [Fact]
+    public async Task ResetPassword_WithValidToken_ReturnsOk()
+    {
+        // Arrange
+        var dto = new ResetPasswordRequestDto
+        {
+            Email = "test@example.com",
+            Token = "valid-reset-token",
+            NewPassword = "NewPassword123!",
+            ConfirmPassword = "NewPassword123!"
+        };
+
+        _authServiceMock.Setup(x => x.ResetPasswordAsync(dto))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.ResetPassword(dto);
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+    }
+
+    [Fact]
+    public async Task ResetPassword_WithInvalidToken_ReturnsBadRequest()
+    {
+        // Arrange
+        var dto = new ResetPasswordRequestDto
+        {
+            Email = "test@example.com",
+            Token = "invalid-token",
+            NewPassword = "NewPassword123!",
+            ConfirmPassword = "NewPassword123!"
+        };
+
+        _authServiceMock.Setup(x => x.ResetPasswordAsync(dto))
+            .ThrowsAsync(new InvalidOperationException("Token inválido o expirado"));
+
+        // Act
+        var result = await _controller.ResetPassword(dto);
+
+        // Assert
+        var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        badRequestResult.StatusCode.Should().Be(400);
+    }
+
+    [Fact]
+    public async Task ResetPassword_WithWeakPassword_ReturnsBadRequest()
+    {
+        // Arrange
+        var dto = new ResetPasswordRequestDto
+        {
+            Email = "test@example.com",
+            Token = "valid-token",
+            NewPassword = "weak",
+            ConfirmPassword = "weak"
+        };
+
+        _authServiceMock.Setup(x => x.ResetPasswordAsync(dto))
+            .ThrowsAsync(new InvalidOperationException("Error al restablecer contraseña: Password too weak"));
+
+        // Act
+        var result = await _controller.ResetPassword(dto);
+
+        // Assert
+        var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        badRequestResult.StatusCode.Should().Be(400);
+    }
+
+    [Fact]
+    public async Task ResetPassword_LogsSuccessfulReset()
+    {
+        // Arrange
+        var dto = new ResetPasswordRequestDto
+        {
+            Email = "test@example.com",
+            Token = "valid-reset-token",
+            NewPassword = "NewPassword123!",
+            ConfirmPassword = "NewPassword123!"
+        };
+
+        _authServiceMock.Setup(x => x.ResetPasswordAsync(dto))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.ResetPassword(dto);
+
+        // Assert
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Password reset completed")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ResetPassword_WhenFails_LogsWarning()
+    {
+        // Arrange
+        var dto = new ResetPasswordRequestDto
+        {
+            Email = "test@example.com",
+            Token = "invalid-token",
+            NewPassword = "NewPassword123!",
+            ConfirmPassword = "NewPassword123!"
+        };
+
+        _authServiceMock.Setup(x => x.ResetPasswordAsync(dto))
+            .ThrowsAsync(new InvalidOperationException("Token inválido o expirado"));
+
+        // Act
+        await _controller.ResetPassword(dto);
+
+        // Assert
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Warning,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Password reset failed")),
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    #endregion
+
+    #region TestAuth Tests
+
+    [Fact]
+    public void TestAuth_WithAuthenticatedUser_ReturnsOkWithUserInfo()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Name, "test@example.com"),
+            new Claim(ClaimTypes.Role, "Customer"),
+            new Claim(ClaimTypes.Role, "Admin")
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        // Act
+        var result = _controller.TestAuth();
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+    }
+
+    [Fact]
+    public void TestAuth_ReturnsUserRoles()
+    {
+        // Arrange
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Name, "test@example.com"),
+            new Claim(ClaimTypes.Role, "Customer"),
+            new Claim(ClaimTypes.Role, "Admin")
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        // Act
+        var result = _controller.TestAuth();
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.Value.Should().NotBeNull();
+    }
+
+    [Fact]
+    public void TestAuth_WithNoRoles_ReturnsEmptyRolesList()
+    {
+        // Arrange
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Name, "test@example.com")
+        };
+        var identity = new ClaimsIdentity(claims, "TestAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = principal }
+        };
+
+        // Act
+        var result = _controller.TestAuth();
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+    }
+
+    #endregion
+
+    #region RefreshToken Tests
+
+    [Fact]
+    public async Task RefreshToken_WithValidToken_ReturnsOkWithNewTokens()
+    {
+        // Arrange
+        var dto = new RefreshTokenRequestDto
+        {
+            RefreshToken = "valid-refresh-token"
+        };
+
+        var expectedResponse = new AuthResponseDto
+        {
+            Token = "new-jwt-token",
+            RefreshToken = "new-refresh-token",
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            User = new UserDto
+            {
+                Id = Guid.NewGuid(),
+                Email = "test@example.com",
+                Language = "es",
+                Roles = new[] { "Customer" }
+            }
+        };
+
+        _authServiceMock.Setup(x => x.RefreshTokenAsync(dto.RefreshToken))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        var result = await _controller.RefreshToken(dto);
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        okResult.StatusCode.Should().Be(200);
+
+        var response = okResult.Value.Should().BeOfType<AuthResponseDto>().Subject;
+        response.Token.Should().Be(expectedResponse.Token);
+        response.RefreshToken.Should().Be(expectedResponse.RefreshToken);
+    }
+
+    [Fact]
+    public async Task RefreshToken_WithInvalidToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        var dto = new RefreshTokenRequestDto
+        {
+            RefreshToken = "invalid-refresh-token"
+        };
+
+        _authServiceMock.Setup(x => x.RefreshTokenAsync(dto.RefreshToken))
+            .ThrowsAsync(new InvalidOperationException("Refresh token inválido"));
+
+        // Act
+        var result = await _controller.RefreshToken(dto);
+
+        // Assert
+        var unauthorizedResult = result.Should().BeOfType<UnauthorizedObjectResult>().Subject;
+        unauthorizedResult.StatusCode.Should().Be(401);
+    }
+
+    [Fact]
+    public async Task RefreshToken_WithExpiredToken_ReturnsUnauthorized()
+    {
+        // Arrange
+        var dto = new RefreshTokenRequestDto
+        {
+            RefreshToken = "expired-refresh-token"
+        };
+
+        _authServiceMock.Setup(x => x.RefreshTokenAsync(dto.RefreshToken))
+            .ThrowsAsync(new InvalidOperationException("Refresh token expirado o revocado"));
+
+        // Act
+        var result = await _controller.RefreshToken(dto);
+
+        // Assert
+        var unauthorizedResult = result.Should().BeOfType<UnauthorizedObjectResult>().Subject;
+        unauthorizedResult.StatusCode.Should().Be(401);
+    }
+
+    [Fact]
+    public async Task RefreshToken_LogsSuccessfulRefresh()
+    {
+        // Arrange
+        var dto = new RefreshTokenRequestDto
+        {
+            RefreshToken = "valid-refresh-token"
+        };
+
+        var userId = Guid.NewGuid();
+        var expectedResponse = new AuthResponseDto
+        {
+            Token = "new-jwt-token",
+            RefreshToken = "new-refresh-token",
+            ExpiresAt = DateTime.UtcNow.AddHours(1),
+            User = new UserDto
+            {
+                Id = userId,
+                Email = "test@example.com",
+                Language = "es",
+                Roles = new[] { "Customer" }
+            }
+        };
+
+        _authServiceMock.Setup(x => x.RefreshTokenAsync(dto.RefreshToken))
+            .ReturnsAsync(expectedResponse);
+
+        // Act
+        await _controller.RefreshToken(dto);
+
+        // Assert
+        _loggerMock.Verify(
+            x => x.Log(
+                LogLevel.Information,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString()!.Contains("Token refreshed")),
+                null,
+                It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+            Times.Once);
+    }
+
+    #endregion
 }
