@@ -311,7 +311,7 @@ public class AuthServiceTests : IDisposable
         var result = await _authService.RegisterAsync(dto);
 
         // Assert
-        var refreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == result.RefreshToken);
+        var refreshToken = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == result.RefreshToken, TestContext.Current.CancellationToken);
         refreshToken.Should().NotBeNull();
         refreshToken!.IsActive.Should().BeTrue();
     }
@@ -501,7 +501,7 @@ public class AuthServiceTests : IDisposable
         };
 
         _context.RefreshTokens.Add(existingRefreshToken);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         _userManagerMock.Setup(x => x.GetRolesAsync(user))
             .ReturnsAsync(new List<string> { "Customer" });
@@ -553,7 +553,7 @@ public class AuthServiceTests : IDisposable
         };
 
         _context.RefreshTokens.Add(expiredRefreshToken);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
         var act = () => _authService.RefreshTokenAsync("expired-refresh-token");
@@ -587,7 +587,7 @@ public class AuthServiceTests : IDisposable
         };
 
         _context.RefreshTokens.Add(revokedRefreshToken);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         // Act
         var act = () => _authService.RefreshTokenAsync("revoked-refresh-token");
@@ -621,7 +621,7 @@ public class AuthServiceTests : IDisposable
         };
 
         _context.RefreshTokens.Add(existingRefreshToken);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         _userManagerMock.Setup(x => x.GetRolesAsync(user))
             .ReturnsAsync(new List<string> { "Customer" });
@@ -630,7 +630,7 @@ public class AuthServiceTests : IDisposable
         await _authService.RefreshTokenAsync("old-refresh-token");
 
         // Assert
-        var oldToken = await _context.RefreshTokens.FirstAsync(rt => rt.Token == "old-refresh-token");
+        var oldToken = await _context.RefreshTokens.FirstAsync(rt => rt.Token == "old-refresh-token", TestContext.Current.CancellationToken);
         oldToken.RevokedAt.Should().NotBeNull();
         oldToken.ReplacedByToken.Should().NotBeNull();
     }
@@ -788,7 +788,7 @@ public class AuthServiceTests : IDisposable
         };
 
         _context.RefreshTokens.AddRange(activeToken1, activeToken2);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
             .ReturnsAsync(user);
@@ -800,7 +800,7 @@ public class AuthServiceTests : IDisposable
         await _authService.LogoutAsync(userId);
 
         // Assert
-        var tokens = await _context.RefreshTokens.Where(rt => rt.UserId == userId).ToListAsync();
+        var tokens = await _context.RefreshTokens.Where(rt => rt.UserId == userId).ToListAsync(TestContext.Current.CancellationToken);
         tokens.Should().AllSatisfy(t => t.RevokedAt.Should().NotBeNull());
     }
 
@@ -1106,7 +1106,7 @@ public class AuthServiceTests : IDisposable
         };
 
         _context.RefreshTokens.Add(activeToken);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var dto = new ResetPasswordRequestDto
         {
@@ -1129,7 +1129,7 @@ public class AuthServiceTests : IDisposable
         await _authService.ResetPasswordAsync(dto);
 
         // Assert
-        var tokens = await _context.RefreshTokens.Where(rt => rt.UserId == userId).ToListAsync();
+        var tokens = await _context.RefreshTokens.Where(rt => rt.UserId == userId).ToListAsync(TestContext.Current.CancellationToken);
         tokens.Should().AllSatisfy(t => t.RevokedAt.Should().NotBeNull());
     }
 
