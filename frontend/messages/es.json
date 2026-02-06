@@ -126,6 +126,13 @@
       "lastNameRequired": "El apellido es requerido"
     }
   },
+  "home": {
+    "tagline": "Equipamiento premium de sim racing para quienes exigen perfección",
+    "signIn": "Iniciar Sesión",
+    "createAccount": "Crear Cuenta",
+    "welcome": "Bienvenido, {name}",
+    "logout": "Cerrar Sesión"
+  },
   "nav": {
     "home": "Inicio",
     "products": "Productos",

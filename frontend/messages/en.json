@@ -126,6 +126,13 @@
       "lastNameRequired": "Last name is required"
     }
   },
+  "home": {
+    "tagline": "Premium sim racing equipment for those who demand perfection",
+    "signIn": "Sign In",
+    "createAccount": "Create Account",
+    "welcome": "Welcome, {name}",
+    "logout": "Log Out"
+  },
   "nav": {
     "home": "Home",
     "products": "Products",
