@@ -648,11 +648,9 @@ public class AuthServiceTests : IDisposable
 
         // Assert
         await act.Should().ThrowAsync<InvalidOperationException>();
-        
         // Any active refresh token
         var activeRefreshTokens = _context.RefreshTokens.Where(rt => rt.UserId == userId && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow);
         activeRefreshTokens.Should().BeEmpty();
-
         // Scurity stamp updated to invalidate access tokens
         _userManagerMock.Verify(x => x.UpdateSecurityStampAsync(user), Times.Once);
     }
