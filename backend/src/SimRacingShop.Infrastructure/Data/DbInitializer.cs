@@ -8,7 +8,7 @@ namespace SimRacingShop.Infrastructure.Data;
 public static class DbInitializer
 {
     public const string AdminRole = "Admin";
-    public const string UserRole = "User";
+    public const string UserRole = "Customer";
 
     public static async Task SeedAsync(
         UserManager<User> userManager,
