@@ -1,0 +1,142 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "back": "Back",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "or": "OR"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submit": "SIGN IN",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create one",
+      "errors": {
+        "invalidCredentials": "Invalid email or password. Please try again.",
+        "accountLocked": "Account temporarily locked. Try again in 15 minutes or reset your password.",
+        "unverifiedEmail": "Please verify your email before signing in.",
+        "generic": "Could not sign in. Please try again."
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Already have an account?",
+      "signIn": "Sign In",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "Your first name",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Your last name",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Create a password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "terms": "I agree to the",
+      "termsLink": "Terms of Service",
+      "and": "and",
+      "privacyLink": "Privacy Policy",
+      "newsletter": "Subscribe to newsletter for exclusive offers",
+      "submit": "CREATE ACCOUNT",
+      "benefits": {
+        "title": "Join the Racing Elite",
+        "discount": "Exclusive member discounts",
+        "tracking": "Order tracking & history",
+        "wishlist": "Wishlist & saved configurations",
+        "earlyAccess": "Early access to new products"
+      },
+      "errors": {
+        "emailExists": "This email is already registered. Sign in instead?",
+        "passwordMismatch": "Passwords don't match",
+        "generic": "Could not create account. Please try again."
+      }
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your email address and we'll send you instructions to reset your password.",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "submit": "SEND RESET LINK",
+      "backToLogin": "Back to Sign In",
+      "success": {
+        "title": "Check Your Email",
+        "message": "We've sent password reset instructions to {email}. The link expires in 1 hour.",
+        "resend": "Resend Email",
+        "resendIn": "Resend in {seconds}s",
+        "tryDifferent": "Try a different email",
+        "help": "Didn't receive it? Check your spam folder or contact support."
+      },
+      "errors": {
+        "generic": "Could not send email. Please try again."
+      }
+    },
+    "resetPassword": {
+      "title": "Create New Password",
+      "subtitle": "Enter your new password below.",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter your new password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "submit": "RESET PASSWORD",
+      "success": {
+        "title": "Password Reset Complete",
+        "message": "Your password has been successfully updated.",
+        "signIn": "SIGN IN NOW"
+      },
+      "errors": {
+        "invalidToken": "This reset link is invalid or has expired.",
+        "requestNew": "Request new link",
+        "generic": "Could not reset password. Please try again."
+      }
+    },
+    "password": {
+      "show": "Show",
+      "hide": "Hide",
+      "requirements": {
+        "title": "Password must contain:",
+        "minLength": "Minimum 8 characters",
+        "uppercase": "At least one uppercase letter",
+        "lowercase": "At least one lowercase letter",
+        "number": "At least one number"
+      }
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordLowercase": "Password must contain at least one lowercase letter",
+      "passwordNumber": "Password must contain at least one number",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsMustMatch": "Passwords must match",
+      "termsRequired": "You must accept the terms and conditions",
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required"
+    }
+  },
+  "home": {
+    "tagline": "Premium sim racing equipment for those who demand perfection",
+    "signIn": "Sign In",
+    "createAccount": "Create Account",
+    "welcome": "Welcome, {name}",
+    "logout": "Log Out"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "about": "About",
+    "contact": "Contact"
+  }
+}

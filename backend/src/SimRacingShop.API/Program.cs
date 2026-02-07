@@ -185,6 +185,19 @@ try
         });
     });
 
+    //Cors for localhost
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(name: "Development",
+                          policy =>
+                          {
+                              policy.WithOrigins("http://localhost:3000") // Trusted origins
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod()
+                                    .AllowCredentials(); // Include if using cookies/credentials
+                          });
+    });
+
     var app = builder.Build();
 
     // Serilog Request Logging (debe ir temprano en el pipeline)
@@ -224,10 +237,10 @@ try
                 options.DisplayRequestDuration();
                 options.EnableTryItOutByDefault();
             });
+
         app.UseCors("Development");
     }
 
-    app.UseHttpsRedirection();
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
