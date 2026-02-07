@@ -13,7 +13,7 @@ export interface PasswordInputProps
 }
 
 const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
-  ({ className, showLabel = "Show", hideLabel = "Hide", ...props }, ref) => {
+  function PasswordInput({ className, showLabel = "Show", hideLabel = "Hide", ...props }, ref) {
     const [showPassword, setShowPassword] = useState(false);
 
     return (
@@ -45,8 +45,6 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
     );
   }
 );
-
-PasswordInput.displayName = "PasswordInput";
 
 export { PasswordInput };
 export default PasswordInput;
