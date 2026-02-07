@@ -1,7 +1,10 @@
 import userEvent from "@testing-library/user-event";
 import { render, screen, waitFor } from "../helpers/render";
 import { useAuthStore } from "@/stores/auth-store";
-import { resetAuthStore, createMockAuthResponse } from "../helpers/auth-store";
+import {
+  resetAuthStore,
+  createMockAuthResponse,
+} from "../helpers/auth-store";
 
 vi.mock("@/lib/api/auth", () => ({
   authApi: {
@@ -112,5 +115,19 @@ describe("HomeContent", () => {
       });
     });
 
+    it("resets auth state even when API logout fails", async () => {
+      const user = userEvent.setup();
+      const mockResponse = createMockAuthResponse();
+      useAuthStore.getState().setAuth(mockResponse);
+      vi.mocked(authApi.logout).mockRejectedValue(new Error("Network error"));
+
+      render(React.createElement(HomeContent));
+
+      await user.click(screen.getByText("Log Out"));
+
+      await waitFor(() => {
+        expect(useAuthStore.getState().isAuthenticated).toBe(false);
+      });
+    });
   });
 });

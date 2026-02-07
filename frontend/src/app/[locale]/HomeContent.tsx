@@ -12,6 +12,8 @@ export function HomeContent() {
   const handleLogout = async () => {
     try {
       await authApi.logout();
+    } catch {
+      // API failure is non-critical — we still clear local auth state
     } finally {
       logout();
     }
