@@ -149,6 +149,7 @@ try
     // Add services to the container.
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IProductRepository, ProductRepository>();
+    builder.Services.AddScoped<IComponentRepository, ComponentRepository>();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
 
