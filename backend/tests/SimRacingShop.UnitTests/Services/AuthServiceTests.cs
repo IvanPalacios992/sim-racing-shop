@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi;
 using Moq;
 using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
@@ -595,6 +596,65 @@ public class AuthServiceTests : IDisposable
         // Assert
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*expirado o revocado*");
+    }
+
+    [Fact]
+    public async Task RefreshToken_WithRevokedToken_RevokeAllUserActiveTokens()
+    {
+        // Arrange
+        var userId = Guid.NewGuid();
+        var user = new User
+        {
+            Id = userId,
+            Email = "test@example.com",
+            Language = "es"
+        };
+
+        var revokedRefreshToken = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            Token = "revoked-refresh-token",
+            UserId = userId,
+            User = user,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            CreatedAt = DateTime.UtcNow,
+            RevokedAt = DateTime.UtcNow
+        };
+
+        var activeRefreshToken = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            Token = "active-refresh-token",
+            UserId = userId,
+            User = user,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            CreatedAt = DateTime.UtcNow,
+        };
+
+        // Set up security Stamp
+        _userManagerMock.Setup(x => x.FindByIdAsync(userId.ToString()))
+            .ReturnsAsync(user);
+
+        _userManagerMock.Setup(x => x.UpdateSecurityStampAsync(user))
+            .ReturnsAsync(IdentityResult.Success);
+
+        // Set refresh tokens
+        _context.RefreshTokens.Add(revokedRefreshToken);
+        _context.RefreshTokens.Add(activeRefreshToken);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var act = () => _authService.RefreshTokenAsync("revoked-refresh-token");
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>();
+        
+        // Any active refresh token
+        var activeRefreshTokens = _context.RefreshTokens.Where(rt => rt.UserId == userId && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow);
+        activeRefreshTokens.Should().BeEmpty();
+
+        // Scurity stamp updated to invalidate access tokens
+        _userManagerMock.Verify(x => x.UpdateSecurityStampAsync(user), Times.Once);
     }
 
     [Fact]
