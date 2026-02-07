@@ -112,9 +112,11 @@ describe("ForgotPasswordForm", () => {
       vi.useFakeTimers({ shouldAdvanceTime: true });
       await submitEmailAndGoToSuccess();
 
-      await act(async () => {
-        vi.advanceTimersByTime(61000);
-      });
+      for (let i = 0; i < 61; i++) {
+        await act(async () => {
+          vi.advanceTimersByTime(1000);
+        });
+      }
 
       const resendBtn = screen.getByRole("button", { name: "Resend Email" });
       expect(resendBtn).not.toBeDisabled();
