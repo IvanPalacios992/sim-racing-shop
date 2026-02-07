@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Settings;
@@ -120,6 +121,9 @@ namespace SimRacingShop.Infrastructure.Services
 
             if (!storedToken.IsActive)
             {
+                // Revocar todos los tokens por seguridad, alguien esta intentado reutilizar tokens ya utilizados
+                await RevokeAllUserRefreshTokens(storedToken.UserId);
+                await _userManager.UpdateSecurityStampAsync(storedToken.User);
                 throw new InvalidOperationException("Refresh token expirado o revocado");
             }
 
@@ -161,16 +165,7 @@ namespace SimRacingShop.Infrastructure.Services
             }
 
             // Revocar todos los refresh tokens activos del usuario
-            var activeTokens = await _context.RefreshTokens
-                .Where(rt => rt.UserId == userId && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow)
-                .ToListAsync();
-
-            foreach (var token in activeTokens)
-            {
-                token.RevokedAt = DateTime.UtcNow;
-            }
-
-            await _context.SaveChangesAsync();
+            await RevokeAllUserRefreshTokens(userId);
 
             // Actualizar SecurityStamp para invalidar JWTs existentes
             await _userManager.UpdateSecurityStampAsync(user);
@@ -261,6 +256,19 @@ namespace SimRacingShop.Infrastructure.Services
             await _context.SaveChangesAsync();
 
             return refreshToken;
+        }
+
+        private async Task RevokeAllUserRefreshTokens(Guid userId)
+        {
+            var activeTokens = await _context.RefreshTokens
+                .Where(rt => rt.UserId == userId && rt.RevokedAt == null && rt.ExpiresAt > DateTime.UtcNow)
+                .ToListAsync();
+
+            foreach (var token in activeTokens)
+            {
+                token.RevokedAt = DateTime.UtcNow;
+            }
+            await _context.SaveChangesAsync();
         }
 
         private async Task<string> GenerateJwtToken(User user)
