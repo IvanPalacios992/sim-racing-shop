@@ -9,6 +9,8 @@ using Serilog.Events;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Settings;
 using SimRacingShop.Infrastructure.Data;
+using SimRacingShop.Core.Repositories;
+using SimRacingShop.Infrastructure.Repositories;
 using SimRacingShop.Infrastructure.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -146,6 +148,7 @@ try
 
     // Add services to the container.
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IProductRepository, ProductRepository>();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
 
