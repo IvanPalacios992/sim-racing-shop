@@ -1,4 +1,5 @@
 
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -146,9 +147,25 @@ try
     builder.Services.AddHttpClient<Resend.IResend, Resend.ResendClient>();
     builder.Services.AddScoped<IEmailService, ResendEmailService>();
 
+    // ============================================
+    // REDIS CACHE
+    // ============================================
+
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = builder.Configuration.GetConnectionString("Redis");
+        options.InstanceName = "SimRacingShop:";
+    });
+
     // Add services to the container.
     builder.Services.AddScoped<IAuthService, AuthService>();
-    builder.Services.AddScoped<IProductRepository, ProductRepository>();
+    builder.Services.AddScoped<ProductRepository>();
+    builder.Services.AddScoped<IProductRepository>(sp =>
+        new CachedProductRepository(
+            sp.GetRequiredService<ProductRepository>(),
+            sp.GetRequiredService<IDistributedCache>(),
+            sp.GetRequiredService<ILogger<CachedProductRepository>>()
+        ));
     builder.Services.AddScoped<IComponentRepository, ComponentRepository>();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
