@@ -234,7 +234,7 @@ public class ComponentRepositoryTests : IDisposable
             Locale = "en",
             Name = "Red Grip"
         });
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var filterEs = new ComponentFilterDto { Locale = "es" };
         var filterEn = new ComponentFilterDto { Locale = "en" };

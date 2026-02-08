@@ -273,7 +273,7 @@ public class ProductRepositoryTests : IDisposable
             Name = "F1 Wheel",
             Slug = "f1-wheel"
         });
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var filterEs = new ProductFilterDto { Locale = "es", IsActive = null };
         var filterEn = new ProductFilterDto { Locale = "en", IsActive = null };
@@ -395,7 +395,7 @@ public class ProductRepositoryTests : IDisposable
 
         // Act
         var result = await _repository.GetProductByIdAsync(
-            (await _context.Products.FirstAsync()).Id, "en");
+            (await _context.Products.FirstAsync(TestContext.Current.CancellationToken)).Id, "en");
 
         // Assert
         result.Should().BeNull();
