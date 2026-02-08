@@ -5,12 +5,19 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Search, User, ShoppingCart, Menu, X } from "lucide-react";
 
-const NAV_LINKS = [
-  { key: "wheels" as const, href: "#" },
-  { key: "pedals" as const, href: "#" },
-  { key: "cockpits" as const, href: "#" },
-  { key: "accessories" as const, href: "#" },
-] as const;
+type NavLink = {
+  key: "products" | "wheels" | "pedals" | "cockpits" | "accessories";
+  href: string;
+  localized?: boolean;
+};
+
+const NAV_LINKS: NavLink[] = [
+  { key: "products", href: "/productos", localized: true },
+  { key: "wheels", href: "#" },
+  { key: "pedals", href: "#" },
+  { key: "cockpits", href: "#" },
+  { key: "accessories", href: "#" },
+];
 
 export function Navbar() {
   const t = useTranslations("nav");
@@ -26,15 +33,25 @@ export function Navbar() {
 
         {/* Desktop Nav Links */}
         <nav className="hidden items-center gap-8 md:flex">
-          {NAV_LINKS.map(({ key, href }) => (
-            <a
-              key={key}
-              href={href}
-              className="text-sm font-medium text-white transition-colors hover:text-electric-blue"
-            >
-              {t(key).toUpperCase()}
-            </a>
-          ))}
+          {NAV_LINKS.map(({ key, href, localized }) =>
+            localized ? (
+              <Link
+                key={key}
+                href={href}
+                className="text-sm font-medium text-white transition-colors hover:text-electric-blue"
+              >
+                {t(key).toUpperCase()}
+              </Link>
+            ) : (
+              <a
+                key={key}
+                href={href}
+                className="text-sm font-medium text-white transition-colors hover:text-electric-blue"
+              >
+                {t(key).toUpperCase()}
+              </a>
+            )
+          )}
         </nav>
 
         {/* Actions */}
@@ -79,16 +96,27 @@ export function Navbar() {
       {mobileMenuOpen && (
         <nav className="border-t border-graphite bg-obsidian md:hidden">
           <div className="flex flex-col px-6 py-4">
-            {NAV_LINKS.map(({ key, href }) => (
-              <a
-                key={key}
-                href={href}
-                className="border-b border-graphite py-3 text-sm font-medium text-white transition-colors hover:text-electric-blue"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                {t(key).toUpperCase()}
-              </a>
-            ))}
+            {NAV_LINKS.map(({ key, href, localized }) =>
+              localized ? (
+                <Link
+                  key={key}
+                  href={href}
+                  className="border-b border-graphite py-3 text-sm font-medium text-white transition-colors hover:text-electric-blue"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t(key).toUpperCase()}
+                </Link>
+              ) : (
+                <a
+                  key={key}
+                  href={href}
+                  className="border-b border-graphite py-3 text-sm font-medium text-white transition-colors hover:text-electric-blue"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {t(key).toUpperCase()}
+                </a>
+              )
+            )}
           </div>
         </nav>
       )}

@@ -173,6 +173,37 @@
       "supportDesc": "Racing specialists available"
     }
   },
+  "products": {
+    "pageTitle": "Products",
+    "search": "Search products...",
+    "filters": "Filters",
+    "clearFilters": "Clear filters",
+    "priceRange": "Price range",
+    "minPrice": "Min",
+    "maxPrice": "Max",
+    "customizable": "Customizable only",
+    "customizableBadge": "Customizable",
+    "addToWishlist": "Add to wishlist",
+    "sortBy": "Sort by",
+    "sortOptions": {
+      "featured": "Featured",
+      "priceLow": "Price: low to high",
+      "priceHigh": "Price: high to low",
+      "newest": "Newest",
+      "name": "Name"
+    },
+    "showing": "Showing {from}-{to} of {total} products",
+    "noResults": "No products found",
+    "noResultsDesc": "Try adjusting your filters or search term",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}"
+    },
+    "error": "Error loading products",
+    "errorDesc": "Could not load products. Please try again.",
+    "retry": "Retry"
+  },
   "nav": {
     "home": "Home",
     "wheels": "Wheels",

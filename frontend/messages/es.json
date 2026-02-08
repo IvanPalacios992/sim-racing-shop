@@ -173,6 +173,37 @@
       "supportDesc": "Especialistas en racing disponibles"
     }
   },
+  "products": {
+    "pageTitle": "Productos",
+    "search": "Buscar productos...",
+    "filters": "Filtros",
+    "clearFilters": "Limpiar filtros",
+    "priceRange": "Rango de precio",
+    "minPrice": "Mín",
+    "maxPrice": "Máx",
+    "customizable": "Solo personalizables",
+    "customizableBadge": "Personalizable",
+    "addToWishlist": "Añadir a favoritos",
+    "sortBy": "Ordenar por",
+    "sortOptions": {
+      "featured": "Destacados",
+      "priceLow": "Precio: menor a mayor",
+      "priceHigh": "Precio: mayor a menor",
+      "newest": "Más recientes",
+      "name": "Nombre"
+    },
+    "showing": "Mostrando {from}-{to} de {total} productos",
+    "noResults": "No se encontraron productos",
+    "noResultsDesc": "Intenta ajustar los filtros o el término de búsqueda",
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "page": "Página {current} de {total}"
+    },
+    "error": "Error al cargar productos",
+    "errorDesc": "No se pudieron cargar los productos. Intenta de nuevo.",
+    "retry": "Reintentar"
+  },
   "nav": {
     "home": "Inicio",
     "wheels": "Volantes",
