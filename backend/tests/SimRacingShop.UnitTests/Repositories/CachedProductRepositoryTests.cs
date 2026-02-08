@@ -38,7 +38,10 @@ public class CachedProductRepositoryTests
             {
                 new() { Id = Guid.NewGuid(), Sku = "SKU-001", Name = "Volante F1", Slug = "volante-f1", BasePrice = 299.99m }
             },
-            TotalCount = 1, Page = 1, PageSize = 12, TotalPages = 1
+            TotalCount = 1,
+            Page = 1,
+            PageSize = 12,
+            TotalPages = 1
         };
         var cacheKey = CachedProductRepository.BuildListCacheKey(filter);
         var serialized = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(cachedResult));
@@ -66,7 +69,10 @@ public class CachedProductRepositoryTests
             {
                 new() { Id = Guid.NewGuid(), Sku = "SKU-002", Name = "Pedales Pro", Slug = "pedales-pro", BasePrice = 499.99m }
             },
-            TotalCount = 1, Page = 1, PageSize = 12, TotalPages = 1
+            TotalCount = 1,
+            Page = 1,
+            PageSize = 12,
+            TotalPages = 1
         };
 
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), default))
@@ -103,8 +109,13 @@ public class CachedProductRepositoryTests
         var productId = Guid.NewGuid();
         var cachedProduct = new ProductDetailDto
         {
-            Id = productId, Sku = "SKU-001", Name = "Volante F1", Slug = "volante-f1",
-            BasePrice = 299.99m, VatRate = 0.21m, IsActive = true
+            Id = productId,
+            Sku = "SKU-001",
+            Name = "Volante F1",
+            Slug = "volante-f1",
+            BasePrice = 299.99m,
+            VatRate = 0.21m,
+            IsActive = true
         };
         var cacheKey = $"products:detail:id:{productId}:es";
         var serialized = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(cachedProduct));
@@ -128,8 +139,13 @@ public class CachedProductRepositoryTests
         var productId = Guid.NewGuid();
         var dbProduct = new ProductDetailDto
         {
-            Id = productId, Sku = "SKU-001", Name = "Volante F1", Slug = "volante-f1",
-            BasePrice = 299.99m, VatRate = 0.21m, IsActive = true
+            Id = productId,
+            Sku = "SKU-001",
+            Name = "Volante F1",
+            Slug = "volante-f1",
+            BasePrice = 299.99m,
+            VatRate = 0.21m,
+            IsActive = true
         };
 
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), default))
@@ -187,8 +203,13 @@ public class CachedProductRepositoryTests
         // Arrange
         var cachedProduct = new ProductDetailDto
         {
-            Id = Guid.NewGuid(), Sku = "SKU-001", Name = "Volante F1", Slug = "volante-f1",
-            BasePrice = 299.99m, VatRate = 0.21m, IsActive = true
+            Id = Guid.NewGuid(),
+            Sku = "SKU-001",
+            Name = "Volante F1",
+            Slug = "volante-f1",
+            BasePrice = 299.99m,
+            VatRate = 0.21m,
+            IsActive = true
         };
         var cacheKey = "products:detail:slug:volante-f1:es";
         var serialized = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(cachedProduct));
@@ -211,8 +232,13 @@ public class CachedProductRepositoryTests
         // Arrange
         var dbProduct = new ProductDetailDto
         {
-            Id = Guid.NewGuid(), Sku = "SKU-001", Name = "Volante F1", Slug = "volante-f1",
-            BasePrice = 299.99m, VatRate = 0.21m, IsActive = true
+            Id = Guid.NewGuid(),
+            Sku = "SKU-001",
+            Name = "Volante F1",
+            Slug = "volante-f1",
+            BasePrice = 299.99m,
+            VatRate = 0.21m,
+            IsActive = true
         };
 
         _cacheMock.Setup(c => c.GetAsync(It.IsAny<string>(), default))
