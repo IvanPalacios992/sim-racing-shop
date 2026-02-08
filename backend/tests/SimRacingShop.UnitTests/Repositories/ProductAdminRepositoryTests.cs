@@ -272,6 +272,35 @@ public class ProductAdminRepositoryTests : IDisposable
 
     #endregion
 
+    #region SkuExistsAsync Tests
+
+    [Fact]
+    public async Task SkuExistsAsync_WithExistingSku_ReturnsTrue()
+    {
+        // Arrange
+        var product = BuildProduct(sku: "SKU-EXISTS");
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.SkuExistsAsync("SKU-EXISTS");
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task SkuExistsAsync_WithNonExistentSku_ReturnsFalse()
+    {
+        // Act
+        var result = await _repository.SkuExistsAsync("SKU-NONEXISTENT");
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    #endregion
+
     #region ReplaceTranslationsAsync Tests
 
     [Fact]

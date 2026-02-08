@@ -17,6 +17,9 @@ using SimRacingShop.Infrastructure.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using SimRacingShop.Core.Validators;
 
 // Bootstrap logger (usado antes de leer configuraci�n)
 Log.Logger = new LoggerConfiguration()
@@ -170,6 +173,9 @@ try
     builder.Services.AddScoped<IComponentRepository, ComponentRepository>();
     builder.Services.AddScoped<IProductAdminRepository, ProductAdminRepository>();
     builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+    builder.Services.AddScoped<IComponentAdminRepository, ComponentAdminRepository>();
+    builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
+    builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
 
