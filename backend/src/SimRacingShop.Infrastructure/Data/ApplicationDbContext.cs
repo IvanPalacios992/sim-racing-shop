@@ -22,6 +22,9 @@ namespace SimRacingShop.Infrastructure.Data
         public DbSet<ProductTranslation> ProductTranslations { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<ProductSpecification> ProductSpecifications { get; set; }
+        public DbSet<Component> Components { get; set; }
+        public DbSet<ComponentTranslation> ComponentTranslations { get; set; }
+        public DbSet<ProductComponentOption> ProductComponentOptions { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
