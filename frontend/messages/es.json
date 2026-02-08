@@ -131,10 +131,58 @@
     "signIn": "Iniciar Sesión",
     "createAccount": "Crear Cuenta",
     "welcome": "Bienvenido, {name}",
-    "logout": "Cerrar Sesión"
+    "logout": "Cerrar Sesión",
+    "hero": {
+      "title": "DISEÑADO PARA LA VICTORIA",
+      "cta": "EXPLORAR PRODUCTOS",
+      "ctaSecondary": "VER VÍDEO"
+    },
+    "categories": {
+      "title": "CATEGORÍAS DESTACADAS",
+      "wheels": "VOLANTES",
+      "bases": "BASES",
+      "pedals": "PEDALES",
+      "cockpits": "COCKPITS",
+      "accessories": "ACCESORIOS",
+      "explore": "Explorar"
+    },
+    "products": {
+      "title": "MÁS VENDIDOS",
+      "new": "NUEVO",
+      "sale": "OFERTA",
+      "addToWishlist": "Añadir a favoritos"
+    },
+    "configurator": {
+      "badge": "FUNCIÓN EXCLUSIVA",
+      "title": "Crea Tu Setup Perfecto",
+      "description": "Experimenta nuestro revolucionario configurador 3D. Visualiza cada detalle, personaliza cada componente y haz realidad tu setup soñado en tiempo real.",
+      "feature1": "Visualización 3D en tiempo real",
+      "feature2": "Colores y materiales personalizados",
+      "feature3": "Guarda y comparte configuraciones",
+      "feature4": "Actualización de precios instantánea",
+      "cta": "EMPEZAR A CONFIGURAR"
+    },
+    "trust": {
+      "shipping": "ENVÍO GRATIS",
+      "shippingDesc": "En pedidos superiores a 100€",
+      "warranty": "2 AÑOS DE GARANTÍA",
+      "warrantyDesc": "Cobertura completa incluida",
+      "payment": "PAGO SEGURO",
+      "paymentDesc": "Encriptación SSL de 256 bits",
+      "support": "SOPORTE EXPERTO",
+      "supportDesc": "Especialistas en racing disponibles"
+    }
   },
   "nav": {
     "home": "Inicio",
+    "wheels": "Volantes",
+    "pedals": "Pedales",
+    "cockpits": "Cockpits",
+    "accessories": "Accesorios",
+    "search": "Buscar",
+    "account": "Cuenta",
+    "cart": "Carrito",
+    "menu": "Menú",
     "products": "Productos",
     "about": "Nosotros",
     "contact": "Contacto"

@@ -131,10 +131,58 @@
     "signIn": "Sign In",
     "createAccount": "Create Account",
     "welcome": "Welcome, {name}",
-    "logout": "Log Out"
+    "logout": "Log Out",
+    "hero": {
+      "title": "ENGINEERED FOR VICTORY",
+      "cta": "EXPLORE PRODUCTS",
+      "ctaSecondary": "WATCH VIDEO"
+    },
+    "categories": {
+      "title": "FEATURED CATEGORIES",
+      "wheels": "STEERING WHEELS",
+      "bases": "WHEEL BASES",
+      "pedals": "PEDALS",
+      "cockpits": "COCKPITS",
+      "accessories": "ACCESSORIES",
+      "explore": "Explore"
+    },
+    "products": {
+      "title": "BEST SELLERS",
+      "new": "NEW",
+      "sale": "SALE",
+      "addToWishlist": "Add to wishlist"
+    },
+    "configurator": {
+      "badge": "EXCLUSIVE FEATURE",
+      "title": "Build Your Perfect Setup",
+      "description": "Experience our revolutionary 3D configurator. Visualize every detail, customize every component, and see your dream setup come to life in real-time.",
+      "feature1": "Real-time 3D visualization",
+      "feature2": "Custom colors and materials",
+      "feature3": "Save and share configurations",
+      "feature4": "Instant price updates",
+      "cta": "START CONFIGURING"
+    },
+    "trust": {
+      "shipping": "FREE SHIPPING",
+      "shippingDesc": "On orders over 100 EUR",
+      "warranty": "2 YEAR WARRANTY",
+      "warrantyDesc": "Full coverage included",
+      "payment": "SECURE PAYMENT",
+      "paymentDesc": "256-bit SSL encryption",
+      "support": "EXPERT SUPPORT",
+      "supportDesc": "Racing specialists available"
+    }
   },
   "nav": {
     "home": "Home",
+    "wheels": "Wheels",
+    "pedals": "Pedals",
+    "cockpits": "Cockpits",
+    "accessories": "Accessories",
+    "search": "Search",
+    "account": "Account",
+    "cart": "Cart",
+    "menu": "Menu",
     "products": "Products",
     "about": "About",
     "contact": "Contact"
