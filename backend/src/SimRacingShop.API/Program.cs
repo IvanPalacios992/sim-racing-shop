@@ -12,10 +12,14 @@ using SimRacingShop.Core.Settings;
 using SimRacingShop.Infrastructure.Data;
 using SimRacingShop.Core.Repositories;
 using SimRacingShop.Infrastructure.Repositories;
+using SimRacingShop.Core.Services;
 using SimRacingShop.Infrastructure.Services;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using SimRacingShop.Core.Validators;
 
 // Bootstrap logger (usado antes de leer configuraci�n)
 Log.Logger = new LoggerConfiguration()
@@ -167,6 +171,11 @@ try
             sp.GetRequiredService<ILogger<CachedProductRepository>>()
         ));
     builder.Services.AddScoped<IComponentRepository, ComponentRepository>();
+    builder.Services.AddScoped<IProductAdminRepository, ProductAdminRepository>();
+    builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+    builder.Services.AddScoped<IComponentAdminRepository, ComponentAdminRepository>();
+    builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
+    builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
 
@@ -262,6 +271,7 @@ try
         app.UseCors("Development");
     }
 
+    app.UseStaticFiles();
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
