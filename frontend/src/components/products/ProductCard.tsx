@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Heart } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import type { ProductListItem } from "@/types/products";
 
 type ProductCardProps = {
@@ -12,7 +13,8 @@ export function ProductCard({ product }: ProductCardProps) {
   const t = useTranslations("products");
 
   return (
-    <article className="group cursor-pointer overflow-hidden rounded-xl border border-transparent bg-carbon transition-all duration-300 hover:-translate-y-1 hover:border-graphite hover:shadow-md">
+    <Link href={`/productos/${product.slug}`} className="block">
+    <article className="group overflow-hidden rounded-xl border border-transparent bg-carbon transition-all duration-300 hover:-translate-y-1 hover:border-graphite hover:shadow-md">
       {/* Image */}
       <div className="relative aspect-[4/3] bg-graphite">
         {product.imageUrl ? (
@@ -44,6 +46,10 @@ export function ProductCard({ product }: ProductCardProps) {
         <button
           className="absolute top-4 right-4 z-10 flex size-10 items-center justify-center rounded-full bg-obsidian/80 text-white transition-all hover:scale-110 hover:bg-racing-red"
           aria-label={t("addToWishlist")}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
         >
           <Heart className="size-[18px]" />
         </button>
@@ -69,5 +75,6 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </div>
     </article>
+    </Link>
   );
 }

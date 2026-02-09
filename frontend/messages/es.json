@@ -204,6 +204,33 @@
     "errorDesc": "No se pudieron cargar los productos. Intenta de nuevo.",
     "retry": "Reintentar"
   },
+  "productDetail": {
+    "gallery": "Galería",
+    "selectImage": "Seleccionar imagen {index}",
+    "breadcrumb": {
+      "home": "Inicio",
+      "products": "Productos"
+    },
+    "customizable": "Personalizable",
+    "noReviewsYet": "Sin reseñas aún",
+    "priceExVat": "€{price} sin IVA",
+    "vatIncluded": "IVA ({rate}%) incluido",
+    "inStock": "En stock",
+    "outOfStock": "Agotado",
+    "customize": "PERSONALIZAR",
+    "productionTime": "Tiempo de producción: {days} días",
+    "weight": "Peso: {grams}g",
+    "specifications": "Especificaciones técnicas",
+    "description": "Descripción",
+    "trust": {
+      "freeShipping": "Envío gratis en pedidos superiores a 100€",
+      "warranty": "2 años de garantía incluidos",
+      "securePayment": "Pago seguro con encriptación SSL"
+    },
+    "error": "Error al cargar el producto",
+    "errorDesc": "No se pudo cargar el producto. Intenta de nuevo.",
+    "retry": "Reintentar"
+  },
   "nav": {
     "home": "Inicio",
     "wheels": "Volantes",

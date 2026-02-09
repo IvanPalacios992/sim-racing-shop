@@ -204,6 +204,33 @@
     "errorDesc": "Could not load products. Please try again.",
     "retry": "Retry"
   },
+  "productDetail": {
+    "gallery": "Gallery",
+    "selectImage": "Select image {index}",
+    "breadcrumb": {
+      "home": "Home",
+      "products": "Products"
+    },
+    "customizable": "Customizable",
+    "noReviewsYet": "No reviews yet",
+    "priceExVat": "€{price} ex. VAT",
+    "vatIncluded": "VAT ({rate}%) included",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "customize": "CUSTOMIZE",
+    "productionTime": "Production time: {days} days",
+    "weight": "Weight: {grams}g",
+    "specifications": "Technical Specifications",
+    "description": "Description",
+    "trust": {
+      "freeShipping": "Free shipping on orders over €100",
+      "warranty": "2-year warranty included",
+      "securePayment": "Secure payment with SSL encryption"
+    },
+    "error": "Error loading product",
+    "errorDesc": "Could not load the product. Please try again.",
+    "retry": "Retry"
+  },
   "nav": {
     "home": "Home",
     "wheels": "Wheels",

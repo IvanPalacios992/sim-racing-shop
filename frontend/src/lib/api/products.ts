@@ -2,6 +2,7 @@ import { apiClient } from "@/lib/api-client";
 import type {
   ProductFilter,
   ProductListItem,
+  ProductDetail,
   PaginatedResult,
 } from "@/types/products";
 
@@ -27,6 +28,17 @@ export const productsApi = {
     const response = await apiClient.get<PaginatedResult<ProductListItem>>(
       "/products",
       { params }
+    );
+    return response.data;
+  },
+
+  async getProductBySlug(
+    slug: string,
+    locale: string
+  ): Promise<ProductDetail> {
+    const response = await apiClient.get<ProductDetail>(
+      `/products/slug/${slug}`,
+      { params: { Locale: locale } }
     );
     return response.data;
   },

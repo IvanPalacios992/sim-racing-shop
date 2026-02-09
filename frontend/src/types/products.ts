@@ -30,3 +30,38 @@ export type PaginatedResult<T> = {
   pageSize: number;
   totalPages: number;
 };
+
+export type ProductImage = {
+  id: string;
+  imageUrl: string;
+  altText: string | null;
+  displayOrder: number;
+};
+
+export type ProductSpecification = {
+  specKey: string;
+  specValue: string;
+  displayOrder: number;
+};
+
+export type ProductDetail = {
+  id: string;
+  sku: string;
+  name: string;
+  slug: string;
+  shortDescription: string | null;
+  longDescription: string | null;
+  basePrice: number;
+  vatRate: number;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  model3dUrl: string | null;
+  model3dSizeKb: number | null;
+  isActive: boolean;
+  isCustomizable: boolean;
+  baseProductionDays: number;
+  weightGrams: number | null;
+  createdAt: string;
+  images: ProductImage[];
+  specifications: ProductSpecification[];
+};
