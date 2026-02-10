@@ -15,7 +15,7 @@ public class CreateProductDtoValidatorTests
     public CreateProductDtoValidatorTests()
     {
         _repoMock = new Mock<IProductAdminRepository>();
-        _repoMock.Setup(r => r.SkuExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
+        _repoMock.Setup(r => r.SkuExists(It.IsAny<string>())).Returns(false);
         _validator = new CreateProductDtoValidator(_repoMock.Object);
     }
 
@@ -78,7 +78,7 @@ public class CreateProductDtoValidatorTests
     [Fact]
     public async Task DuplicateSku_FailsValidation()
     {
-        _repoMock.Setup(r => r.SkuExistsAsync("SKU-DUP")).ReturnsAsync(true);
+        _repoMock.Setup(r => r.SkuExists("SKU-DUP")).Returns(true);
 
         var dto = new CreateProductDto
         {
