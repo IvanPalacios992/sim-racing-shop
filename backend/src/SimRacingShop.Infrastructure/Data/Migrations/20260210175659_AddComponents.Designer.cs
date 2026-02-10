@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SimRacingShop.Infrastructure.Data;
@@ -11,9 +12,11 @@ using SimRacingShop.Infrastructure.Data;
 namespace SimRacingShop.Infrastructure.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260210175659_AddComponents")]
+    partial class AddComponents
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -393,7 +396,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems", (string)null);
+                    b.ToTable("OrderItems");
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.Payment", b =>
@@ -519,7 +522,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                     b.HasIndex("Sku")
                         .IsUnique();
 
-                    b.ToTable("Products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.ProductComponentOption", b =>
@@ -601,7 +604,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
 
                     b.HasIndex("ProductId", "DisplayOrder");
 
-                    b.ToTable("ProductImages", (string)null);
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.ProductSpecification", b =>
@@ -638,7 +641,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
 
                     b.HasIndex("ProductId", "Locale", "DisplayOrder");
 
-                    b.ToTable("ProductSpecifications", (string)null);
+                    b.ToTable("ProductSpecifications");
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.ProductTranslation", b =>
@@ -688,7 +691,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                     b.HasIndex("ProductId", "Locale")
                         .IsUnique();
 
-                    b.ToTable("ProductTranslations", (string)null);
+                    b.ToTable("ProductTranslations");
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.RefreshToken", b =>
@@ -727,7 +730,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId", "RevokedAt", "ExpiresAt");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.User", b =>
@@ -875,7 +878,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                         .HasDatabaseName("IX_ShippingAddress_UserId_IsDefault")
                         .HasFilter("\"IsDefault\" = true");
 
-                    b.ToTable("UserAddresses", (string)null);
+                    b.ToTable("UserAddresses");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
