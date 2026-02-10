@@ -16,6 +16,7 @@ namespace SimRacingShop.API.Controllers
     [Authorize(Roles = "Admin")]
     public class AdminCategoriesController : ControllerBase
     {
+        private const string _categoryNotFoundError = "Categoria no encontrada";
         private readonly ICategoryAdminRepository _adminRepository;
         private readonly IFileStorageService _fileStorage;
         private readonly IDistributedCache _cache;
@@ -84,7 +85,7 @@ namespace SimRacingShop.API.Controllers
             if (category == null)
             {
                 _logger.LogWarning("Category not found for update: {CategoryId}", id);
-                return NotFound(new { message = "Categoria no encontrada" });
+                return NotFound(new { message = _categoryNotFoundError });
             }
 
             category.ParentCategory = dto.ParentCategory;
@@ -113,7 +114,7 @@ namespace SimRacingShop.API.Controllers
             if (category == null)
             {
                 _logger.LogWarning("Category not found for deletion: {CategoryId}", id);
-                return NotFound(new { message = "Categoria no encontrada" });
+                return NotFound(new { message = _categoryNotFoundError });
             }
 
             // Delete associated image files
@@ -146,7 +147,7 @@ namespace SimRacingShop.API.Controllers
             if (category == null)
             {
                 _logger.LogWarning("Category not found for image upload: {CategoryId}", id);
-                return NotFound(new { message = "Categoria no encontrada" });
+                return NotFound(new { message = _categoryNotFoundError });
             }
             CategoryImage image;
             try
@@ -166,7 +167,7 @@ namespace SimRacingShop.API.Controllers
                 return BadRequest(new { message = ex.Message });
             }
 
-            var savedImages = await _adminRepository.AddImageAsync(id, image);
+            _ = await _adminRepository.AddImageAsync(id, image);
             await InvalidateCategoryCacheAsync(category);
 
             _logger.LogInformation("Uploaded image for category: {CategoryId}", id);
@@ -195,7 +196,7 @@ namespace SimRacingShop.API.Controllers
             if (category == null)
             {
                 _logger.LogWarning("Category not found for translation update: {CategoryId}", id);
-                return NotFound(new { message = "Categoria no encontrada" });
+                return NotFound(new { message = _categoryNotFoundError });
             }
 
             var translations = dto.Translations.Select(t => new CategoryTranslation

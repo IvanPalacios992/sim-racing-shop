@@ -69,7 +69,7 @@ namespace SimRacingShop.Infrastructure.Repositories
         {
             return await BuildDetailQuery(locale)
                 .Where(x => x.Category.Id == id)
-                .Select(x => ProjectToDetail(x.Category, x.Translation, locale))
+                .Select(x => ProjectToDetail(x.Category, x.Translation))
                 .FirstOrDefaultAsync();
         }
 
@@ -84,8 +84,7 @@ namespace SimRacingShop.Infrastructure.Repositories
 
         private static CategoryDetailDto ProjectToDetail(
             Core.Entities.Category c,
-            Core.Entities.CategoryTranslation t,
-            string locale)
+            Core.Entities.CategoryTranslation t)
         {
             return new CategoryDetailDto
             {
@@ -107,7 +106,7 @@ namespace SimRacingShop.Infrastructure.Repositories
             };
         }
 
-        private class CategoryWithTranslation
+        private sealed class CategoryWithTranslation
         {
             public Core.Entities.Category Category { get; set; } = null!;
             public Core.Entities.CategoryTranslation Translation { get; set; } = null!;

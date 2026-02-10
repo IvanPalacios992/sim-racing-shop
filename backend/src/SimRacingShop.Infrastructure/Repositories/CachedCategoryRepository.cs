@@ -10,7 +10,7 @@ namespace SimRacingShop.Infrastructure.Repositories
     {
         private readonly ICategoryRepository _innerRepository;
         private readonly IDistributedCache _cache;
-        private readonly ILogger<CachedProductRepository> _logger;
+        private readonly ILogger<CachedCategoryRepository> _logger;
 
         private static readonly TimeSpan ListCacheDuration = TimeSpan.FromHours(1);
         private static readonly TimeSpan DetailCacheDuration = TimeSpan.FromHours(24);
@@ -18,7 +18,7 @@ namespace SimRacingShop.Infrastructure.Repositories
         public CachedCategoryRepository(
             ICategoryRepository innerRepository,
             IDistributedCache cache,
-            ILogger<CachedProductRepository> logger)
+            ILogger<CachedCategoryRepository> logger)
         {
             _innerRepository = innerRepository;
             _cache = cache;

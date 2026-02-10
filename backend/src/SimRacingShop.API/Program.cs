@@ -175,7 +175,7 @@ try
         new CachedCategoryRepository(
             sp.GetRequiredService<CategoryRepository>(),
             sp.GetRequiredService<IDistributedCache>(),
-            sp.GetRequiredService<ILogger<CachedProductRepository>>()
+            sp.GetRequiredService<ILogger<CachedCategoryRepository>>()
         ));
     builder.Services.AddScoped<IComponentRepository, ComponentRepository>();
     builder.Services.AddScoped<IProductAdminRepository, ProductAdminRepository>();

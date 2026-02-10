@@ -14,14 +14,14 @@ public class CachedCategoryRepositoryTests
 {
     private readonly Mock<ICategoryRepository> _innerRepoMock;
     private readonly Mock<IDistributedCache> _cacheMock;
-    private readonly Mock<ILogger<CachedProductRepository>> _loggerMock;
+    private readonly Mock<ILogger<CachedCategoryRepository>> _loggerMock;
     private readonly CachedCategoryRepository _cachedRepo;
 
     public CachedCategoryRepositoryTests()
     {
         _innerRepoMock = new Mock<ICategoryRepository>();
         _cacheMock = new Mock<IDistributedCache>();
-        _loggerMock = new Mock<ILogger<CachedProductRepository>>();
+        _loggerMock = new Mock<ILogger<CachedCategoryRepository>>();
         _cachedRepo = new CachedCategoryRepository(_innerRepoMock.Object, _cacheMock.Object, _loggerMock.Object);
     }
 
