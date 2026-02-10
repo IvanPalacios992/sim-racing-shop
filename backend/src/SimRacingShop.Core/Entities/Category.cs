@@ -14,7 +14,7 @@ namespace SimRacingShop.Core.Entities
 
         // Navigation properties
         public ICollection<CategoryTranslation> Translations { get; set; } = new List<CategoryTranslation>();
-        public CategoryImage Image { get; set; } = new ();
+        public CategoryImage? Image { get; set; }
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }
