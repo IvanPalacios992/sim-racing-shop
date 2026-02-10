@@ -58,6 +58,10 @@ namespace SimRacingShop.Infrastructure.Repositories
         {
             return await _context.Products.AnyAsync(p => p.Sku == sku);
         }
+        public bool SkuExists(string sku)
+        {
+            return _context.Products.Any(p => p.Sku == sku);
+        }
 
         public async Task ReplaceTranslationsAsync(Guid productId, List<ProductTranslation> translations)
         {

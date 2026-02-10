@@ -37,7 +37,7 @@ namespace SimRacingShop.Core.DTOs
         public string? MetaDescription { get; init; }
     }
 
-    public record UpdateTranslationsDto
+    public record UpdateProductTranslationsDto
     {
         public List<ProductTranslationInputDto> Translations { get; init; } = new();
     }
