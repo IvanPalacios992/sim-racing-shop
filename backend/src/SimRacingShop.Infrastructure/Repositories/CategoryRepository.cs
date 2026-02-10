@@ -49,7 +49,7 @@ namespace SimRacingShop.Infrastructure.Repositories
                     Id = x.Category.Id,
                     Name = x.Translation.Name,
                     Slug = x.Translation.Slug,
-                    ShortDescription = x.Translation.ShortDescription,                  
+                    ShortDescription = x.Translation.ShortDescription,
                     ImageUrl = x.Category.Image.ImageUrl,
                     IsActive = x.Category.IsActive
                 })
@@ -96,8 +96,13 @@ namespace SimRacingShop.Infrastructure.Repositories
                 ShortDescription = t.ShortDescription,
                 IsActive = c.IsActive,
                 CreatedAt = c.CreatedAt,
-                Image = c.Image != null 
-                    ? new CategoryImageDto {Id = c.Image.Id, ImageUrl = c.Image.ImageUrl, AltText = c.Image.AltText}
+                Image = c.Image != null
+                    ? new CategoryImageDto
+                    {
+                        Id = c.Image.Id,
+                        ImageUrl = c.Image.ImageUrl,
+                        AltText = c.Image.AltText
+                    }
                     : new CategoryImageDto()
             };
         }

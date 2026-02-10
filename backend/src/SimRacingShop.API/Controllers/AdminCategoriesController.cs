@@ -87,7 +87,7 @@ namespace SimRacingShop.API.Controllers
                 return NotFound(new { message = "Categoria no encontrada" });
             }
 
-            category.ParentCategory =dto.ParentCategory;
+            category.ParentCategory = dto.ParentCategory;
             category.IsActive = dto.IsActive;
 
             await _adminRepository.UpdateAsync(category);
