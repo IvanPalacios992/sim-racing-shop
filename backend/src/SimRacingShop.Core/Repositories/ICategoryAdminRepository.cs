@@ -11,5 +11,6 @@ namespace SimRacingShop.Core.Repositories
         Task<CategoryImage> AddImageAsync(Guid categoryId, CategoryImage image);
         Task ReplaceTranslationsAsync(Guid categoryId, List<CategoryTranslation> translations);
         Task<bool> ParentCategoryExistsAsync(Guid? parentCategory);
+        bool ParentCategoryExists(Guid? parentCategory);
     }
 }

@@ -72,5 +72,10 @@ namespace SimRacingShop.Infrastructure.Repositories
         {
             return await _context.Categories.AnyAsync(c => c.Id == parentCategory);
         }
+
+        public bool ParentCategoryExists(Guid? parentCategory)
+        {
+            return _context.Categories.Any(c => c.Id == parentCategory);
+        }
     }
 }

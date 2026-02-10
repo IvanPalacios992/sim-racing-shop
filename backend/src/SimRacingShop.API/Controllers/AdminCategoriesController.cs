@@ -133,7 +133,7 @@ namespace SimRacingShop.API.Controllers
         [ProducesResponseType(typeof(CategoryImageUploadResultDto), StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UploadImages(Guid id, [FromForm] IFormFile file)
+        public async Task<IActionResult> UploadImages(Guid id, IFormFile file)
         {
             _logger.LogInformation("Uploading image for category: {CategoryId}", id);
 

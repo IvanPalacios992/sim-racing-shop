@@ -9,7 +9,8 @@ namespace SimRacingShop.Core.Validators
         public CreateCategoryDtoValidator(ICategoryAdminRepository categoryAdminRepository)
         {
             RuleFor(x => x.ParentCategory)
-                .MustAsync(async (parentCategory, ct) => parentCategory == null || parentCategory == Guid.Empty || await categoryAdminRepository.ParentCategoryExistsAsync(parentCategory))
+                .Must(categoryAdminRepository.ParentCategoryExists)
+                .When(x => x.ParentCategory != null)
                 .WithMessage("La categoría padre debe ser vacia o existir.");
 
             RuleFor(x => x.Translations)
@@ -25,7 +26,8 @@ namespace SimRacingShop.Core.Validators
         public UpdateCategoryDtoValidator(ICategoryAdminRepository categoryAdminRepository)
         {
             RuleFor(x => x.ParentCategory)
-                .MustAsync(async (parentCategory, ct) => parentCategory == null || parentCategory == Guid.Empty || await categoryAdminRepository.ParentCategoryExistsAsync(parentCategory))
+                .Must(categoryAdminRepository.ParentCategoryExists)
+                .When(x => x.ParentCategory != null)
                 .WithMessage("La categoría padre debe ser vacia o existir.");
         }
     }
