@@ -11,7 +11,7 @@ namespace SimRacingShop.Core.Validators
             RuleFor(x => x.Sku)
                 .NotEmpty()
                 .MaximumLength(50)
-                .MustAsync(async (sku, ct) => !await productAdminRepository.SkuExistsAsync(sku))
+                .Must(sku => !productAdminRepository.SkuExists(sku))
                 .WithMessage("Ya existe un producto con este SKU.");
 
             RuleFor(x => x.BasePrice)
@@ -64,7 +64,7 @@ namespace SimRacingShop.Core.Validators
         }
     }
 
-    public class UpdateTranslationsDtoValidator : AbstractValidator<UpdateTranslationsDto>
+    public class UpdateTranslationsDtoValidator : AbstractValidator<UpdateProductTranslationsDto>
     {
         public UpdateTranslationsDtoValidator()
         {

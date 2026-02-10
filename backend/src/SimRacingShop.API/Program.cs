@@ -170,11 +170,20 @@ try
             sp.GetRequiredService<IDistributedCache>(),
             sp.GetRequiredService<ILogger<CachedProductRepository>>()
         ));
+    builder.Services.AddScoped<CategoryRepository>();
+    builder.Services.AddScoped<ICategoryRepository>(sp =>
+        new CachedCategoryRepository(
+            sp.GetRequiredService<CategoryRepository>(),
+            sp.GetRequiredService<IDistributedCache>(),
+            sp.GetRequiredService<ILogger<CachedCategoryRepository>>()
+        ));
     builder.Services.AddScoped<IComponentRepository, ComponentRepository>();
     builder.Services.AddScoped<IProductAdminRepository, ProductAdminRepository>();
     builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
     builder.Services.AddScoped<IComponentAdminRepository, ComponentAdminRepository>();
+    builder.Services.AddScoped<ICategoryAdminRepository, CategoryAdminRepository>();
     builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
+    builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryDtoValidator>();
     builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();

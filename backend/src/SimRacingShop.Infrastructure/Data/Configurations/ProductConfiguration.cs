@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SimRacingShop.Core.Entities;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace SimRacingShop.Infrastructure.Data.Configurations
@@ -57,6 +58,21 @@ namespace SimRacingShop.Infrastructure.Data.Configurations
                 .WithOne(s => s.Product)
                 .HasForeignKey(s => s.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+            builder.HasMany(p => p.Categories)
+                .WithMany(c => c.Products)
+                .UsingEntity<Dictionary<string, object>>(
+                    "ProductCategories", // Nombre de la tabla intermedia
+                    j => j
+                        .HasOne<Category>()
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade), // Borrado en cascada
+                    j => j
+                        .HasOne<Product>()
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade) // Borrado en cascada
+                );
         }
     }
 }

@@ -480,7 +480,7 @@ public class AdminProductsControllerTests
     {
         // Arrange
         var product = BuildProduct();
-        var dto = new UpdateTranslationsDto
+        var dto = new UpdateProductTranslationsDto
         {
             Translations = new List<ProductTranslationInputDto>
             {
@@ -551,7 +551,7 @@ public class AdminProductsControllerTests
     public async Task UpdateTranslations_WithNonExistentProduct_Returns404()
     {
         // Arrange
-        var dto = new UpdateTranslationsDto
+        var dto = new UpdateProductTranslationsDto
         {
             Translations = new List<ProductTranslationInputDto>
             {
@@ -574,7 +574,7 @@ public class AdminProductsControllerTests
     {
         // Arrange
         var product = BuildProduct();
-        var dto = new UpdateTranslationsDto
+        var dto = new UpdateProductTranslationsDto
         {
             Translations = new List<ProductTranslationInputDto>
             {

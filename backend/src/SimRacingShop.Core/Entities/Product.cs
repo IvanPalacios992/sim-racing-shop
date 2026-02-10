@@ -24,5 +24,6 @@ namespace SimRacingShop.Core.Entities
         public ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
         public ICollection<ProductSpecification> Specifications { get; set; } = new List<ProductSpecification>();
         public ICollection<ProductComponentOption> ComponentOptions { get; set; } = new List<ProductComponentOption>();
+        public ICollection<Category> Categories { get; set; } = new List<Category>();
     }
 }
