@@ -219,7 +219,7 @@ namespace SimRacingShop.API.Controllers
         [HttpPut("{id:guid}/translations")]
         [ProducesResponseType(typeof(ProductDetailDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> UpdateTranslations(Guid id, [FromBody] UpdateTranslationsDto dto)
+        public async Task<IActionResult> UpdateTranslations(Guid id, [FromBody] UpdateProductTranslationsDto dto)
         {
             _logger.LogInformation("Updating translations for product: {ProductId}", id);
 

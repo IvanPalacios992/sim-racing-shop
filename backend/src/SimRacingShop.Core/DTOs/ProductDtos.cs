@@ -65,13 +65,4 @@ namespace SimRacingShop.Core.DTOs
         public string? SortBy { get; init; }
         public bool SortDescending { get; init; }
     }
-
-    public record PaginatedResultDto<T>
-    {
-        public List<T> Items { get; init; } = new();
-        public int TotalCount { get; init; }
-        public int Page { get; init; }
-        public int PageSize { get; init; }
-        public int TotalPages { get; init; }
-    }
 }

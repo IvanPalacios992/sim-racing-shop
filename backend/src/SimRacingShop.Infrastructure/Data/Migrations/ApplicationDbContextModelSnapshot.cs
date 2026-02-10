@@ -305,7 +305,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrderItems");
+                    b.ToTable("OrderItems", (string)null);
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.Payment", b =>
@@ -431,7 +431,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                     b.HasIndex("Sku")
                         .IsUnique();
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.ProductImage", b =>
@@ -466,7 +466,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
 
                     b.HasIndex("ProductId", "DisplayOrder");
 
-                    b.ToTable("ProductImages");
+                    b.ToTable("ProductImages", (string)null);
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.ProductSpecification", b =>
@@ -503,7 +503,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
 
                     b.HasIndex("ProductId", "Locale", "DisplayOrder");
 
-                    b.ToTable("ProductSpecifications");
+                    b.ToTable("ProductSpecifications", (string)null);
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.ProductTranslation", b =>
@@ -553,7 +553,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                     b.HasIndex("ProductId", "Locale")
                         .IsUnique();
 
-                    b.ToTable("ProductTranslations");
+                    b.ToTable("ProductTranslations", (string)null);
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.RefreshToken", b =>
@@ -592,7 +592,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
 
                     b.HasIndex("UserId", "RevokedAt", "ExpiresAt");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.User", b =>
@@ -740,7 +740,7 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                         .HasDatabaseName("IX_ShippingAddress_UserId_IsDefault")
                         .HasFilter("\"IsDefault\" = true");
 
-                    b.ToTable("UserAddresses");
+                    b.ToTable("UserAddresses", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

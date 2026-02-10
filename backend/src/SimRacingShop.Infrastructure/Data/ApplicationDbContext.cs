@@ -28,6 +28,9 @@ namespace SimRacingShop.Infrastructure.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<CategoryTranslation> CategoriesTranslations { get; set; }
+        public DbSet<CategoryImage> CategoriesImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

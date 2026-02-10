@@ -64,7 +64,7 @@ namespace SimRacingShop.Core.Validators
         }
     }
 
-    public class UpdateTranslationsDtoValidator : AbstractValidator<UpdateTranslationsDto>
+    public class UpdateTranslationsDtoValidator : AbstractValidator<UpdateProductTranslationsDto>
     {
         public UpdateTranslationsDtoValidator()
         {

@@ -276,7 +276,7 @@ public class UpdateTranslationsDtoValidatorTests
     [Fact]
     public async Task EmptyTranslations_FailsValidation()
     {
-        var dto = new UpdateTranslationsDto { Translations = new() };
+        var dto = new UpdateProductTranslationsDto { Translations = new() };
 
         var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
@@ -286,7 +286,7 @@ public class UpdateTranslationsDtoValidatorTests
     [Fact]
     public async Task ValidTranslations_PassesValidation()
     {
-        var dto = new UpdateTranslationsDto
+        var dto = new UpdateProductTranslationsDto
         {
             Translations = new List<ProductTranslationInputDto>
             {
