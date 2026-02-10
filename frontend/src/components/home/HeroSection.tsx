@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 
@@ -34,9 +35,10 @@ export function HeroSection() {
         </p>
         <div className="flex flex-wrap justify-center gap-6">
           <Button
+            asChild
             className="h-14 rounded-lg bg-racing-red px-8 text-base font-semibold text-white transition-all hover:bg-racing-red/80 hover:shadow-[0_0_20px_rgba(229,57,53,0.4)]"
           >
-            {t("hero.cta")}
+            <Link href="/productos">{t("hero.cta")}</Link>
           </Button>
           <Button
             variant="outline"

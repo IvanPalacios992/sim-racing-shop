@@ -56,12 +56,13 @@ export function Navbar() {
 
         {/* Actions */}
         <div className="flex items-center gap-4">
-          <button
+          <Link
+            href="/productos"
             className="p-2 text-white transition-colors hover:text-electric-blue"
             aria-label={t("search")}
           >
             <Search className="size-5" />
-          </button>
+          </Link>
 
           <Link
             href="/login"
