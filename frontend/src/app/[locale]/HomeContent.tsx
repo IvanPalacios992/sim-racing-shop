@@ -6,6 +6,7 @@ import {
   FeaturedProducts,
   ConfiguratorPromo,
   TrustIndicators,
+  NewsletterSection,
 } from "@/components/home";
 
 export function HomeContent() {
@@ -16,6 +17,7 @@ export function HomeContent() {
       <FeaturedProducts />
       <ConfiguratorPromo />
       <TrustIndicators />
+      <NewsletterSection />
     </main>
   );
 }

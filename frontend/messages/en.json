@@ -171,6 +171,14 @@
       "paymentDesc": "256-bit SSL encryption",
       "support": "EXPERT SUPPORT",
       "supportDesc": "Racing specialists available"
+    },
+    "newsletter": {
+      "title": "JOIN THE RACING COMMUNITY",
+      "subtitle": "Get exclusive offers, early access, and racing tips",
+      "emailPlaceholder": "Enter your email",
+      "subscribe": "SUBSCRIBE",
+      "subscribing": "SUBSCRIBING...",
+      "privacy": "We respect your privacy. Unsubscribe anytime."
     }
   },
   "products": {
@@ -244,5 +252,32 @@
     "products": "Products",
     "about": "About",
     "contact": "Contact"
+  },
+  "footer": {
+    "tagline": "Engineered for Victory",
+    "shop": {
+      "title": "Shop",
+      "products": "Products",
+      "categories": "Categories",
+      "newArrivals": "New Arrivals",
+      "sale": "Sale"
+    },
+    "support": {
+      "title": "Support",
+      "contact": "Contact",
+      "faq": "FAQ",
+      "shipping": "Shipping",
+      "returns": "Returns"
+    },
+    "company": {
+      "title": "Company",
+      "about": "About",
+      "blog": "Blog",
+      "careers": "Careers",
+      "press": "Press"
+    },
+    "copyright": "© {year} SimRacing Shop. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
   }
 }

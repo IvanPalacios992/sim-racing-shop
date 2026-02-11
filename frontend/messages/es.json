@@ -171,6 +171,14 @@
       "paymentDesc": "Encriptación SSL de 256 bits",
       "support": "SOPORTE EXPERTO",
       "supportDesc": "Especialistas en racing disponibles"
+    },
+    "newsletter": {
+      "title": "ÚNETE A LA COMUNIDAD DE RACING",
+      "subtitle": "Obtén ofertas exclusivas, acceso anticipado y consejos de racing",
+      "emailPlaceholder": "Ingresa tu correo electrónico",
+      "subscribe": "SUSCRIBIRSE",
+      "subscribing": "SUSCRIBIENDO...",
+      "privacy": "Respetamos tu privacidad. Cancela la suscripción en cualquier momento."
     }
   },
   "products": {
@@ -244,5 +252,32 @@
     "products": "Productos",
     "about": "Nosotros",
     "contact": "Contacto"
+  },
+  "footer": {
+    "tagline": "Diseñado para la Victoria",
+    "shop": {
+      "title": "Tienda",
+      "products": "Productos",
+      "categories": "Categorías",
+      "newArrivals": "Novedades",
+      "sale": "Ofertas"
+    },
+    "support": {
+      "title": "Soporte",
+      "contact": "Contacto",
+      "faq": "Preguntas frecuentes",
+      "shipping": "Envíos",
+      "returns": "Devoluciones"
+    },
+    "company": {
+      "title": "Empresa",
+      "about": "Nosotros",
+      "blog": "Blog",
+      "careers": "Carreras",
+      "press": "Prensa"
+    },
+    "copyright": "© {year} SimRacing Shop. Todos los derechos reservados.",
+    "privacy": "Política de privacidad",
+    "terms": "Términos de servicio"
   }
 }
