@@ -202,6 +202,853 @@
             font-feature-settings: 'liga';
         }
 
+        /* Dropdown Menus */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 1rem);
+            right: 0;
+            background: var(--carbon-gray);
+            border: 1px solid var(--graphite);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            min-width: 280px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+        }
+
+        .dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu::before {
+            content: '';
+            position: absolute;
+            top: -6px;
+            right: 20px;
+            width: 12px;
+            height: 12px;
+            background: var(--carbon-gray);
+            border-left: 1px solid var(--graphite);
+            border-top: 1px solid var(--graphite);
+            transform: rotate(45deg);
+        }
+
+        /* User Menu */
+        .user-menu {
+            padding: 0.5rem 0;
+        }
+
+        .user-menu-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--graphite);
+        }
+
+        .user-menu-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-menu-email {
+            font-size: 14px;
+            color: var(--silver);
+        }
+
+        .user-menu-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1.5rem;
+            color: var(--pure-white);
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            width: 100%;
+            text-align: left;
+        }
+
+        .user-menu-item:hover {
+            background: var(--graphite);
+            color: var(--electric-blue);
+        }
+
+        .user-menu-item .material-symbols-outlined {
+            font-size: 20px;
+            color: var(--silver);
+        }
+
+        .user-menu-item:hover .material-symbols-outlined {
+            color: var(--electric-blue);
+        }
+
+        .user-menu-divider {
+            height: 1px;
+            background: var(--graphite);
+            margin: 0.5rem 0;
+        }
+
+        .user-menu-logout {
+            color: var(--error);
+        }
+
+        .user-menu-logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .user-menu-logout .material-symbols-outlined {
+            color: var(--error);
+        }
+
+        /* Mini Cart */
+        .mini-cart {
+            width: 380px;
+            max-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mini-cart-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--graphite);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mini-cart-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .mini-cart-count {
+            font-size: 14px;
+            color: var(--silver);
+        }
+
+        .mini-cart-items {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            max-height: 400px;
+        }
+
+        .mini-cart-item {
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--obsidian-black);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mini-cart-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .mini-cart-item-img {
+            width: 80px;
+            height: 60px;
+            background: var(--graphite);
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .mini-cart-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .mini-cart-item-name {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.3;
+            margin-bottom: 0.25rem;
+        }
+
+        .mini-cart-item-brand {
+            font-size: 12px;
+            color: var(--silver);
+        }
+
+        .mini-cart-item-qty {
+            font-size: 12px;
+            color: var(--silver);
+        }
+
+        .mini-cart-item-price {
+            font-weight: 600;
+            color: var(--pure-white);
+        }
+
+        .mini-cart-item-remove {
+            background: transparent;
+            border: none;
+            color: var(--silver);
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: color 0.3s;
+        }
+
+        .mini-cart-item-remove:hover {
+            color: var(--error);
+        }
+
+        .mini-cart-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--graphite);
+        }
+
+        .mini-cart-subtotal {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 16px;
+        }
+
+        .mini-cart-subtotal-label {
+            color: var(--silver);
+        }
+
+        .mini-cart-subtotal-amount {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .mini-cart-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .mini-cart-empty {
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .mini-cart-empty-icon {
+            font-size: 64px;
+            color: var(--silver);
+            margin-bottom: 1rem;
+        }
+
+        .mini-cart-empty-text {
+            color: var(--silver);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Scrollbar styling for mini cart */
+        .mini-cart-items::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .mini-cart-items::-webkit-scrollbar-track {
+            background: var(--obsidian-black);
+            border-radius: 3px;
+        }
+
+        .mini-cart-items::-webkit-scrollbar-thumb {
+            background: var(--graphite);
+            border-radius: 3px;
+        }
+
+        .mini-cart-items::-webkit-scrollbar-thumb:hover {
+            background: var(--silver);
+        }
+
+        /* Account Pages Layout */
+        .account-page {
+            min-height: 100vh;
+            background: var(--obsidian-black);
+        }
+
+        .account-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+        }
+
+        .account-sidebar {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 160px;
+        }
+
+        .account-user-info {
+            text-align: center;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--graphite);
+        }
+
+        .account-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--graphite);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 32px;
+            color: var(--silver);
+        }
+
+        .account-user-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .account-user-email {
+            font-size: 14px;
+            color: var(--silver);
+        }
+
+        .account-nav {
+            list-style: none;
+        }
+
+        .account-nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .account-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1rem;
+            color: var(--pure-white);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .account-nav-link:hover {
+            background: var(--graphite);
+            color: var(--electric-blue);
+        }
+
+        .account-nav-link.active {
+            background: var(--racing-red);
+            color: var(--pure-white);
+        }
+
+        .account-nav-link .material-symbols-outlined {
+            font-size: 20px;
+        }
+
+        .account-content {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .account-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--graphite);
+        }
+
+        .account-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .account-subtitle {
+            color: var(--silver);
+            font-size: 16px;
+        }
+
+        /* Profile Page */
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .profile-stat-card {
+            background: var(--obsidian-black);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .profile-stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--racing-red);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-stat-label {
+            font-size: 14px;
+            color: var(--silver);
+        }
+
+        .profile-section {
+            background: var(--obsidian-black);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .profile-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .profile-info-label {
+            font-size: 14px;
+            color: var(--silver);
+        }
+
+        .profile-info-value {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Orders Page */
+        .orders-filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            padding: 0.5rem 1rem;
+            background: var(--obsidian-black);
+            border: 1px solid var(--graphite);
+            border-radius: 9999px;
+            color: var(--pure-white);
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .filter-chip:hover,
+        .filter-chip.active {
+            background: var(--racing-red);
+            border-color: var(--racing-red);
+        }
+
+        .order-card {
+            background: var(--obsidian-black);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--graphite);
+            transition: all 0.3s;
+        }
+
+        .order-card:hover {
+            border-color: var(--electric-blue);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--graphite);
+        }
+
+        .order-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .order-number {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .order-date {
+            font-size: 14px;
+            color: var(--silver);
+        }
+
+        .order-status {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .order-status.delivered {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .order-status.processing {
+            background: rgba(33, 150, 243, 0.2);
+            color: var(--electric-blue);
+        }
+
+        .order-status.shipped {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .order-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-item {
+            display: grid;
+            grid-template-columns: 80px 1fr auto;
+            gap: 1rem;
+        }
+
+        .order-item-img {
+            width: 80px;
+            height: 60px;
+            background: var(--graphite);
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .order-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .order-item-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .order-item-brand {
+            font-size: 12px;
+            color: var(--silver);
+        }
+
+        .order-item-qty {
+            font-size: 12px;
+            color: var(--silver);
+        }
+
+        .order-item-price {
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 1px solid var(--graphite);
+        }
+
+        .order-total {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .order-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Settings Page */
+        .settings-sections {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .settings-card {
+            background: var(--obsidian-black);
+            padding: 2rem;
+            border-radius: 12px;
+        }
+
+        .settings-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--graphite);
+        }
+
+        .settings-card-title {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .settings-form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .settings-form-full {
+            grid-column: 1 / -1;
+        }
+
+        .settings-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--carbon-gray);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--graphite);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--racing-red);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: var(--pure-white);
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
+        /* Cart Page */
+        .cart-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        .cart-items-section {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 120px 1fr auto;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--obsidian-black);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .cart-item-img {
+            width: 120px;
+            height: 90px;
+            background: var(--graphite);
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .cart-item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .cart-item-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .cart-item-brand {
+            font-size: 14px;
+            color: var(--silver);
+        }
+
+        .cart-item-meta {
+            display: flex;
+            gap: 1.5rem;
+            align-items: center;
+        }
+
+        .cart-item-remove-btn {
+            background: transparent;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: underline;
+            transition: opacity 0.3s;
+        }
+
+        .cart-item-remove-btn:hover {
+            opacity: 0.7;
+        }
+
+        .cart-item-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .cart-item-price {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .cart-summary {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 160px;
+        }
+
+        .cart-summary-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .promo-code-section {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--graphite);
+        }
+
+        .promo-code-input-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .promo-code-input {
+            flex: 1;
+            background: var(--obsidian-black);
+            border: 1px solid var(--graphite);
+            color: var(--pure-white);
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .promo-code-input:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 16px;
+        }
+
+        .summary-row.total {
+            padding-top: 1rem;
+            border-top: 1px solid var(--graphite);
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .summary-label {
+            color: var(--silver);
+        }
+
+        .summary-value {
+            font-weight: 600;
+        }
+
+        .summary-value.success {
+            color: var(--success);
+        }
+
+        @media (max-width: 1024px) {
+            .account-container {
+                grid-template-columns: 1fr;
+            }
+
+            .account-sidebar {
+                position: static;
+            }
+
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-summary {
+                position: static;
+            }
+
+            .profile-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .settings-form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .cart-badge {
             position: absolute;
             top: -8px;
@@ -1276,6 +2123,10 @@
                 <button class="page-btn active" data-page="home">Home</button>
                 <button class="page-btn" data-page="plp">Product Listing</button>
                 <button class="page-btn" data-page="pdp">Product Detail</button>
+                <button class="page-btn" data-page="profile">Perfil</button>
+                <button class="page-btn" data-page="orders">Pedidos</button>
+                <button class="page-btn" data-page="settings">Configuración</button>
+                <button class="page-btn" data-page="cart">Carrito</button>
                 <button class="page-btn" data-page="register">Register</button>
                 <button class="page-btn" data-page="login">Login</button>
                 <button class="page-btn" data-page="forgot">Forgot Password</button>
@@ -1302,13 +2153,104 @@
                     <button class="icon-btn" aria-label="Search">
                         <span class="material-symbols-outlined">search</span>
                     </button>
-                    <button class="icon-btn" aria-label="Account">
-                        <span class="material-symbols-outlined">person</span>
-                    </button>
-                    <button class="icon-btn" aria-label="Cart">
-                        <span class="material-symbols-outlined">shopping_cart</span>
-                        <span class="cart-badge">3</span>
-                    </button>
+                    
+                    <!-- User Menu Dropdown -->
+                    <div class="dropdown" id="userDropdown">
+                        <button class="icon-btn" aria-label="Account" id="userMenuBtn">
+                            <span class="material-symbols-outlined">person</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">John Doe</div>
+                                    <div class="user-menu-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ea80858284c48e858faa8f928b879a868fc4898587">[email&#160;protected]</a></div>
+                                </div>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                    <span>Lista de Deseos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                                <div class="user-menu-divider"></div>
+                                <button class="user-menu-item user-menu-logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mini Cart Dropdown -->
+                    <div class="dropdown" id="cartDropdown">
+                        <button class="icon-btn" aria-label="Cart" id="cartMenuBtn">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span class="cart-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu mini-cart">
+                            <div class="mini-cart-header">
+                                <h3 class="mini-cart-title">Carrito de Compras</h3>
+                                <span class="mini-cart-count">3 artículos</span>
+                            </div>
+                            <div class="mini-cart-items">
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Fanatec</div>
+                                        <div class="mini-cart-item-name">ClubSport Steering Wheel Formula V2.5</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€349.95</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove" aria-label="Remove item">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Heusinkveld</div>
+                                        <div class="mini-cart-item-name">Sprint Pedal Set</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€799.00</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove" aria-label="Remove item">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Sim-Lab</div>
+                                        <div class="mini-cart-item-name">GT1 Evo Cockpit</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€599.00</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove" aria-label="Remove item">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-subtotal">
+                                    <span class="mini-cart-subtotal-label">Subtotal:</span>
+                                    <span class="mini-cart-subtotal-amount">€1,747.95</span>
+                                </div>
+                                <div class="mini-cart-actions">
+                                    <button class="btn btn-primary" style="width: 100%;">VER CARRITO</button>
+                                    <button class="btn btn-secondary" style="width: 100%;">FINALIZAR COMPRA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -1585,13 +2527,104 @@
                     <button class="icon-btn">
                         <span class="material-symbols-outlined">search</span>
                     </button>
-                    <button class="icon-btn">
-                        <span class="material-symbols-outlined">person</span>
-                    </button>
-                    <button class="icon-btn">
-                        <span class="material-symbols-outlined">shopping_cart</span>
-                        <span class="cart-badge">3</span>
-                    </button>
+                    
+                    <!-- User Menu Dropdown -->
+                    <div class="dropdown" id="userDropdown2">
+                        <button class="icon-btn" aria-label="Account">
+                            <span class="material-symbols-outlined">person</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">John Doe</div>
+                                    <div class="user-menu-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c3a9acabadeda7aca683a6bba2aeb3afa6eda0acae">[email&#160;protected]</a></div>
+                                </div>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                    <span>Lista de Deseos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                                <div class="user-menu-divider"></div>
+                                <button class="user-menu-item user-menu-logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mini Cart Dropdown -->
+                    <div class="dropdown" id="cartDropdown2">
+                        <button class="icon-btn" aria-label="Cart">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span class="cart-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu mini-cart">
+                            <div class="mini-cart-header">
+                                <h3 class="mini-cart-title">Carrito de Compras</h3>
+                                <span class="mini-cart-count">3 artículos</span>
+                            </div>
+                            <div class="mini-cart-items">
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Fanatec</div>
+                                        <div class="mini-cart-item-name">ClubSport Steering Wheel Formula V2.5</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€349.95</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove" aria-label="Remove item">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Heusinkveld</div>
+                                        <div class="mini-cart-item-name">Sprint Pedal Set</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€799.00</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove" aria-label="Remove item">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Sim-Lab</div>
+                                        <div class="mini-cart-item-name">GT1 Evo Cockpit</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€599.00</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove" aria-label="Remove item">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-subtotal">
+                                    <span class="mini-cart-subtotal-label">Subtotal:</span>
+                                    <span class="mini-cart-subtotal-amount">€1,747.95</span>
+                                </div>
+                                <div class="mini-cart-actions">
+                                    <button class="btn btn-primary" style="width: 100%;">VER CARRITO</button>
+                                    <button class="btn btn-secondary" style="width: 100%;">FINALIZAR COMPRA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -1834,13 +2867,104 @@
                     <button class="icon-btn">
                         <span class="material-symbols-outlined">search</span>
                     </button>
-                    <button class="icon-btn">
-                        <span class="material-symbols-outlined">person</span>
-                    </button>
-                    <button class="icon-btn">
-                        <span class="material-symbols-outlined">shopping_cart</span>
-                        <span class="cart-badge">3</span>
-                    </button>
+                    
+                    <!-- User Menu Dropdown -->
+                    <div class="dropdown" id="userDropdown3">
+                        <button class="icon-btn" aria-label="Account">
+                            <span class="material-symbols-outlined">person</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">John Doe</div>
+                                    <div class="user-menu-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="305a5f585e1e545f55705548515d405c551e535f5d">[email&#160;protected]</a></div>
+                                </div>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                    <span>Lista de Deseos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                                <div class="user-menu-divider"></div>
+                                <button class="user-menu-item user-menu-logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Mini Cart Dropdown -->
+                    <div class="dropdown" id="cartDropdown3">
+                        <button class="icon-btn" aria-label="Cart">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span class="cart-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu mini-cart">
+                            <div class="mini-cart-header">
+                                <h3 class="mini-cart-title">Carrito de Compras</h3>
+                                <span class="mini-cart-count">3 artículos</span>
+                            </div>
+                            <div class="mini-cart-items">
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Fanatec</div>
+                                        <div class="mini-cart-item-name">ClubSport Steering Wheel Formula V2.5</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€349.95</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove" aria-label="Remove item">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Heusinkveld</div>
+                                        <div class="mini-cart-item-name">Sprint Pedal Set</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€799.00</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove" aria-label="Remove item">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Sim-Lab</div>
+                                        <div class="mini-cart-item-name">GT1 Evo Cockpit</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€599.00</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove" aria-label="Remove item">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-subtotal">
+                                    <span class="mini-cart-subtotal-label">Subtotal:</span>
+                                    <span class="mini-cart-subtotal-amount">€1,747.95</span>
+                                </div>
+                                <div class="mini-cart-actions">
+                                    <button class="btn btn-primary" style="width: 100%;">VER CARRITO</button>
+                                    <button class="btn btn-secondary" style="width: 100%;">FINALIZAR COMPRA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -1934,6 +3058,969 @@
                     <div style="text-align: center;">
                         <div style="font-size: 24px; margin-bottom: 0.5rem;">↩️</div>
                         <div style="font-size: 14px; font-weight: 600;">30 Day Returns</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 4: PROFILE -->
+    <div id="profile" class="page-content">
+        <header class="site-header">
+            <div class="header-container">
+                <a href="#" class="logo">SIM<span>RACING</span></a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#">WHEELS</a></li>
+                        <li><a href="#">PEDALS</a></li>
+                        <li><a href="#">COCKPITS</a></li>
+                        <li><a href="#">ACCESSORIES</a></li>
+                        <li><a href="#">SALE</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <div class="dropdown" id="userDropdown4">
+                        <button class="icon-btn" aria-label="Account">
+                            <span class="material-symbols-outlined">person</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">John Doe</div>
+                                    <div class="user-menu-email">john.doe@example.com</div>
+                                </div>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                    <span>Lista de Deseos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                                <div class="user-menu-divider"></div>
+                                <button class="user-menu-item user-menu-logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown" id="cartDropdown4">
+                        <button class="icon-btn" aria-label="Cart">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span class="cart-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu mini-cart">
+                            <div class="mini-cart-header">
+                                <h3 class="mini-cart-title">Carrito de Compras</h3>
+                                <span class="mini-cart-count">3 artículos</span>
+                            </div>
+                            <div class="mini-cart-items">
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Fanatec</div>
+                                        <div class="mini-cart-item-name">ClubSport Steering Wheel Formula V2.5</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€349.95</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove" aria-label="Remove item">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-subtotal">
+                                    <span class="mini-cart-subtotal-label">Subtotal:</span>
+                                    <span class="mini-cart-subtotal-amount">€1,747.95</span>
+                                </div>
+                                <div class="mini-cart-actions">
+                                    <button class="btn btn-primary" style="width: 100%;">VER CARRITO</button>
+                                    <button class="btn btn-secondary" style="width: 100%;">FINALIZAR COMPRA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="account-page">
+            <div class="account-container">
+                <aside class="account-sidebar">
+                    <div class="account-user-info">
+                        <div class="account-avatar">
+                            <span class="material-symbols-outlined">person</span>
+                        </div>
+                        <div class="account-user-name">John Doe</div>
+                        <div class="account-user-email">john.doe@example.com</div>
+                    </div>
+                    <nav>
+                        <ul class="account-nav">
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link active">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                            </li>
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                            </li>
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                    <span>Lista de Deseos</span>
+                                </a>
+                            </li>
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </aside>
+
+                <main class="account-content">
+                    <div class="account-header">
+                        <h1 class="account-title">Mi Perfil</h1>
+                        <p class="account-subtitle">Gestiona tu información personal y preferencias</p>
+                    </div>
+
+                    <div class="profile-stats">
+                        <div class="profile-stat-card">
+                            <div class="profile-stat-value">12</div>
+                            <div class="profile-stat-label">Pedidos Totales</div>
+                        </div>
+                        <div class="profile-stat-card">
+                            <div class="profile-stat-value">€3,847</div>
+                            <div class="profile-stat-label">Total Gastado</div>
+                        </div>
+                        <div class="profile-stat-card">
+                            <div class="profile-stat-value">8</div>
+                            <div class="profile-stat-label">Productos Favoritos</div>
+                        </div>
+                        <div class="profile-stat-card">
+                            <div class="profile-stat-value">Gold</div>
+                            <div class="profile-stat-label">Nivel de Miembro</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-section">
+                        <h2 class="profile-section-title">Información Personal</h2>
+                        <div class="profile-info-grid">
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Nombre Completo</div>
+                                <div class="profile-info-value">John Doe</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Email</div>
+                                <div class="profile-info-value">john.doe@example.com</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Teléfono</div>
+                                <div class="profile-info-value">+34 612 345 678</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Fecha de Registro</div>
+                                <div class="profile-info-value">15 Enero 2024</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-section">
+                        <h2 class="profile-section-title">Dirección de Envío</h2>
+                        <div class="profile-info-grid">
+                            <div class="profile-info-item" style="grid-column: 1 / -1;">
+                                <div class="profile-info-label">Dirección</div>
+                                <div class="profile-info-value">Calle Mayor 123, 4º A</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Ciudad</div>
+                                <div class="profile-info-value">Madrid</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">Código Postal</div>
+                                <div class="profile-info-value">28001</div>
+                            </div>
+                            <div class="profile-info-item">
+                                <div class="profile-info-label">País</div>
+                                <div class="profile-info-value">España</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="btn btn-primary">EDITAR PERFIL</button>
+                        <button class="btn btn-secondary">CAMBIAR CONTRASEÑA</button>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 5: ORDERS -->
+    <div id="orders" class="page-content">
+        <header class="site-header">
+            <div class="header-container">
+                <a href="#" class="logo">SIM<span>RACING</span></a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#">WHEELS</a></li>
+                        <li><a href="#">PEDALS</a></li>
+                        <li><a href="#">COCKPITS</a></li>
+                        <li><a href="#">ACCESSORIES</a></li>
+                        <li><a href="#">SALE</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <div class="dropdown" id="userDropdown5">
+                        <button class="icon-btn">
+                            <span class="material-symbols-outlined">person</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">John Doe</div>
+                                    <div class="user-menu-email">john.doe@example.com</div>
+                                </div>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                                <div class="user-menu-divider"></div>
+                                <button class="user-menu-item user-menu-logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown" id="cartDropdown5">
+                        <button class="icon-btn">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span class="cart-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu mini-cart">
+                            <div class="mini-cart-header">
+                                <h3 class="mini-cart-title">Carrito de Compras</h3>
+                                <span class="mini-cart-count">3 artículos</span>
+                            </div>
+                            <div class="mini-cart-items">
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Fanatec</div>
+                                        <div class="mini-cart-item-name">ClubSport Steering Wheel</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€349.95</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-subtotal">
+                                    <span class="mini-cart-subtotal-label">Subtotal:</span>
+                                    <span class="mini-cart-subtotal-amount">€1,747.95</span>
+                                </div>
+                                <div class="mini-cart-actions">
+                                    <button class="btn btn-primary" style="width: 100%;">VER CARRITO</button>
+                                    <button class="btn btn-secondary" style="width: 100%;">FINALIZAR COMPRA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="account-page">
+            <div class="account-container">
+                <aside class="account-sidebar">
+                    <div class="account-user-info">
+                        <div class="account-avatar">
+                            <span class="material-symbols-outlined">person</span>
+                        </div>
+                        <div class="account-user-name">John Doe</div>
+                        <div class="account-user-email">john.doe@example.com</div>
+                    </div>
+                    <nav>
+                        <ul class="account-nav">
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                            </li>
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link active">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                            </li>
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                    <span>Lista de Deseos</span>
+                                </a>
+                            </li>
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </aside>
+
+                <main class="account-content">
+                    <div class="account-header">
+                        <h1 class="account-title">Mis Pedidos</h1>
+                        <p class="account-subtitle">Consulta el estado de tus pedidos y compras anteriores</p>
+                    </div>
+
+                    <div class="orders-filters">
+                        <button class="filter-chip active">Todos</button>
+                        <button class="filter-chip">Procesando</button>
+                        <button class="filter-chip">Enviado</button>
+                        <button class="filter-chip">Entregado</button>
+                        <button class="filter-chip">Cancelado</button>
+                    </div>
+
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <div class="order-number">Pedido #SR-2024-001234</div>
+                                <div class="order-date">Realizado el 5 Febrero 2024</div>
+                            </div>
+                            <span class="order-status delivered">Entregado</span>
+                        </div>
+                        <div class="order-items">
+                            <div class="order-item">
+                                <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=160&h=120&fit=crop&q=80" alt="Product" class="order-item-img">
+                                <div class="order-item-info">
+                                    <div class="order-item-brand">Fanatec</div>
+                                    <div class="order-item-name">ClubSport Steering Wheel Formula V2.5</div>
+                                    <div class="order-item-qty">Cantidad: 1</div>
+                                </div>
+                                <div class="order-item-price">€349.95</div>
+                            </div>
+                            <div class="order-item">
+                                <img src="https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=160&h=120&fit=crop&q=80" alt="Product" class="order-item-img">
+                                <div class="order-item-info">
+                                    <div class="order-item-brand">Heusinkveld</div>
+                                    <div class="order-item-name">Sprint Pedal Set</div>
+                                    <div class="order-item-qty">Cantidad: 1</div>
+                                </div>
+                                <div class="order-item-price">€799.00</div>
+                            </div>
+                        </div>
+                        <div class="order-footer">
+                            <div class="order-total">Total: €1,148.95</div>
+                            <div class="order-actions">
+                                <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">VER DETALLES</button>
+                                <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">VOLVER A COMPRAR</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <div class="order-number">Pedido #SR-2024-001189</div>
+                                <div class="order-date">Realizado el 28 Enero 2024</div>
+                            </div>
+                            <span class="order-status processing">Procesando</span>
+                        </div>
+                        <div class="order-items">
+                            <div class="order-item">
+                                <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=160&h=120&fit=crop&q=80" alt="Product" class="order-item-img">
+                                <div class="order-item-info">
+                                    <div class="order-item-brand">Sim-Lab</div>
+                                    <div class="order-item-name">GT1 Evo Cockpit</div>
+                                    <div class="order-item-qty">Cantidad: 1</div>
+                                </div>
+                                <div class="order-item-price">€599.00</div>
+                            </div>
+                        </div>
+                        <div class="order-footer">
+                            <div class="order-total">Total: €599.00</div>
+                            <div class="order-actions">
+                                <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">RASTREAR PEDIDO</button>
+                                <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">CANCELAR PEDIDO</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-card">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <div class="order-number">Pedido #SR-2024-001045</div>
+                                <div class="order-date">Realizado el 10 Enero 2024</div>
+                            </div>
+                            <span class="order-status shipped">Enviado</span>
+                        </div>
+                        <div class="order-items">
+                            <div class="order-item">
+                                <img src="https://images.unsplash.com/photo-1580273916550-e323be2ae537?w=160&h=120&fit=crop&q=80" alt="Product" class="order-item-img">
+                                <div class="order-item-info">
+                                    <div class="order-item-brand">Thrustmaster</div>
+                                    <div class="order-item-name">T300 RS GT Racing Wheel</div>
+                                    <div class="order-item-qty">Cantidad: 1</div>
+                                </div>
+                                <div class="order-item-price">€319.99</div>
+                            </div>
+                        </div>
+                        <div class="order-footer">
+                            <div class="order-total">Total: €319.99</div>
+                            <div class="order-actions">
+                                <button class="btn btn-primary" style="padding: 0.75rem 1.5rem;">RASTREAR ENVÍO</button>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 6: SETTINGS -->
+    <div id="settings" class="page-content">
+        <header class="site-header">
+            <div class="header-container">
+                <a href="#" class="logo">SIM<span>RACING</span></a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#">WHEELS</a></li>
+                        <li><a href="#">PEDALS</a></li>
+                        <li><a href="#">COCKPITS</a></li>
+                        <li><a href="#">ACCESSORIES</a></li>
+                        <li><a href="#">SALE</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <div class="dropdown" id="userDropdown6">
+                        <button class="icon-btn">
+                            <span class="material-symbols-outlined">person</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">John Doe</div>
+                                    <div class="user-menu-email">john.doe@example.com</div>
+                                </div>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                                <div class="user-menu-divider"></div>
+                                <button class="user-menu-item user-menu-logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown" id="cartDropdown6">
+                        <button class="icon-btn">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span class="cart-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu mini-cart">
+                            <div class="mini-cart-header">
+                                <h3 class="mini-cart-title">Carrito de Compras</h3>
+                                <span class="mini-cart-count">3 artículos</span>
+                            </div>
+                            <div class="mini-cart-items">
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Fanatec</div>
+                                        <div class="mini-cart-item-name">ClubSport Steering Wheel</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€349.95</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-subtotal">
+                                    <span class="mini-cart-subtotal-label">Subtotal:</span>
+                                    <span class="mini-cart-subtotal-amount">€1,747.95</span>
+                                </div>
+                                <div class="mini-cart-actions">
+                                    <button class="btn btn-primary" style="width: 100%;">VER CARRITO</button>
+                                    <button class="btn btn-secondary" style="width: 100%;">FINALIZAR COMPRA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="account-page">
+            <div class="account-container">
+                <aside class="account-sidebar">
+                    <div class="account-user-info">
+                        <div class="account-avatar">
+                            <span class="material-symbols-outlined">person</span>
+                        </div>
+                        <div class="account-user-name">John Doe</div>
+                        <div class="account-user-email">john.doe@example.com</div>
+                    </div>
+                    <nav>
+                        <ul class="account-nav">
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                            </li>
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                            </li>
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link">
+                                    <span class="material-symbols-outlined">favorite</span>
+                                    <span>Lista de Deseos</span>
+                                </a>
+                            </li>
+                            <li class="account-nav-item">
+                                <a href="#" class="account-nav-link active">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </aside>
+
+                <main class="account-content">
+                    <div class="account-header">
+                        <h1 class="account-title">Configuración</h1>
+                        <p class="account-subtitle">Gestiona tus datos personales y preferencias de cuenta</p>
+                    </div>
+
+                    <div class="settings-sections">
+                        <!-- Personal Information -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h2 class="settings-card-title">Información Personal</h2>
+                                <button class="btn btn-secondary" style="padding: 0.5rem 1.5rem;">EDITAR</button>
+                            </div>
+                            <form class="settings-form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Nombre</label>
+                                    <input type="text" class="form-input" value="John" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Apellidos</label>
+                                    <input type="text" class="form-input" value="Doe" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" class="form-input" value="john.doe@example.com" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Teléfono</label>
+                                    <input type="tel" class="form-input" value="+34 612 345 678" readonly>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Billing Address -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h2 class="settings-card-title">Dirección de Facturación</h2>
+                                <button class="btn btn-secondary" style="padding: 0.5rem 1.5rem;">EDITAR</button>
+                            </div>
+                            <form class="settings-form-grid">
+                                <div class="form-group settings-form-full">
+                                    <label class="form-label">Dirección</label>
+                                    <input type="text" class="form-input" value="Calle Mayor 123, 4º A" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Ciudad</label>
+                                    <input type="text" class="form-input" value="Madrid" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Código Postal</label>
+                                    <input type="text" class="form-input" value="28001" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Provincia</label>
+                                    <input type="text" class="form-input" value="Madrid" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">País</label>
+                                    <input type="text" class="form-input" value="España" readonly>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Shipping Address -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h2 class="settings-card-title">Dirección de Envío</h2>
+                                <button class="btn btn-secondary" style="padding: 0.5rem 1.5rem;">EDITAR</button>
+                            </div>
+                            <div class="settings-toggle">
+                                <span>Usar la misma dirección de facturación</span>
+                                <div class="toggle-switch active"></div>
+                            </div>
+                            <form class="settings-form-grid">
+                                <div class="form-group settings-form-full">
+                                    <label class="form-label">Dirección</label>
+                                    <input type="text" class="form-input" value="Calle Mayor 123, 4º A" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Ciudad</label>
+                                    <input type="text" class="form-input" value="Madrid" readonly>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Código Postal</label>
+                                    <input type="text" class="form-input" value="28001" readonly>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Newsletter & Preferences -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h2 class="settings-card-title">Preferencias de Comunicación</h2>
+                            </div>
+                            <div class="settings-toggle">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 0.25rem;">Newsletter</div>
+                                    <div style="font-size: 14px; color: var(--silver);">Recibe ofertas exclusivas y novedades</div>
+                                </div>
+                                <div class="toggle-switch active"></div>
+                            </div>
+                            <div class="settings-toggle">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 0.25rem;">Notificaciones de Pedidos</div>
+                                    <div style="font-size: 14px; color: var(--silver);">Actualizaciones sobre el estado de tus pedidos</div>
+                                </div>
+                                <div class="toggle-switch active"></div>
+                            </div>
+                            <div class="settings-toggle">
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 0.25rem;">Promociones SMS</div>
+                                    <div style="font-size: 14px; color: var(--silver);">Recibe ofertas por mensaje de texto</div>
+                                </div>
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
+                        <!-- Password Change -->
+                        <div class="settings-card">
+                            <div class="settings-card-header">
+                                <h2 class="settings-card-title">Seguridad</h2>
+                            </div>
+                            <p style="color: var(--silver); margin-bottom: 1.5rem;">
+                                Para cambiar tu contraseña, te enviaremos un enlace de recuperación a tu email registrado.
+                            </p>
+                            <button class="btn btn-primary">ENVIAR EMAIL DE CAMBIO DE CONTRASEÑA</button>
+                        </div>
+
+                        <!-- Delete Account -->
+                        <div class="settings-card" style="border: 1px solid var(--error);">
+                            <div class="settings-card-header">
+                                <h2 class="settings-card-title" style="color: var(--error);">Zona Peligrosa</h2>
+                            </div>
+                            <p style="color: var(--silver); margin-bottom: 1.5rem;">
+                                Una vez elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate.
+                            </p>
+                            <button class="btn" style="background: var(--error); color: var(--pure-white);">ELIMINAR CUENTA</button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 7: CART -->
+    <div id="cart" class="page-content">
+        <header class="site-header">
+            <div class="header-container">
+                <a href="#" class="logo">SIM<span>RACING</span></a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#">WHEELS</a></li>
+                        <li><a href="#">PEDALS</a></li>
+                        <li><a href="#">COCKPITS</a></li>
+                        <li><a href="#">ACCESSORIES</a></li>
+                        <li><a href="#">SALE</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <div class="dropdown" id="userDropdown7">
+                        <button class="icon-btn">
+                            <span class="material-symbols-outlined">person</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">John Doe</div>
+                                    <div class="user-menu-email">john.doe@example.com</div>
+                                </div>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                                <div class="user-menu-divider"></div>
+                                <button class="user-menu-item user-menu-logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown" id="cartDropdown7">
+                        <button class="icon-btn">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span class="cart-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu mini-cart">
+                            <div class="mini-cart-header">
+                                <h3 class="mini-cart-title">Carrito de Compras</h3>
+                                <span class="mini-cart-count">3 artículos</span>
+                            </div>
+                            <div class="mini-cart-items">
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Fanatec</div>
+                                        <div class="mini-cart-item-name">ClubSport Steering Wheel</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€349.95</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-subtotal">
+                                    <span class="mini-cart-subtotal-label">Subtotal:</span>
+                                    <span class="mini-cart-subtotal-amount">€1,747.95</span>
+                                </div>
+                                <div class="mini-cart-actions">
+                                    <button class="btn btn-primary" style="width: 100%;">VER CARRITO</button>
+                                    <button class="btn btn-secondary" style="width: 100%;">FINALIZAR COMPRA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="account-page">
+            <div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+                <div class="breadcrumb" style="margin-bottom: 2rem;">
+                    <a href="#">Home</a> <span>/</span> <span>Carrito de Compras</span>
+                </div>
+                <h1 style="font-size: 40px; font-weight: 700; margin-bottom: 3rem;">Carrito de Compras</h1>
+            </div>
+
+            <div class="cart-layout">
+                <!-- Cart Items -->
+                <div class="cart-items-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="font-size: 24px; font-weight: 600;">Artículos (3)</h2>
+                        <button class="btn-ghost" style="font-size: 14px;">Vaciar carrito</button>
+                    </div>
+
+                    <div class="cart-item">
+                        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=240&h=180&fit=crop&q=80" alt="Product" class="cart-item-img">
+                        <div class="cart-item-details">
+                            <div class="cart-item-brand">Fanatec</div>
+                            <div class="cart-item-name">ClubSport Steering Wheel Formula V2.5</div>
+                            <div style="color: var(--silver); font-size: 14px; margin-top: 0.5rem;">
+                                <span style="color: var(--success);">● En stock</span> - Envío en 24h
+                            </div>
+                            <div class="cart-item-meta">
+                                <div class="quantity-selector">
+                                    <button class="qty-btn">−</button>
+                                    <span class="qty-value">1</span>
+                                    <button class="qty-btn">+</button>
+                                </div>
+                                <button class="cart-item-remove-btn">Eliminar</button>
+                                <button class="btn-ghost" style="font-size: 14px;">Guardar para después</button>
+                            </div>
+                        </div>
+                        <div class="cart-item-right">
+                            <div class="cart-item-price">€349.95</div>
+                        </div>
+                    </div>
+
+                    <div class="cart-item">
+                        <img src="https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=240&h=180&fit=crop&q=80" alt="Product" class="cart-item-img">
+                        <div class="cart-item-details">
+                            <div class="cart-item-brand">Heusinkveld</div>
+                            <div class="cart-item-name">Sprint Pedal Set</div>
+                            <div style="color: var(--silver); font-size: 14px; margin-top: 0.5rem;">
+                                <span style="color: var(--success);">● En stock</span> - Envío en 24h
+                            </div>
+                            <div class="cart-item-meta">
+                                <div class="quantity-selector">
+                                    <button class="qty-btn">−</button>
+                                    <span class="qty-value">1</span>
+                                    <button class="qty-btn">+</button>
+                                </div>
+                                <button class="cart-item-remove-btn">Eliminar</button>
+                                <button class="btn-ghost" style="font-size: 14px;">Guardar para después</button>
+                            </div>
+                        </div>
+                        <div class="cart-item-right">
+                            <div class="cart-item-price">€799.00</div>
+                        </div>
+                    </div>
+
+                    <div class="cart-item">
+                        <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=240&h=180&fit=crop&q=80" alt="Product" class="cart-item-img">
+                        <div class="cart-item-details">
+                            <div class="cart-item-brand">Sim-Lab</div>
+                            <div class="cart-item-name">GT1 Evo Cockpit</div>
+                            <div style="color: var(--silver); font-size: 14px; margin-top: 0.5rem;">
+                                <span style="color: var(--warning);">● Disponible en 3-5 días</span>
+                            </div>
+                            <div class="cart-item-meta">
+                                <div class="quantity-selector">
+                                    <button class="qty-btn">−</button>
+                                    <span class="qty-value">1</span>
+                                    <button class="qty-btn">+</button>
+                                </div>
+                                <button class="cart-item-remove-btn">Eliminar</button>
+                                <button class="btn-ghost" style="font-size: 14px;">Guardar para después</button>
+                            </div>
+                        </div>
+                        <div class="cart-item-right">
+                            <div class="cart-item-price">€599.00</div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem; padding: 1.5rem; background: var(--obsidian-black); border-radius: 12px; border-left: 4px solid var(--electric-blue);">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <span class="material-symbols-outlined" style="font-size: 32px; color: var(--electric-blue);">local_shipping</span>
+                            <div>
+                                <div style="font-weight: 600; margin-bottom: 0.25rem;">Envío GRATIS</div>
+                                <div style="font-size: 14px; color: var(--silver);">Tu pedido supera los 100 EUR. ¡Envío gratis incluido!</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cart Summary -->
+                <div class="cart-summary">
+                    <h2 class="cart-summary-title">Resumen del Pedido</h2>
+
+                    <div class="promo-code-section">
+                        <label style="display: block; margin-bottom: 0.75rem; font-weight: 500; font-size: 14px;">Código Promocional</label>
+                        <div class="promo-code-input-group">
+                            <input type="text" class="promo-code-input" placeholder="Introduce tu código">
+                            <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem; white-space: nowrap;">APLICAR</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <div class="summary-row">
+                            <span class="summary-label">Subtotal (3 artículos)</span>
+                            <span class="summary-value">€1,747.95</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Envío</span>
+                            <span class="summary-value success">GRATIS</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">IVA (21%)</span>
+                            <span class="summary-value">€367.07</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span>€2,115.02</span>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: var(--obsidian-black); border-radius: 8px; font-size: 14px; color: var(--silver); text-align: center;">
+                        <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle; margin-right: 0.25rem;">lock</span>
+                        Pago seguro con encriptación SSL
+                    </div>
+
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; padding: 1.25rem; font-size: 18px;">
+                        PROCEDER AL PAGO
+                    </button>
+
+                    <button class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">
+                        CONTINUAR COMPRANDO
+                    </button>
+
+                    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--graphite);">
+                        <div style="font-weight: 600; margin-bottom: 1rem; font-size: 16px;">Aceptamos</div>
+                        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                            <div style="padding: 0.5rem 1rem; background: var(--obsidian-black); border-radius: 8px; font-size: 12px;">Visa</div>
+                            <div style="padding: 0.5rem 1rem; background: var(--obsidian-black); border-radius: 8px; font-size: 12px;">Mastercard</div>
+                            <div style="padding: 0.5rem 1rem; background: var(--obsidian-black); border-radius: 8px; font-size: 12px;">PayPal</div>
+                            <div style="padding: 0.5rem 1rem; background: var(--obsidian-black); border-radius: 8px; font-size: 12px;">Klarna</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -2097,7 +4184,7 @@
         </div>
     </div>
 
-    <script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // Page navigation
         const pageButtons = document.querySelectorAll('.page-btn');
         const pages = document.querySelectorAll('.page-content');
@@ -2120,6 +4207,97 @@
                 
                 // Scroll to top
                 window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        });
+
+        // Dropdown functionality
+        function initDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            if (!dropdown) return;
+            
+            const button = dropdown.querySelector('.icon-btn');
+            
+            button.addEventListener('click', (e) => {
+                e.stopPropagation();
+                
+                // Close other dropdowns
+                document.querySelectorAll('.dropdown').forEach(d => {
+                    if (d.id !== dropdownId) {
+                        d.classList.remove('active');
+                    }
+                });
+                
+                // Toggle current dropdown
+                dropdown.classList.toggle('active');
+            });
+        }
+
+        // Initialize all dropdowns
+        initDropdown('userDropdown');
+        initDropdown('cartDropdown');
+        initDropdown('userDropdown2');
+        initDropdown('cartDropdown2');
+        initDropdown('userDropdown3');
+        initDropdown('cartDropdown3');
+        initDropdown('userDropdown4');
+        initDropdown('cartDropdown4');
+        initDropdown('userDropdown5');
+        initDropdown('cartDropdown5');
+        initDropdown('userDropdown6');
+        initDropdown('cartDropdown6');
+        initDropdown('userDropdown7');
+        initDropdown('cartDropdown7');
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+            }
+        });
+
+        // Close dropdowns on escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.dropdown').forEach(dropdown => {
+                    dropdown.classList.remove('active');
+                });
+            }
+        });
+
+        // Mini cart item removal
+        document.querySelectorAll('.mini-cart-item-remove').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const item = btn.closest('.mini-cart-item');
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(20px)';
+                setTimeout(() => {
+                    item.remove();
+                    
+                    // Update cart count
+                    const remainingItems = document.querySelectorAll('.mini-cart-item').length;
+                    document.querySelectorAll('.cart-badge').forEach(badge => {
+                        badge.textContent = remainingItems;
+                    });
+                    document.querySelectorAll('.mini-cart-count').forEach(count => {
+                        count.textContent = `${remainingItems} artículo${remainingItems !== 1 ? 's' : ''}`;
+                    });
+                    
+                    // Show empty state if no items
+                    if (remainingItems === 0) {
+                        document.querySelectorAll('.mini-cart').forEach(cart => {
+                            cart.innerHTML = `
+                                <div class="mini-cart-empty">
+                                    <span class="material-symbols-outlined mini-cart-empty-icon">shopping_cart</span>
+                                    <p class="mini-cart-empty-text">Tu carrito está vacío</p>
+                                    <button class="btn btn-primary">EXPLORAR PRODUCTOS</button>
+                                </div>
+                            `;
+                        });
+                    }
+                }, 300);
             });
         });
 
@@ -2177,6 +4355,24 @@
                 }
                 
                 qtyValue.textContent = value;
+            });
+        });
+
+        // Toggle switches
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                toggle.classList.toggle('active');
+            });
+        });
+
+        // Filter chips
+        document.querySelectorAll('.filter-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                // Remove active from all chips in the same group
+                const parent = chip.parentElement;
+                parent.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                // Add active to clicked chip
+                chip.classList.add('active');
             });
         });
     </script>
