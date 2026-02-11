@@ -4,6 +4,7 @@ import { ProductsPageContent } from "@/app/[locale]/productos/ProductsPageConten
 import { productsApi } from "@/lib/api/products";
 import { createMockProductListItem } from "../helpers/products";
 import type { PaginatedResult, ProductListItem } from "@/types/products";
+import type { FilterValues } from "@/components/products/ProductFilters";
 
 // Mock next/navigation
 const mockReplace = vi.fn();
@@ -44,8 +45,8 @@ vi.mock("@/components/products", () => ({
     filters,
     onFiltersChange,
   }: {
-    filters: any;
-    onFiltersChange: (f: any) => void;
+    filters: FilterValues;
+    onFiltersChange: (f: FilterValues) => void;
   }) => (
     <div data-testid="product-filters">
       <input
