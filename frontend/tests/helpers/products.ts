@@ -2,6 +2,7 @@ import type {
   ProductDetail,
   ProductImage,
   ProductSpecification,
+  ProductListItem,
 } from "@/types/products";
 
 export function createMockProductImage(
@@ -23,6 +24,23 @@ export function createMockProductSpecification(
     specKey: "Material",
     specValue: "Carbon Fiber",
     displayOrder: 0,
+    ...overrides,
+  };
+}
+
+export function createMockProductListItem(
+  overrides?: Partial<ProductListItem>
+): ProductListItem {
+  return {
+    id: "prod-123",
+    sku: "WHL-F-V25",
+    name: "Formula V2.5 Steering Wheel",
+    slug: "formula-v25-steering-wheel",
+    shortDescription: "Premium sim racing steering wheel",
+    basePrice: 349.99,
+    imageUrl: "https://example.com/image1.jpg",
+    isActive: true,
+    isCustomizable: true,
     ...overrides,
   };
 }
