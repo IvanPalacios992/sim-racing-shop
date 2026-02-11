@@ -29,7 +29,7 @@ const SORT_OPTIONS = [
   { value: "Name", descending: false, key: "name" },
 ] as const;
 
-export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps) {
+export function ProductFilters({ filters, onFiltersChange }: Readonly<ProductFiltersProps>) {
   const t = useTranslations("products");
   const [mobileOpen, setMobileOpen] = useState(false);
 
