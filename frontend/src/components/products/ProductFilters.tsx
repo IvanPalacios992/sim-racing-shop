@@ -33,12 +33,9 @@ export function ProductFilters({ filters, onFiltersChange }: ProductFiltersProps
   const t = useTranslations("products");
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const updateFilter = useCallback(
-    (partial: Partial<FilterValues>) => {
-      onFiltersChange({ ...filters, ...partial });
-    },
-    [filters, onFiltersChange]
-  );
+  const updateFilter = (partial: Partial<FilterValues>) => {
+    onFiltersChange({ ...filters, ...partial });
+  };
 
   const clearFilters = useCallback(() => {
     onFiltersChange({
