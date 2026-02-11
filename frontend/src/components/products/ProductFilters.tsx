@@ -175,6 +175,13 @@ export function ProductFilters({ filters, onFiltersChange }: Readonly<ProductFil
           <div
             className="absolute inset-0 bg-obsidian/80"
             onClick={() => setMobileOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                setMobileOpen(false);
+              }
+            }}
+            role="button"
+            tabIndex={0}
           />
           <div className="absolute inset-y-0 left-0 w-80 overflow-y-auto bg-carbon p-6">
             <div className="mb-6 flex items-center justify-between">
