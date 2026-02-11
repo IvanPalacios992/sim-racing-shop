@@ -1,133 +1,40 @@
-import userEvent from "@testing-library/user-event";
-import { render, screen, waitFor } from "../helpers/render";
-import { useAuthStore } from "@/stores/auth-store";
-import {
-  resetAuthStore,
-  createMockAuthResponse,
-} from "../helpers/auth-store";
-
-vi.mock("@/lib/api/auth", () => ({
-  authApi: {
-    login: vi.fn(),
-    register: vi.fn(),
-    forgotPassword: vi.fn(),
-    resetPassword: vi.fn(),
-    logout: vi.fn(),
-    getMe: vi.fn(),
-    refreshToken: vi.fn(),
-  },
-}));
-
-import { authApi } from "@/lib/api/auth";
-
-vi.mock("@/i18n/navigation", () => ({
-  Link: (props: { href: string; children: React.ReactNode; className?: string }) =>
-    React.createElement("a", { href: props.href, className: props.className }, props.children),
-  useRouter: () => ({
-    push: vi.fn(),
-    replace: vi.fn(),
-    back: vi.fn(),
-    forward: vi.fn(),
-    refresh: vi.fn(),
-    prefetch: vi.fn(),
-  }),
-  usePathname: () => "/",
-  redirect: vi.fn(),
-}));
-
+import { render, screen } from "../helpers/render";
 import React from "react";
 import { HomeContent } from "@/app/[locale]/HomeContent";
 
+// Mock the home components to avoid API calls in tests
+vi.mock("@/components/home", () => ({
+  HeroSection: () => React.createElement("div", { "data-testid": "hero-section" }, "Hero Section"),
+  FeaturedCategories: () => React.createElement("div", { "data-testid": "featured-categories" }, "Featured Categories"),
+  FeaturedProducts: () => React.createElement("div", { "data-testid": "featured-products" }, "Featured Products"),
+  ConfiguratorPromo: () => React.createElement("div", { "data-testid": "configurator-promo" }, "Configurator Promo"),
+  TrustIndicators: () => React.createElement("div", { "data-testid": "trust-indicators" }, "Trust Indicators"),
+  NewsletterSection: () => React.createElement("div", { "data-testid": "newsletter-section" }, "Newsletter Section"),
+}));
+
 describe("HomeContent", () => {
-  beforeEach(() => {
-    resetAuthStore();
-    vi.clearAllMocks();
+  it("renders all home sections", () => {
+    render(React.createElement(HomeContent));
+
+    expect(screen.getByTestId("hero-section")).toBeInTheDocument();
+    expect(screen.getByTestId("featured-categories")).toBeInTheDocument();
+    expect(screen.getByTestId("featured-products")).toBeInTheDocument();
+    expect(screen.getByTestId("configurator-promo")).toBeInTheDocument();
+    expect(screen.getByTestId("trust-indicators")).toBeInTheDocument();
+    expect(screen.getByTestId("newsletter-section")).toBeInTheDocument();
   });
 
-  describe("unauthenticated state", () => {
-    it("renders sign in and create account links", () => {
-      render(React.createElement(HomeContent));
+  it("renders sections in correct order", () => {
+    render(React.createElement(HomeContent));
 
-      expect(screen.getByText("Sign In")).toBeInTheDocument();
-      expect(screen.getByText("Create Account")).toBeInTheDocument();
-    });
+    const main = screen.getByRole("main");
+    const sections = Array.from(main.children);
 
-    it("renders the tagline", () => {
-      render(React.createElement(HomeContent));
-
-      expect(
-        screen.getByText("Premium sim racing equipment for those who demand perfection")
-      ).toBeInTheDocument();
-    });
-
-    it("has correct links", () => {
-      render(React.createElement(HomeContent));
-
-      expect(screen.getByText("Sign In").closest("a")).toHaveAttribute("href", "/login");
-      expect(screen.getByText("Create Account").closest("a")).toHaveAttribute("href", "/register");
-    });
-  });
-
-  describe("authenticated state", () => {
-    it("shows welcome message with firstName", () => {
-      const mockResponse = createMockAuthResponse({ user: { firstName: "John" } });
-      useAuthStore.getState().setAuth(mockResponse);
-
-      render(React.createElement(HomeContent));
-
-      expect(screen.getByText("Welcome, John")).toBeInTheDocument();
-    });
-
-    it("falls back to email when firstName is not set", () => {
-      const mockResponse = createMockAuthResponse();
-      mockResponse.user.firstName = undefined;
-      useAuthStore.getState().setAuth(mockResponse);
-
-      render(React.createElement(HomeContent));
-
-      expect(screen.getByText(`Welcome, ${mockResponse.user.email}`)).toBeInTheDocument();
-    });
-
-    it("shows logout button instead of sign in links", () => {
-      const mockResponse = createMockAuthResponse();
-      useAuthStore.getState().setAuth(mockResponse);
-
-      render(React.createElement(HomeContent));
-
-      expect(screen.getByText("Log Out")).toBeInTheDocument();
-      expect(screen.queryByText("Sign In")).not.toBeInTheDocument();
-      expect(screen.queryByText("Create Account")).not.toBeInTheDocument();
-    });
-
-    it("calls authApi.logout and store.logout on logout click", async () => {
-      const user = userEvent.setup();
-      const mockResponse = createMockAuthResponse();
-      useAuthStore.getState().setAuth(mockResponse);
-      vi.mocked(authApi.logout).mockResolvedValue(undefined);
-
-      render(React.createElement(HomeContent));
-
-      await user.click(screen.getByText("Log Out"));
-
-      await waitFor(() => {
-        expect(authApi.logout).toHaveBeenCalled();
-        expect(useAuthStore.getState().isAuthenticated).toBe(false);
-      });
-    });
-
-    it("resets auth state even when API logout fails", async () => {
-      const user = userEvent.setup();
-      const mockResponse = createMockAuthResponse();
-      useAuthStore.getState().setAuth(mockResponse);
-      vi.mocked(authApi.logout).mockRejectedValue(new Error("Network error"));
-
-      render(React.createElement(HomeContent));
-
-      await user.click(screen.getByText("Log Out"));
-
-      await waitFor(() => {
-        expect(useAuthStore.getState().isAuthenticated).toBe(false);
-      });
-    });
+    expect(sections[0]).toHaveAttribute("data-testid", "hero-section");
+    expect(sections[1]).toHaveAttribute("data-testid", "featured-categories");
+    expect(sections[2]).toHaveAttribute("data-testid", "featured-products");
+    expect(sections[3]).toHaveAttribute("data-testid", "configurator-promo");
+    expect(sections[4]).toHaveAttribute("data-testid", "trust-indicators");
+    expect(sections[5]).toHaveAttribute("data-testid", "newsletter-section");
   });
 });

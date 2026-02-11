@@ -131,12 +131,153 @@
     "signIn": "Sign In",
     "createAccount": "Create Account",
     "welcome": "Welcome, {name}",
-    "logout": "Log Out"
+    "logout": "Log Out",
+    "hero": {
+      "title": "ENGINEERED FOR VICTORY",
+      "cta": "EXPLORE PRODUCTS",
+      "ctaSecondary": "WATCH VIDEO"
+    },
+    "categories": {
+      "title": "FEATURED CATEGORIES",
+      "wheels": "STEERING WHEELS",
+      "bases": "WHEEL BASES",
+      "pedals": "PEDALS",
+      "cockpits": "COCKPITS",
+      "accessories": "ACCESSORIES",
+      "explore": "Explore"
+    },
+    "products": {
+      "title": "BEST SELLERS",
+      "new": "NEW",
+      "sale": "SALE",
+      "addToWishlist": "Add to wishlist"
+    },
+    "configurator": {
+      "badge": "EXCLUSIVE FEATURE",
+      "title": "Build Your Perfect Setup",
+      "description": "Experience our revolutionary 3D configurator. Visualize every detail, customize every component, and see your dream setup come to life in real-time.",
+      "feature1": "Real-time 3D visualization",
+      "feature2": "Custom colors and materials",
+      "feature3": "Save and share configurations",
+      "feature4": "Instant price updates",
+      "cta": "START CONFIGURING"
+    },
+    "trust": {
+      "shipping": "FREE SHIPPING",
+      "shippingDesc": "On orders over 100 EUR",
+      "warranty": "2 YEAR WARRANTY",
+      "warrantyDesc": "Full coverage included",
+      "payment": "SECURE PAYMENT",
+      "paymentDesc": "256-bit SSL encryption",
+      "support": "EXPERT SUPPORT",
+      "supportDesc": "Racing specialists available"
+    },
+    "newsletter": {
+      "title": "JOIN THE RACING COMMUNITY",
+      "subtitle": "Get exclusive offers, early access, and racing tips",
+      "emailPlaceholder": "Enter your email",
+      "subscribe": "SUBSCRIBE",
+      "subscribing": "SUBSCRIBING...",
+      "privacy": "We respect your privacy. Unsubscribe anytime."
+    }
+  },
+  "products": {
+    "pageTitle": "Products",
+    "search": "Search products...",
+    "filters": "Filters",
+    "clearFilters": "Clear filters",
+    "priceRange": "Price range",
+    "minPrice": "Min",
+    "maxPrice": "Max",
+    "customizable": "Customizable only",
+    "customizableBadge": "Customizable",
+    "addToWishlist": "Add to wishlist",
+    "sortBy": "Sort by",
+    "sortOptions": {
+      "featured": "Featured",
+      "priceLow": "Price: low to high",
+      "priceHigh": "Price: high to low",
+      "newest": "Newest",
+      "name": "Name"
+    },
+    "showing": "Showing {from}-{to} of {total} products",
+    "noResults": "No products found",
+    "noResultsDesc": "Try adjusting your filters or search term",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}"
+    },
+    "error": "Error loading products",
+    "errorDesc": "Could not load products. Please try again.",
+    "retry": "Retry"
+  },
+  "productDetail": {
+    "gallery": "Gallery",
+    "selectImage": "Select image {index}",
+    "breadcrumb": {
+      "home": "Home",
+      "products": "Products"
+    },
+    "customizable": "Customizable",
+    "noReviewsYet": "No reviews yet",
+    "priceExVat": "€{price} ex. VAT",
+    "vatIncluded": "VAT ({rate}%) included",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "customize": "CUSTOMIZE",
+    "productionTime": "Production time: {days} days",
+    "weight": "Weight: {grams}g",
+    "specifications": "Technical Specifications",
+    "description": "Description",
+    "trust": {
+      "freeShipping": "Free shipping on orders over €100",
+      "warranty": "2-year warranty included",
+      "securePayment": "Secure payment with SSL encryption"
+    },
+    "error": "Error loading product",
+    "errorDesc": "Could not load the product. Please try again.",
+    "retry": "Retry"
   },
   "nav": {
     "home": "Home",
+    "wheels": "Wheels",
+    "pedals": "Pedals",
+    "cockpits": "Cockpits",
+    "accessories": "Accessories",
+    "search": "Search",
+    "account": "Account",
+    "cart": "Cart",
+    "menu": "Menu",
     "products": "Products",
     "about": "About",
     "contact": "Contact"
+  },
+  "footer": {
+    "tagline": "Engineered for Victory",
+    "shop": {
+      "title": "Shop",
+      "products": "Products",
+      "categories": "Categories",
+      "newArrivals": "New Arrivals",
+      "sale": "Sale"
+    },
+    "support": {
+      "title": "Support",
+      "contact": "Contact",
+      "faq": "FAQ",
+      "shipping": "Shipping",
+      "returns": "Returns"
+    },
+    "company": {
+      "title": "Company",
+      "about": "About",
+      "blog": "Blog",
+      "careers": "Careers",
+      "press": "Press"
+    },
+    "copyright": "© {year} SimRacing Shop. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
   }
 }
