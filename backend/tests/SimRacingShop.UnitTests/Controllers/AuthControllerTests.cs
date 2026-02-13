@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using SimRacingShop.API.Controllers;
 using SimRacingShop.Core.DTOs;
-using SimRacingShop.Infrastructure.Services;
+using SimRacingShop.Core.Services;
 using System.Security.Claims;
 
 namespace SimRacingShop.UnitTests.Controllers;
@@ -62,7 +62,7 @@ public class AuthControllerTests
             Token = "jwt-token",
             RefreshToken = "refresh-token",
             ExpiresAt = DateTime.UtcNow.AddHours(1),
-            User = new UserDto
+            User = new UserDetailDto
             {
                 Id = Guid.NewGuid(),
                 Email = dto.Email,
@@ -126,7 +126,7 @@ public class AuthControllerTests
             Token = "jwt-token",
             RefreshToken = "refresh-token",
             ExpiresAt = DateTime.UtcNow.AddHours(1),
-            User = new UserDto
+            User = new UserDetailDto
             {
                 Id = Guid.NewGuid(),
                 Email = dto.Email,
@@ -171,7 +171,7 @@ public class AuthControllerTests
             Token = "jwt-token",
             RefreshToken = "refresh-token",
             ExpiresAt = DateTime.UtcNow.AddHours(1),
-            User = new UserDto
+            User = new UserDetailDto
             {
                 Id = Guid.NewGuid(),
                 Email = dto.Email,
@@ -230,7 +230,7 @@ public class AuthControllerTests
             Token = "jwt-token",
             RefreshToken = "refresh-token",
             ExpiresAt = DateTime.UtcNow.AddHours(1),
-            User = new UserDto
+            User = new UserDetailDto
             {
                 Id = Guid.NewGuid(),
                 Email = dto.Email,
@@ -323,7 +323,7 @@ public class AuthControllerTests
             HttpContext = new DefaultHttpContext { User = principal }
         };
 
-        var expectedUser = new UserDto
+        var expectedUser = new UserDetailDto
         {
             Id = userId,
             Email = "test@example.com",
@@ -341,7 +341,7 @@ public class AuthControllerTests
 
         // Assert
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
-        var user = okResult.Value.Should().BeOfType<UserDto>().Subject;
+        var user = okResult.Value.Should().BeOfType<UserDetailDto>().Subject;
         user.Id.Should().Be(userId);
         user.Email.Should().Be(expectedUser.Email);
     }
@@ -387,7 +387,7 @@ public class AuthControllerTests
         };
 
         _authServiceMock.Setup(x => x.GetUserByIdAsync(userId))
-            .ReturnsAsync((UserDto?)null);
+            .ReturnsAsync((UserDetailDto?)null);
 
         // Act
         var result = await _controller.GetCurrentUser();
@@ -960,7 +960,7 @@ public class AuthControllerTests
             Token = "new-jwt-token",
             RefreshToken = "new-refresh-token",
             ExpiresAt = DateTime.UtcNow.AddHours(1),
-            User = new UserDto
+            User = new UserDetailDto
             {
                 Id = Guid.NewGuid(),
                 Email = "test@example.com",
@@ -1039,7 +1039,7 @@ public class AuthControllerTests
             Token = "new-jwt-token",
             RefreshToken = "new-refresh-token",
             ExpiresAt = DateTime.UtcNow.AddHours(1),
-            User = new UserDto
+            User = new UserDetailDto
             {
                 Id = userId,
                 Email = "test@example.com",

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Options;
 using Resend;
+using SimRacingShop.Core.Services;
 using SimRacingShop.Core.Settings;
 using System.Web;
 

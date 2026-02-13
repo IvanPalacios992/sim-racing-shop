@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualBasic;
 using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
+using SimRacingShop.Core.Services;
 using SimRacingShop.Core.Settings;
 using SimRacingShop.Infrastructure.Data;
 using System.IdentityModel.Tokens.Jwt;
@@ -150,7 +151,7 @@ namespace SimRacingShop.Infrastructure.Services
             };
         }
 
-        public async Task<UserDto?> GetUserByIdAsync(Guid userId)
+        public async Task<UserDetailDto?> GetUserByIdAsync(Guid userId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
             return user != null ? await MapUserToDto(user) : null;
@@ -309,11 +310,11 @@ namespace SimRacingShop.Infrastructure.Services
             return Convert.ToBase64String(randomBytes);
         }
 
-        private async Task<UserDto> MapUserToDto(User user)
+        private async Task<UserDetailDto> MapUserToDto(User user)
         {
             var roles = await _userManager.GetRolesAsync(user);
 
-            return new UserDto
+            return new UserDetailDto
             {
                 Id = user.Id,
                 Email = user.Email!,

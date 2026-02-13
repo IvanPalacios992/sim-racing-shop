@@ -4,7 +4,15 @@ using System.Text;
 
 namespace SimRacingShop.Core.DTOs
 {
-    public record UserDto
+    public record UpdateUserDto
+    {
+        public string Email { get; init; } = null!;
+        public string? FirstName { get; init; }
+        public string? LastName { get; init; }
+        public string Language { get; init; } = null!;
+        public bool EmailVerified { get; init; }
+    }
+    public record UserDetailDto
     {
         public Guid Id { get; init; }
         public string Email { get; init; } = null!;
