@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SimRacingShop.Core.DTOs;
-using SimRacingShop.Infrastructure.Services;
+using SimRacingShop.Core.Services;
 
 namespace SimRacingShop.API.Controllers
 {
@@ -150,7 +150,7 @@ namespace SimRacingShop.API.Controllers
         /// </summary>
         [Authorize]
         [HttpGet("me")]
-        [ProducesResponseType(typeof(UserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(UserDetailDto), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> GetCurrentUser()
         {

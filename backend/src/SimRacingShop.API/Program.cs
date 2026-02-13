@@ -182,6 +182,8 @@ try
     builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
     builder.Services.AddScoped<IComponentAdminRepository, ComponentAdminRepository>();
     builder.Services.AddScoped<ICategoryAdminRepository, CategoryAdminRepository>();
+    builder.Services.AddScoped<IUserAddressRepository, UserAddressRepository>();
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
     builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryDtoValidator>();
     builder.Services.AddFluentValidationAutoValidation();

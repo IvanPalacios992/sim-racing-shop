@@ -9,6 +9,6 @@ namespace SimRacingShop.Core.DTOs
         public string Token { get; init; } = null!;
         public string RefreshToken { get; init; } = null!;
         public DateTime ExpiresAt { get; init; }
-        public UserDto User { get; init; } = null!;
+        public UserDetailDto User { get; init; } = null!;
     }
 }

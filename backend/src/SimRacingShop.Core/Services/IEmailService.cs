@@ -1,4 +1,4 @@
-namespace SimRacingShop.Infrastructure.Services
+namespace SimRacingShop.Core.Services
 {
     public interface IEmailService
     {
