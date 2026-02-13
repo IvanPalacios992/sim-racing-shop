@@ -1049,6 +1049,326 @@
             }
         }
 
+        /* Checkout Page */
+        .checkout-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+        }
+
+        .checkout-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .checkout-section {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .checkout-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--graphite);
+        }
+
+        .checkout-section-title {
+            font-size: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .checkout-step-number {
+            width: 32px;
+            height: 32px;
+            background: var(--racing-red);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .checkout-section-title.completed .checkout-step-number {
+            background: var(--success);
+        }
+
+        .address-card {
+            background: var(--obsidian-black);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid var(--graphite);
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+
+        .address-card:hover {
+            border-color: var(--electric-blue);
+        }
+
+        .address-card.selected {
+            border-color: var(--racing-red);
+            background: rgba(229, 57, 53, 0.05);
+        }
+
+        .address-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .address-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .address-badge {
+            padding: 0.25rem 0.75rem;
+            background: var(--champagne-gold);
+            color: var(--obsidian-black);
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .address-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .address-btn {
+            background: transparent;
+            border: none;
+            color: var(--silver);
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: color 0.3s;
+        }
+
+        .address-btn:hover {
+            color: var(--electric-blue);
+        }
+
+        .address-content {
+            color: var(--silver);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .add-address-btn {
+            width: 100%;
+            padding: 1rem;
+            background: var(--obsidian-black);
+            border: 2px dashed var(--graphite);
+            border-radius: 12px;
+            color: var(--electric-blue);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .add-address-btn:hover {
+            border-color: var(--electric-blue);
+            background: rgba(33, 150, 243, 0.05);
+        }
+
+        .payment-methods {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .payment-method {
+            background: var(--obsidian-black);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid var(--graphite);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .payment-method:hover {
+            border-color: var(--electric-blue);
+        }
+
+        .payment-method.selected {
+            border-color: var(--racing-red);
+            background: rgba(229, 57, 53, 0.05);
+        }
+
+        .payment-radio {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid var(--graphite);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .payment-method.selected .payment-radio {
+            border-color: var(--racing-red);
+        }
+
+        .payment-method.selected .payment-radio::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            background: var(--racing-red);
+            border-radius: 50%;
+        }
+
+        .payment-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--carbon-gray);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .payment-info {
+            flex: 1;
+        }
+
+        .payment-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 0.25rem;
+        }
+
+        .payment-desc {
+            font-size: 13px;
+            color: var(--silver);
+        }
+
+        .checkout-summary {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            height: fit-content;
+            position: sticky;
+            top: 160px;
+        }
+
+        .checkout-summary-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-item-compact {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--obsidian-black);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .order-item-compact-img {
+            width: 60px;
+            height: 45px;
+            background: var(--graphite);
+            border-radius: 6px;
+            object-fit: cover;
+        }
+
+        .order-item-compact-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .order-item-compact-name {
+            font-size: 13px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        .order-item-compact-brand {
+            font-size: 11px;
+            color: var(--silver);
+        }
+
+        .order-item-compact-qty {
+            font-size: 11px;
+            color: var(--silver);
+        }
+
+        .order-item-compact-price {
+            font-weight: 600;
+            font-size: 14px;
+            text-align: right;
+        }
+
+        .checkout-place-order {
+            margin-top: 1.5rem;
+        }
+
+        .checkout-terms {
+            font-size: 12px;
+            color: var(--silver);
+            text-align: center;
+            margin-top: 1rem;
+            line-height: 1.5;
+        }
+
+        .checkout-terms a {
+            color: var(--electric-blue);
+            text-decoration: none;
+        }
+
+        .checkout-security {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: var(--obsidian-black);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--silver);
+        }
+
+        @media (max-width: 1024px) {
+            .checkout-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .checkout-summary {
+                position: static;
+            }
+        }
+
         .cart-badge {
             position: absolute;
             top: -8px;
@@ -2127,6 +2447,7 @@
                 <button class="page-btn" data-page="orders">Pedidos</button>
                 <button class="page-btn" data-page="settings">Configuración</button>
                 <button class="page-btn" data-page="cart">Carrito</button>
+                <button class="page-btn" data-page="checkout">Checkout</button>
                 <button class="page-btn" data-page="register">Register</button>
                 <button class="page-btn" data-page="login">Login</button>
                 <button class="page-btn" data-page="forgot">Forgot Password</button>
@@ -3090,7 +3411,7 @@
                             <div class="user-menu">
                                 <div class="user-menu-header">
                                     <div class="user-menu-name">John Doe</div>
-                                    <div class="user-menu-email">john.doe@example.com</div>
+                                    <div class="user-menu-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e882878086c68c878da88d90898598848dc68b8785">[email&#160;protected]</a></div>
                                 </div>
                                 <a href="#" class="user-menu-item">
                                     <span class="material-symbols-outlined">account_circle</span>
@@ -3164,7 +3485,7 @@
                             <span class="material-symbols-outlined">person</span>
                         </div>
                         <div class="account-user-name">John Doe</div>
-                        <div class="account-user-email">john.doe@example.com</div>
+                        <div class="account-user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7c16131412521813193c19041d110c1019521f1311">[email&#160;protected]</a></div>
                     </div>
                     <nav>
                         <ul class="account-nav">
@@ -3230,7 +3551,7 @@
                             </div>
                             <div class="profile-info-item">
                                 <div class="profile-info-label">Email</div>
-                                <div class="profile-info-value">john.doe@example.com</div>
+                                <div class="profile-info-value"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8de7e2e5e3a3e9e2e8cde8f5ece0fde1e8a3eee2e0">[email&#160;protected]</a></div>
                             </div>
                             <div class="profile-info-item">
                                 <div class="profile-info-label">Teléfono</div>
@@ -3300,7 +3621,7 @@
                             <div class="user-menu">
                                 <div class="user-menu-header">
                                     <div class="user-menu-name">John Doe</div>
-                                    <div class="user-menu-email">john.doe@example.com</div>
+                                    <div class="user-menu-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1872777076367c777d587d60797568747d367b7775">[email&#160;protected]</a></div>
                                 </div>
                                 <a href="#" class="user-menu-item">
                                     <span class="material-symbols-outlined">account_circle</span>
@@ -3370,7 +3691,7 @@
                             <span class="material-symbols-outlined">person</span>
                         </div>
                         <div class="account-user-name">John Doe</div>
-                        <div class="account-user-email">john.doe@example.com</div>
+                        <div class="account-user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2b41444345054f444e6b4e534a465b474e05484446">[email&#160;protected]</a></div>
                     </div>
                     <nav>
                         <ul class="account-nav">
@@ -3538,7 +3859,7 @@
                             <div class="user-menu">
                                 <div class="user-menu-header">
                                     <div class="user-menu-name">John Doe</div>
-                                    <div class="user-menu-email">john.doe@example.com</div>
+                                    <div class="user-menu-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1973767177377d767c597c61787469757c377a7674">[email&#160;protected]</a></div>
                                 </div>
                                 <a href="#" class="user-menu-item">
                                     <span class="material-symbols-outlined">account_circle</span>
@@ -3608,7 +3929,7 @@
                             <span class="material-symbols-outlined">person</span>
                         </div>
                         <div class="account-user-name">John Doe</div>
-                        <div class="account-user-email">john.doe@example.com</div>
+                        <div class="account-user-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ea80858284c48e858faa8f928b879a868fc4898587">[email&#160;protected]</a></div>
                     </div>
                     <nav>
                         <ul class="account-nav">
@@ -3810,7 +4131,7 @@
                             <div class="user-menu">
                                 <div class="user-menu-header">
                                     <div class="user-menu-name">John Doe</div>
-                                    <div class="user-menu-email">john.doe@example.com</div>
+                                    <div class="user-menu-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="315b5e595f1f555e54715449505c415d541f525e5c">[email&#160;protected]</a></div>
                                 </div>
                                 <a href="#" class="user-menu-item">
                                     <span class="material-symbols-outlined">account_circle</span>
@@ -4027,6 +4348,383 @@
         </div>
     </div>
 
+    <!-- PAGE 8: CHECKOUT -->
+    <div id="checkout" class="page-content">
+        <header class="site-header">
+            <div class="header-container">
+                <a href="#" class="logo">SIM<span>RACING</span></a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#">WHEELS</a></li>
+                        <li><a href="#">PEDALS</a></li>
+                        <li><a href="#">COCKPITS</a></li>
+                        <li><a href="#">ACCESSORIES</a></li>
+                        <li><a href="#">SALE</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <div class="dropdown" id="userDropdown8">
+                        <button class="icon-btn">
+                            <span class="material-symbols-outlined">person</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">John Doe</div>
+                                    <div class="user-menu-email">john.doe@example.com</div>
+                                </div>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                                <div class="user-menu-divider"></div>
+                                <button class="user-menu-item user-menu-logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown" id="cartDropdown8">
+                        <button class="icon-btn">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span class="cart-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu mini-cart">
+                            <div class="mini-cart-header">
+                                <h3 class="mini-cart-title">Carrito de Compras</h3>
+                                <span class="mini-cart-count">3 artículos</span>
+                            </div>
+                            <div class="mini-cart-items">
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Fanatec</div>
+                                        <div class="mini-cart-item-name">ClubSport Steering Wheel</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€349.95</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-subtotal">
+                                    <span class="mini-cart-subtotal-label">Subtotal:</span>
+                                    <span class="mini-cart-subtotal-amount">€1,747.95</span>
+                                </div>
+                                <div class="mini-cart-actions">
+                                    <button class="btn btn-primary" style="width: 100%;">VER CARRITO</button>
+                                    <button class="btn btn-secondary" style="width: 100%;">FINALIZAR COMPRA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="account-page">
+            <div style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+                <div class="breadcrumb" style="margin-bottom: 2rem;">
+                    <a href="#">Home</a> <span>/</span> <a href="#">Carrito</a> <span>/</span> <span>Checkout</span>
+                </div>
+                <h1 style="font-size: 40px; font-weight: 700; margin-bottom: 1rem;">Finalizar Compra</h1>
+                <p style="color: var(--silver); margin-bottom: 3rem;">Completa tu pedido de forma segura</p>
+            </div>
+
+            <div class="checkout-layout">
+                <!-- Checkout Main Content -->
+                <div class="checkout-main">
+                    <!-- Step 1: Billing Address -->
+                    <div class="checkout-section">
+                        <div class="checkout-section-header">
+                            <h2 class="checkout-section-title completed">
+                                <span class="checkout-step-number">
+                                    <span class="material-symbols-outlined" style="font-size: 20px;">check</span>
+                                </span>
+                                Dirección de Facturación
+                            </h2>
+                            <button class="btn-ghost" style="font-size: 14px;">Editar</button>
+                        </div>
+
+                        <div class="address-card selected">
+                            <div class="address-card-header">
+                                <div class="address-label">
+                                    <span class="material-symbols-outlined" style="color: var(--racing-red);">radio_button_checked</span>
+                                    <span>Dirección Principal</span>
+                                    <span class="address-badge">Por Defecto</span>
+                                </div>
+                            </div>
+                            <div class="address-content">
+                                <div style="font-weight: 600; color: var(--pure-white); margin-bottom: 0.5rem;">John Doe</div>
+                                <div>Calle Mayor 123, 4º A</div>
+                                <div>28001 Madrid, Madrid</div>
+                                <div>España</div>
+                                <div style="margin-top: 0.5rem;">Tel: +34 612 345 678</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Shipping Address -->
+                    <div class="checkout-section">
+                        <div class="checkout-section-header">
+                            <h2 class="checkout-section-title">
+                                <span class="checkout-step-number">2</span>
+                                Dirección de Envío
+                            </h2>
+                            <button class="btn-ghost" style="font-size: 14px;">
+                                <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">add</span>
+                                Nueva Dirección
+                            </button>
+                        </div>
+
+                        <div class="address-card selected" data-address="home">
+                            <div class="address-card-header">
+                                <div class="address-label">
+                                    <span class="material-symbols-outlined" style="color: var(--racing-red);">radio_button_checked</span>
+                                    <span>Casa</span>
+                                    <span class="address-badge">Por Defecto</span>
+                                </div>
+                                <div class="address-actions">
+                                    <button class="address-btn" title="Editar">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="address-btn" title="Eliminar">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="address-content">
+                                <div style="font-weight: 600; color: var(--pure-white); margin-bottom: 0.5rem;">John Doe</div>
+                                <div>Calle Mayor 123, 4º A</div>
+                                <div>28001 Madrid, Madrid</div>
+                                <div>España</div>
+                                <div style="margin-top: 0.5rem;">Tel: +34 612 345 678</div>
+                            </div>
+                        </div>
+
+                        <div class="address-card" data-address="office">
+                            <div class="address-card-header">
+                                <div class="address-label">
+                                    <span class="material-symbols-outlined" style="color: var(--graphite);">radio_button_unchecked</span>
+                                    <span>Oficina</span>
+                                </div>
+                                <div class="address-actions">
+                                    <button class="address-btn" title="Editar">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="address-btn" title="Eliminar">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="address-content">
+                                <div style="font-weight: 600; color: var(--pure-white); margin-bottom: 0.5rem;">John Doe</div>
+                                <div>Avenida de la Castellana 95, Torre Europa</div>
+                                <div>28046 Madrid, Madrid</div>
+                                <div>España</div>
+                                <div style="margin-top: 0.5rem;">Tel: +34 612 345 678</div>
+                            </div>
+                        </div>
+
+                        <div class="address-card" data-address="parents">
+                            <div class="address-card-header">
+                                <div class="address-label">
+                                    <span class="material-symbols-outlined" style="color: var(--graphite);">radio_button_unchecked</span>
+                                    <span>Casa de los Padres</span>
+                                </div>
+                                <div class="address-actions">
+                                    <button class="address-btn" title="Editar">
+                                        <span class="material-symbols-outlined">edit</span>
+                                    </button>
+                                    <button class="address-btn" title="Eliminar">
+                                        <span class="material-symbols-outlined">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="address-content">
+                                <div style="font-weight: 600; color: var(--pure-white); margin-bottom: 0.5rem;">María Doe</div>
+                                <div>Calle de Alcalá 45, 2º B</div>
+                                <div>28014 Madrid, Madrid</div>
+                                <div>España</div>
+                                <div style="margin-top: 0.5rem;">Tel: +34 687 654 321</div>
+                            </div>
+                        </div>
+
+                        <button class="add-address-btn">
+                            <span class="material-symbols-outlined">add</span>
+                            Añadir Nueva Dirección
+                        </button>
+                    </div>
+
+                    <!-- Step 3: Payment Method -->
+                    <div class="checkout-section">
+                        <div class="checkout-section-header">
+                            <h2 class="checkout-section-title">
+                                <span class="checkout-step-number">3</span>
+                                Método de Pago
+                            </h2>
+                        </div>
+
+                        <div class="payment-methods">
+                            <div class="payment-method selected" data-payment="card">
+                                <div class="payment-radio"></div>
+                                <div class="payment-icon">
+                                    <span class="material-symbols-outlined">credit_card</span>
+                                </div>
+                                <div class="payment-info">
+                                    <div class="payment-name">Tarjeta de Crédito/Débito</div>
+                                    <div class="payment-desc">Paga de forma segura con Visa, Mastercard o American Express</div>
+                                </div>
+                            </div>
+
+                            <div class="payment-method" data-payment="paypal">
+                                <div class="payment-radio"></div>
+                                <div class="payment-icon" style="background: #0070BA; color: white; font-weight: 700; font-size: 14px;">
+                                    PayPal
+                                </div>
+                                <div class="payment-info">
+                                    <div class="payment-name">PayPal</div>
+                                    <div class="payment-desc">Serás redirigido a PayPal para completar el pago</div>
+                                </div>
+                            </div>
+
+                            <div class="payment-method" data-payment="klarna">
+                                <div class="payment-radio"></div>
+                                <div class="payment-icon" style="background: #FFB3C7; color: #000; font-weight: 700; font-size: 14px;">
+                                    Klarna
+                                </div>
+                                <div class="payment-info">
+                                    <div class="payment-name">Pagar en 3 Plazos con Klarna</div>
+                                    <div class="payment-desc">Divide tu pago en 3 cuotas sin intereses</div>
+                                </div>
+                            </div>
+
+                            <div class="payment-method" data-payment="transfer">
+                                <div class="payment-radio"></div>
+                                <div class="payment-icon">
+                                    <span class="material-symbols-outlined">account_balance</span>
+                                </div>
+                                <div class="payment-info">
+                                    <div class="payment-name">Transferencia Bancaria</div>
+                                    <div class="payment-desc">Recibirás las instrucciones por email tras realizar el pedido</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(33, 150, 243, 0.1); border-radius: 8px; border-left: 4px solid var(--electric-blue);">
+                            <div style="display: flex; gap: 0.75rem;">
+                                <span class="material-symbols-outlined" style="color: var(--electric-blue); font-size: 20px;">info</span>
+                                <div style="font-size: 14px;">
+                                    <div style="font-weight: 600; margin-bottom: 0.25rem;">Pago 100% Seguro</div>
+                                    <div style="color: var(--silver);">Tus datos están protegidos con encriptación SSL de 256 bits. No almacenamos información de tarjetas de crédito.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary Sidebar -->
+                <div class="checkout-summary">
+                    <h2 class="checkout-summary-title">Resumen del Pedido</h2>
+
+                    <div style="margin-bottom: 1.5rem; max-height: 300px; overflow-y: auto;">
+                        <div class="order-item-compact">
+                            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=120&h=90&fit=crop&q=80" alt="Product" class="order-item-compact-img">
+                            <div class="order-item-compact-info">
+                                <div class="order-item-compact-brand">Fanatec</div>
+                                <div class="order-item-compact-name">ClubSport Steering Wheel Formula V2.5</div>
+                                <div class="order-item-compact-qty">Cantidad: 1</div>
+                            </div>
+                            <div class="order-item-compact-price">€349.95</div>
+                        </div>
+
+                        <div class="order-item-compact">
+                            <img src="https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=120&h=90&fit=crop&q=80" alt="Product" class="order-item-compact-img">
+                            <div class="order-item-compact-info">
+                                <div class="order-item-compact-brand">Heusinkveld</div>
+                                <div class="order-item-compact-name">Sprint Pedal Set</div>
+                                <div class="order-item-compact-qty">Cantidad: 1</div>
+                            </div>
+                            <div class="order-item-compact-price">€799.00</div>
+                        </div>
+
+                        <div class="order-item-compact">
+                            <img src="https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=120&h=90&fit=crop&q=80" alt="Product" class="order-item-compact-img">
+                            <div class="order-item-compact-info">
+                                <div class="order-item-compact-brand">Sim-Lab</div>
+                                <div class="order-item-compact-name">GT1 Evo Cockpit</div>
+                                <div class="order-item-compact-qty">Cantidad: 1</div>
+                            </div>
+                            <div class="order-item-compact-price">€599.00</div>
+                        </div>
+                    </div>
+
+                    <div style="padding-top: 1.5rem; border-top: 1px solid var(--graphite); margin-bottom: 1.5rem;">
+                        <div class="summary-row">
+                            <span class="summary-label">Subtotal (3 artículos)</span>
+                            <span class="summary-value">€1,747.95</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Envío</span>
+                            <span class="summary-value success">GRATIS</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">IVA (21%)</span>
+                            <span class="summary-value">€367.07</span>
+                        </div>
+                    </div>
+
+                    <div class="summary-row total" style="margin-bottom: 0;">
+                        <span>Total a Pagar</span>
+                        <span>€2,115.02</span>
+                    </div>
+
+                    <div class="checkout-place-order">
+                        <button class="btn btn-primary" style="width: 100%; padding: 1.25rem; font-size: 18px;">
+                            <span class="material-symbols-outlined" style="font-size: 20px; vertical-align: middle; margin-right: 0.5rem;">lock</span>
+                            COMPLETAR PEDIDO
+                        </button>
+                        <div class="checkout-terms">
+                            Al realizar el pedido, aceptas nuestros 
+                            <a href="#">Términos y Condiciones</a> y 
+                            <a href="#">Política de Privacidad</a>
+                        </div>
+                    </div>
+
+                    <div class="checkout-security">
+                        <span class="material-symbols-outlined">verified_user</span>
+                        <span>Pago 100% Seguro y Encriptado</span>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--graphite);">
+                        <div style="font-size: 12px; color: var(--silver); margin-bottom: 0.75rem; text-align: center;">Métodos de pago aceptados</div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+                            <div style="padding: 0.5rem 0.75rem; background: var(--obsidian-black); border-radius: 6px; font-size: 11px;">Visa</div>
+                            <div style="padding: 0.5rem 0.75rem; background: var(--obsidian-black); border-radius: 6px; font-size: 11px;">Mastercard</div>
+                            <div style="padding: 0.5rem 0.75rem; background: var(--obsidian-black); border-radius: 6px; font-size: 11px;">Amex</div>
+                            <div style="padding: 0.5rem 0.75rem; background: var(--obsidian-black); border-radius: 6px; font-size: 11px;">PayPal</div>
+                            <div style="padding: 0.5rem 0.75rem; background: var(--obsidian-black); border-radius: 6px; font-size: 11px;">Klarna</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- PAGE 4: REGISTER -->
     <div id="register" class="page-content">
         <div class="auth-page">
@@ -4184,7 +4882,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // Page navigation
         const pageButtons = document.querySelectorAll('.page-btn');
         const pages = document.querySelectorAll('.page-content');
@@ -4247,6 +4945,8 @@
         initDropdown('cartDropdown6');
         initDropdown('userDropdown7');
         initDropdown('cartDropdown7');
+        initDropdown('userDropdown8');
+        initDropdown('cartDropdown8');
 
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
@@ -4373,6 +5073,46 @@
                 parent.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
                 // Add active to clicked chip
                 chip.classList.add('active');
+            });
+        });
+
+        // Checkout - Address selection
+        document.querySelectorAll('.address-card').forEach(card => {
+            card.addEventListener('click', () => {
+                // Find all address cards in the same section
+                const section = card.closest('.checkout-section');
+                const allCards = section.querySelectorAll('.address-card');
+                
+                // Remove selected class from all cards
+                allCards.forEach(c => {
+                    c.classList.remove('selected');
+                    const radio = c.querySelector('.material-symbols-outlined');
+                    if (radio && radio.textContent === 'radio_button_checked') {
+                        radio.textContent = 'radio_button_unchecked';
+                        radio.style.color = 'var(--graphite)';
+                    }
+                });
+                
+                // Add selected class to clicked card
+                card.classList.add('selected');
+                const radio = card.querySelector('.material-symbols-outlined');
+                if (radio) {
+                    radio.textContent = 'radio_button_checked';
+                    radio.style.color = 'var(--racing-red)';
+                }
+            });
+        });
+
+        // Checkout - Payment method selection
+        document.querySelectorAll('.payment-method').forEach(method => {
+            method.addEventListener('click', () => {
+                // Remove selected class from all methods
+                document.querySelectorAll('.payment-method').forEach(m => {
+                    m.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked method
+                method.classList.add('selected');
             });
         });
     </script>
