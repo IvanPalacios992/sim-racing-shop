@@ -24,7 +24,7 @@ namespace SimRacingShop.Infrastructure.Repositories
 
         public async Task UpdateAsync(User user)
         {
-            var existingUser = await _userManager.FindByEmailAsync(user.Email);
+            var existingUser = await _userManager.FindByEmailAsync(user.Email!);
             if (existingUser != null)
             {
                 throw new InvalidOperationException("El email ya está registrado");

@@ -8,6 +8,6 @@ namespace SimRacingShop.Core.Repositories
         Task<User?> GetUserByIdAsync(Guid userId);
         Task UpdateAsync(User user);
         Task DeleteAsync(User user);
-        
+
     }
 }

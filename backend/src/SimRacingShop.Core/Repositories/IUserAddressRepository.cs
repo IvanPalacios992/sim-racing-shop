@@ -12,6 +12,5 @@ namespace SimRacingShop.Core.Repositories
         bool ExistBillingAddressForUser(Guid userId);
         Task UpdateAsync(UserAddress userAddress);
         Task DeleteAsync(UserAddress userAddress);
-        
     }
 }

@@ -111,7 +111,7 @@ public class UserAddressRepositoryTests : IDisposable
         result.Should().NotBeNull();
         result.Id.Should().Be(address.Id);
 
-        var savedAddress = await _context.UserAddresses.FindAsync(address.Id);
+        var savedAddress = await _context.UserAddresses.FindAsync(new object[] { address.Id }, TestContext.Current.CancellationToken);
         savedAddress.Should().NotBeNull();
         savedAddress!.Street.Should().Be("New Street");
         savedAddress.AddressType.Should().Be(AddressType.Billing);
@@ -142,7 +142,7 @@ public class UserAddressRepositoryTests : IDisposable
         result.Should().NotBeNull();
         result.Name.Should().Be("Office");
 
-        var savedAddress = await _context.UserAddresses.FindAsync(address.Id);
+        var savedAddress = await _context.UserAddresses.FindAsync(new object[] { address.Id }, TestContext.Current.CancellationToken);
         savedAddress.Should().NotBeNull();
         savedAddress!.AddressType.Should().Be(AddressType.Delivery);
     }
@@ -387,7 +387,7 @@ public class UserAddressRepositoryTests : IDisposable
         await _repository.UpdateAsync(address);
 
         // Assert
-        var updatedAddress = await _context.UserAddresses.FindAsync(address.Id);
+        var updatedAddress = await _context.UserAddresses.FindAsync(new object[] { address.Id }, TestContext.Current.CancellationToken);
         updatedAddress.Should().NotBeNull();
         updatedAddress!.Name.Should().Be("Updated Name");
         updatedAddress.Street.Should().Be("Updated Street");
@@ -405,7 +405,7 @@ public class UserAddressRepositoryTests : IDisposable
         await _repository.UpdateAsync(address);
 
         // Assert
-        var updatedAddress = await _context.UserAddresses.FindAsync(address.Id);
+        var updatedAddress = await _context.UserAddresses.FindAsync(new object[] { address.Id }, TestContext.Current.CancellationToken);
         updatedAddress.Should().NotBeNull();
         updatedAddress!.City.Should().Be("Updated City");
         updatedAddress.PostalCode.Should().Be("99999");
@@ -426,7 +426,7 @@ public class UserAddressRepositoryTests : IDisposable
         await _repository.DeleteAsync(address);
 
         // Assert
-        var deletedAddress = await _context.UserAddresses.FindAsync(addressId);
+        var deletedAddress = await _context.UserAddresses.FindAsync(new object[] { addressId }, TestContext.Current.CancellationToken);
         deletedAddress.Should().BeNull();
     }
 
@@ -441,7 +441,7 @@ public class UserAddressRepositoryTests : IDisposable
         await _repository.DeleteAsync(address);
 
         // Assert
-        var deletedAddress = await _context.UserAddresses.FindAsync(addressId);
+        var deletedAddress = await _context.UserAddresses.FindAsync(new object[] { addressId }, TestContext.Current.CancellationToken);
         deletedAddress.Should().BeNull();
     }
 
@@ -456,7 +456,7 @@ public class UserAddressRepositoryTests : IDisposable
         await _repository.DeleteAsync(address1);
 
         // Assert
-        var remainingAddress = await _context.UserAddresses.FindAsync(address2.Id);
+        var remainingAddress = await _context.UserAddresses.FindAsync(new object[] { address2.Id }, TestContext.Current.CancellationToken);
         remainingAddress.Should().NotBeNull();
         remainingAddress!.Name.Should().Be("Address 2");
 
