@@ -279,5 +279,44 @@
     "copyright": "© {year} SimRacing Shop. All rights reserved.",
     "privacy": "Privacy Policy",
     "terms": "Terms of Service"
+  },
+  "PrivateArea": {
+    "profile": "My Profile",
+    "orders": "My Orders",
+    "wishlist": "Wishlist",
+    "settings": "Settings"
+  },
+  "Profile": {
+    "pageTitle": "My Profile - SimRacing Shop",
+    "pageDescription": "Manage your personal information and preferences",
+    "title": "My Profile",
+    "subtitle": "Manage your personal information and preferences",
+    "loading": "Loading profile...",
+    "errorLoadingProfile": "Error loading profile",
+    "noUserData": "Could not load user information",
+    "stats": {
+      "totalOrders": "Total Orders",
+      "totalSpent": "Total Spent",
+      "favoriteProducts": "Favorite Products",
+      "memberLevel": "Basic",
+      "level": "Member Level"
+    },
+    "personalInfo": {
+      "title": "Personal Information",
+      "fullName": "Full Name",
+      "email": "Email",
+      "language": "Language",
+      "emailVerified": "Email Verified",
+      "verified": "Verified",
+      "notVerified": "Not Verified",
+      "notProvided": "Not provided"
+    },
+    "roles": {
+      "title": "Roles"
+    },
+    "actions": {
+      "editProfile": "EDIT PROFILE",
+      "changePassword": "CHANGE PASSWORD"
+    }
   }
 }
