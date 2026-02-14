@@ -81,7 +81,7 @@ apiClient.interceptors.response.use(
     }
 
     // Don't try to refresh for auth endpoints
-    const authEndpoints = ["/auth/login", "/auth/register", "/auth/refresh"];
+    const authEndpoints = ["/auth/login", "/auth/register", "/auth/refresh-token"];
     if (authEndpoints.some((endpoint) => originalRequest.url?.includes(endpoint))) {
       return Promise.reject(error);
     }
@@ -111,12 +111,29 @@ apiClient.interceptors.response.use(
 
     try {
       const response = await axios.post<AuthResponseDto>(
-        `${API_URL}/auth/refresh`,
+        `${API_URL}/auth/refresh-token`,
         { refreshToken }
       );
 
-      const { token, refreshToken: newRefreshToken } = response.data;
+      const newAuthData = response.data;
+      const { token, refreshToken: newRefreshToken } = newAuthData;
+
+      // Update localStorage tokens
       setStoredTokens(token, newRefreshToken);
+
+      // Update authStore to keep it in sync
+      if (typeof window !== "undefined") {
+        const { useAuthStore } = await import("@/stores/auth-store");
+        const currentUser = useAuthStore.getState().user;
+
+        // Only update if user exists in store
+        if (currentUser) {
+          useAuthStore.getState().setAuth({
+            ...newAuthData,
+            user: newAuthData.user || currentUser, // Preserve user if not returned
+          });
+        }
+      }
 
       if (originalRequest.headers) {
         originalRequest.headers.Authorization = `Bearer ${token}`;
@@ -127,6 +144,13 @@ apiClient.interceptors.response.use(
     } catch (refreshError) {
       processQueue(refreshError as Error, null);
       clearStoredTokens();
+
+      // Clear authStore on refresh failure
+      if (typeof window !== "undefined") {
+        const { useAuthStore } = await import("@/stores/auth-store");
+        useAuthStore.getState().logout();
+      }
+
       return Promise.reject(refreshError);
     } finally {
       isRefreshing = false;

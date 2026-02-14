@@ -1,34 +1,69 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/stores/auth-store";
 import { authApi } from "@/lib/api/auth";
 import type { UserDto } from "@/types/auth";
 
+// Module-level flag to prevent duplicate fetches across component remounts
+let isCurrentlyFetching = false;
+let hasFetchedOnce = false;
+
 export default function ProfileContent() {
   const t = useTranslations("Profile");
-  const { user: storeUser } = useAuthStore();
+  const { user: storeUser, _hasHydrated } = useAuthStore();
   const [user, setUser] = useState<UserDto | null>(storeUser);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Wait for store to be hydrated before making API calls
+    if (!_hasHydrated) {
+      return;
+    }
+
+    // Prevent duplicate requests across remounts
+    if (hasFetchedOnce || isCurrentlyFetching) {
+      setLoading(false);
+      return;
+    }
+
+    let isMounted = true;
+    isCurrentlyFetching = true;
+
     const fetchUserData = async () => {
       try {
         setLoading(true);
         const userData = await authApi.getMe();
-        setUser(userData);
+
+        hasFetchedOnce = true;
+
+        // Only update if component is still mounted
+        if (isMounted) {
+          setUser(userData);
+          // Update authStore with fresh user data
+          useAuthStore.getState().setUser(userData);
+        }
       } catch (err) {
         console.error("Error fetching user data:", err);
-        setError(t("errorLoadingProfile"));
+        if (isMounted) {
+          setError(t("errorLoadingProfile"));
+        }
       } finally {
-        setLoading(false);
+        isCurrentlyFetching = false;
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchUserData();
-  }, [t]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [_hasHydrated, t]);
 
   if (loading) {
     return (

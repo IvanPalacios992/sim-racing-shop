@@ -9,6 +9,7 @@ const initialState = {
   refreshToken: null,
   isLoading: false,
   isAuthenticated: false,
+  _hasHydrated: false,
 };
 
 export const useAuthStore = create<AuthStore>()(
@@ -43,6 +44,7 @@ export const useAuthStore = create<AuthStore>()(
 
         set({
           ...initialState,
+          _hasHydrated: true, // Keep hydration flag
         });
       },
 
@@ -50,7 +52,7 @@ export const useAuthStore = create<AuthStore>()(
         // Clear tokens from apiClient localStorage
         clearStoredTokens();
 
-        set(initialState);
+        set({ ...initialState, _hasHydrated: true });
       },
     }),
     {
@@ -61,6 +63,10 @@ export const useAuthStore = create<AuthStore>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        state._hasHydrated = true;
+      },
     }
   )
 );

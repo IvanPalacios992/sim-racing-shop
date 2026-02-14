@@ -7,6 +7,19 @@ import {
 } from "@/lib/api-client";
 import axios, { AxiosError, AxiosHeaders } from "axios";
 
+// Mock authStore before importing api-client
+const mockSetAuth = vi.fn();
+const mockLogout = vi.fn();
+const mockGetState = vi.fn(() => ({
+  user: { id: "1", email: "test@test.com", firstName: "Test", lastName: "User" },
+  setAuth: mockSetAuth,
+  logout: mockLogout,
+}));
+
+vi.mock("@/stores/auth-store", () => ({
+  useAuthStore: Object.assign(mockGetState, { getState: mockGetState }),
+}));
+
 vi.mock("axios", async () => {
   const actual = await vi.importActual<typeof import("axios")>("axios");
   return {
@@ -28,6 +41,7 @@ vi.mock("axios", async () => {
 describe("api-client", () => {
   beforeEach(() => {
     localStorage.clear();
+    vi.clearAllMocks();
   });
 
   describe("getStoredToken", () => {
@@ -172,7 +186,7 @@ describe("api-client", () => {
         headers: {},
         config: { headers: new AxiosHeaders() },
       });
-      error.config = { headers: new AxiosHeaders(), url: "/auth/refresh" } as never;
+      error.config = { headers: new AxiosHeaders(), url: "/auth/refresh-token" } as never;
 
       await expect(responseInterceptor.rejected(error)).rejects.toEqual(error);
     });
@@ -226,7 +240,7 @@ describe("api-client", () => {
       }
 
       expect(axios.post).toHaveBeenCalledWith(
-        expect.stringContaining("/auth/refresh"),
+        expect.stringContaining("/auth/refresh-token"),
         { refreshToken: "old-refresh" }
       );
       expect(localStorage.getItem("auth-token")).toBe("new-token");
@@ -264,6 +278,67 @@ describe("api-client", () => {
       error.config = { headers: new AxiosHeaders(), url: "/api/data", _retry: true } as never;
 
       await expect(responseInterceptor.rejected(error)).rejects.toEqual(error);
+    });
+
+    it("syncs authStore when token refresh succeeds", async () => {
+      localStorage.setItem("auth-token", "old-token");
+      localStorage.setItem("auth-refresh-token", "old-refresh");
+
+      const newAuthResponse = {
+        token: "new-token",
+        refreshToken: "new-refresh",
+        expiresAt: new Date().toISOString(),
+        user: { id: "1", email: "test@test.com", firstName: "Test", lastName: "User" },
+      };
+
+      (axios.post as ReturnType<typeof vi.fn>).mockResolvedValueOnce({ data: newAuthResponse });
+
+      const error = new AxiosError("Unauthorized", "ERR_BAD_REQUEST", undefined, undefined, {
+        status: 401,
+        data: {},
+        statusText: "Unauthorized",
+        headers: {},
+        config: { headers: new AxiosHeaders() },
+      });
+      error.config = { headers: new AxiosHeaders(), url: "/api/data" } as never;
+
+      try {
+        await responseInterceptor.rejected(error);
+      } catch {
+        // Expected: the retry of the original request may fail
+      }
+
+      // Verify authStore was updated with new tokens
+      expect(mockSetAuth).toHaveBeenCalledWith(
+        expect.objectContaining({
+          token: "new-token",
+          refreshToken: "new-refresh",
+          user: newAuthResponse.user,
+        })
+      );
+    });
+
+    it("calls authStore.logout() when token refresh fails", async () => {
+      localStorage.setItem("auth-token", "old-token");
+      localStorage.setItem("auth-refresh-token", "old-refresh");
+
+      (axios.post as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("Refresh failed"));
+
+      const error = new AxiosError("Unauthorized", "ERR_BAD_REQUEST", undefined, undefined, {
+        status: 401,
+        data: {},
+        statusText: "Unauthorized",
+        headers: {},
+        config: { headers: new AxiosHeaders() },
+      });
+      error.config = { headers: new AxiosHeaders(), url: "/api/data" } as never;
+
+      await expect(responseInterceptor.rejected(error)).rejects.toThrow("Refresh failed");
+
+      // Verify authStore was cleared
+      expect(mockLogout).toHaveBeenCalled();
+      expect(localStorage.getItem("auth-token")).toBeNull();
+      expect(localStorage.getItem("auth-refresh-token")).toBeNull();
     });
   });
 });
