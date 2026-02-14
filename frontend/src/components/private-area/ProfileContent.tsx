@@ -4,18 +4,30 @@ import { useEffect, useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/stores/auth-store";
 import { authApi } from "@/lib/api/auth";
+import { addressesApi } from "@/lib/api/addresses";
 import type { UserDto } from "@/types/auth";
-
-// Module-level flag to prevent duplicate fetches across component remounts
-let isCurrentlyFetching = false;
-let hasFetchedOnce = false;
+import type { BillingAddressDetailDto, DeliveryAddressDetailDto } from "@/types/addresses";
+import { Plus, Pencil } from "lucide-react";
+import AddBillingAddressModal from "./AddBillingAddressModal";
+import AddDeliveryAddressModal from "./AddDeliveryAddressModal";
+import BillingAddressCard from "./BillingAddressCard";
+import DeliveryAddressCard from "./DeliveryAddressCard";
+import EditUserModal from "./EditUserModal";
+import { Button } from "../ui/button";
 
 export default function ProfileContent() {
   const t = useTranslations("Profile");
   const { user: storeUser, _hasHydrated } = useAuthStore();
   const [user, setUser] = useState<UserDto | null>(storeUser);
+  const [billingAddress, setBillingAddress] = useState<BillingAddressDetailDto | null>(null);
+  const [deliveryAddresses, setDeliveryAddresses] = useState<DeliveryAddressDetailDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showBillingModal, setShowBillingModal] = useState(false);
+  const [showDeliveryModal, setShowDeliveryModal] = useState(false);
+  const [showEditUserModal, setShowEditUserModal] = useState(false);
+  const [editingBillingAddress, setEditingBillingAddress] = useState<BillingAddressDetailDto | null>(null);
+  const [editingDeliveryAddress, setEditingDeliveryAddress] = useState<DeliveryAddressDetailDto | null>(null);
 
   useEffect(() => {
     // Wait for store to be hydrated before making API calls
@@ -23,25 +35,24 @@ export default function ProfileContent() {
       return;
     }
 
-    // Prevent duplicate requests across remounts
-    if (hasFetchedOnce || isCurrentlyFetching) {
-      setLoading(false);
-      return;
-    }
-
     let isMounted = true;
-    isCurrentlyFetching = true;
 
     const fetchUserData = async () => {
       try {
         setLoading(true);
-        const userData = await authApi.getMe();
 
-        hasFetchedOnce = true;
+        // Fetch user data and addresses in parallel
+        const [userData, billing, delivery] = await Promise.all([
+          authApi.getMe(),
+          addressesApi.getBillingAddress(),
+          addressesApi.getDeliveryAddresses(),
+        ]);
 
         // Only update if component is still mounted
         if (isMounted) {
           setUser(userData);
+          setBillingAddress(billing);
+          setDeliveryAddresses(delivery);
           // Update authStore with fresh user data
           useAuthStore.getState().setUser(userData);
         }
@@ -51,7 +62,6 @@ export default function ProfileContent() {
           setError(t("errorLoadingProfile"));
         }
       } finally {
-        isCurrentlyFetching = false;
         if (isMounted) {
           setLoading(false);
         }
@@ -64,6 +74,62 @@ export default function ProfileContent() {
       isMounted = false;
     };
   }, [_hasHydrated, t]);
+
+  const handleBillingAddressCreated = async () => {
+    try {
+      const billing = await addressesApi.getBillingAddress();
+      setBillingAddress(billing);
+    } catch (err) {
+      console.error("Error refreshing billing address:", err);
+    }
+  };
+
+  const handleDeliveryAddressCreated = async () => {
+    try {
+      const delivery = await addressesApi.getDeliveryAddresses();
+      setDeliveryAddresses(delivery);
+      setEditingDeliveryAddress(null);
+    } catch (err) {
+      console.error("Error refreshing delivery addresses:", err);
+    }
+  };
+
+  const handleEditBilling = () => {
+    if (billingAddress) {
+      setEditingBillingAddress(billingAddress);
+      setShowBillingModal(true);
+    }
+  };
+
+  const handleEditDelivery = (address: DeliveryAddressDetailDto) => {
+    setEditingDeliveryAddress(address);
+    setShowDeliveryModal(true);
+  };
+
+  const handleDeleteDelivery = async (addressId: string) => {
+    try {
+      await addressesApi.deleteDeliveryAddress(addressId);
+      const delivery = await addressesApi.getDeliveryAddresses();
+      setDeliveryAddresses(delivery);
+    } catch (err) {
+      console.error("Error deleting delivery address:", err);
+    }
+  };
+
+  const handleCloseBillingModal = () => {
+    setShowBillingModal(false);
+    setEditingBillingAddress(null);
+  };
+
+  const handleCloseDeliveryModal = () => {
+    setShowDeliveryModal(false);
+    setEditingDeliveryAddress(null);
+  };
+
+  const handleUserUpdated = (updatedUser: UserDto) => {
+    setUser(updatedUser);
+    useAuthStore.getState().setUser(updatedUser);
+  };
 
   if (loading) {
     return (
@@ -82,9 +148,9 @@ export default function ProfileContent() {
   }
 
   return (
-    <div className="space-y-6">
+    <div>
       {/* Header */}
-      <div className="bg-carbon-gray border border-graphite rounded-lg p-6">
+      <div className=" border-b border-graphite py-6 mb-6">
         <h1 className="text-3xl font-bold text-pure-white mb-2">
           {t("title")}
         </h1>
@@ -92,25 +158,25 @@ export default function ProfileContent() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-carbon-gray border border-graphite rounded-lg p-6 text-center">
+      <div className="mb-6 grid grid-cols-1 sm:grid-cols-4 lg:grid-cols-4 gap-4">
+        <div className="bg-obsidian rounded-lg p-6 text-center">
           <div className="text-3xl font-bold text-racing-red mb-2">0</div>
           <div className="text-sm text-silver">{t("stats.totalOrders")}</div>
         </div>
-        <div className="bg-carbon-gray border border-graphite rounded-lg p-6 text-center">
-          <div className="text-3xl font-bold text-electric-blue mb-2">
+        <div className="bg-obsidian rounded-lg p-6 text-center">
+          <div className="text-3xl font-bold text-racing-red mb-2">
             €0.00
           </div>
           <div className="text-sm text-silver">{t("stats.totalSpent")}</div>
         </div>
-        <div className="bg-carbon-gray border border-graphite rounded-lg p-6 text-center">
-          <div className="text-3xl font-bold text-champagne-gold mb-2">0</div>
+        <div className="bg-obsidian rounded-lg p-6 text-center">
+          <div className="text-3xl font-bold text-racing-red mb-2">0</div>
           <div className="text-sm text-silver">
             {t("stats.favoriteProducts")}
           </div>
         </div>
-        <div className="bg-carbon-gray border border-graphite rounded-lg p-6 text-center">
-          <div className="text-3xl font-bold text-success mb-2">
+        <div className="bg-obsidian rounded-lg p-6 text-center">
+          <div className="text-3xl font-bold text-racing-red mb-2">
             {t("stats.memberLevel")}
           </div>
           <div className="text-sm text-silver">{t("stats.level")}</div>
@@ -118,10 +184,19 @@ export default function ProfileContent() {
       </div>
 
       {/* Personal Information */}
-      <div className="bg-carbon-gray border border-graphite rounded-lg p-6">
-        <h2 className="text-xl font-bold text-pure-white mb-4">
-          {t("personalInfo.title")}
-        </h2>
+      <div className="bg-obsidian rounded-lg p-6 mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-pure-white">
+            {t("personalInfo.title")}
+          </h2>
+          <button
+            onClick={() => setShowEditUserModal(true)}
+            className="text-silver hover:text-electric-blue transition-colors p-2 cursor-pointer"
+            aria-label={t("personalInfo.edit")}
+          >
+            <Pencil className="w-4 h-4" />
+          </button>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <div className="text-sm text-silver mb-1">
@@ -162,34 +237,102 @@ export default function ProfileContent() {
         </div>
       </div>
 
-      {/* Roles */}
-      {user.roles && user.roles.length > 0 && (
-        <div className="bg-carbon-gray border border-graphite rounded-lg p-6">
-          <h2 className="text-xl font-bold text-pure-white mb-4">
-            {t("roles.title")}
-          </h2>
-          <div className="flex flex-wrap gap-2">
-            {user.roles.map((role) => (
-              <span
-                key={role}
-                className="px-3 py-1 bg-graphite text-electric-blue rounded-full text-sm font-medium"
-              >
-                {role}
-              </span>
-            ))}
+      {/* Billing Address */}
+      <div className="bg-obsidian rounded-lg p-6 mb-6">
+        <h2 className="text-xl font-bold text-pure-white mb-4">
+          {t("addresses.billingTitle")}
+        </h2>
+        {billingAddress ? (
+          <BillingAddressCard
+            address={billingAddress}
+            onEdit={handleEditBilling}
+          />
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-silver mb-4">{t("addresses.noBillingAddress")}</p>
+            <button
+              onClick={() => setShowBillingModal(true)}
+              className="px-4 py-2 bg-graphite hover:bg-smoke text-pure-white rounded-lg transition-colors inline-flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              {t("addresses.addBillingAddress")}
+            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* Delivery Addresses */}
+      <div className="bg-obsidian rounded-lg p-6 mb-6">
+        <h2 className="text-xl font-bold text-pure-white mb-4">
+          {t("addresses.deliveryTitle")}
+        </h2>
+        {deliveryAddresses.length > 0 ? (
+          <div className="space-y-4">
+            {deliveryAddresses.map((address) => (
+              <DeliveryAddressCard
+                key={address.id}
+                address={address}
+                onEdit={() => handleEditDelivery(address)}
+                onDelete={() => handleDeleteDelivery(address.id)}
+              />
+            ))}
+            <button
+              onClick={() => setShowDeliveryModal(true)}
+              className="w-full py-3 border-2 border-dashed border-graphite hover:border-electric-blue rounded-lg text-electric-blue font-semibold transition-colors inline-flex items-center justify-center gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              {t("addresses.addDeliveryAddress")}
+            </button>
+          </div>
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-silver mb-4">{t("addresses.noDeliveryAddresses")}</p>
+            <button
+              onClick={() => setShowDeliveryModal(true)}
+              className="px-4 py-2 bg-graphite hover:bg-smoke text-pure-white rounded-lg transition-colors inline-flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              {t("addresses.addDeliveryAddress")}
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Actions */}
       <div className="flex flex-wrap gap-4">
-        <button className="px-6 py-3 bg-racing-red hover:bg-racing-red/80 text-pure-white font-semibold rounded-lg transition-colors">
-          {t("actions.editProfile")}
-        </button>
-        <button className="px-6 py-3 bg-graphite hover:bg-smoke text-pure-white font-semibold rounded-lg transition-colors">
+        <Button
+          variant="secondary"
+          className="px-6 py-3"
+        >
           {t("actions.changePassword")}
-        </button>
+        </Button>
       </div>
+
+      {/* Modals */}
+      {user && (
+        <>
+          <EditUserModal
+            isOpen={showEditUserModal}
+            onClose={() => setShowEditUserModal(false)}
+            onSuccess={handleUserUpdated}
+            currentUser={user}
+          />
+          <AddBillingAddressModal
+            isOpen={showBillingModal}
+            onClose={handleCloseBillingModal}
+            onSuccess={handleBillingAddressCreated}
+            userId={user.id}
+            editAddress={editingBillingAddress}
+          />
+          <AddDeliveryAddressModal
+            isOpen={showDeliveryModal}
+            onClose={handleCloseDeliveryModal}
+            onSuccess={handleDeliveryAddressCreated}
+            userId={user.id}
+            editAddress={editingDeliveryAddress}
+          />
+        </>
+      )}
     </div>
   );
 }
