@@ -135,7 +135,7 @@ describe("authApi", () => {
 
       const result = await authApi.refreshToken("old-refresh");
 
-      expect(apiClient.post).toHaveBeenCalledWith("/auth/refresh", {
+      expect(apiClient.post).toHaveBeenCalledWith("/auth/refresh-token", {
         refreshToken: "old-refresh",
       });
       expect(setStoredTokens).toHaveBeenCalledWith("jwt-token", "refresh-token");
