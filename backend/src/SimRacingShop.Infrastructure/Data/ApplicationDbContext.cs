@@ -18,6 +18,7 @@ namespace SimRacingShop.Infrastructure.Data
 
         // DbSets (User ya viene de Identity)
         public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<UserCommunicationPreferences> UserCommunicationPreferences { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductTranslation> ProductTranslations { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }

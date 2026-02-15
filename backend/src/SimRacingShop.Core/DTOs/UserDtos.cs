@@ -22,4 +22,11 @@ namespace SimRacingShop.Core.DTOs
         public bool EmailVerified { get; init; }
         public IEnumerable<string> Roles { get; init; } = new List<string>();
     }
+
+    public record UserCommunicationPreferencesDto
+    {
+        public bool Newsletter { get; init; }
+        public bool OrderNotifications { get; init; }
+        public bool SmsPromotions { get; init; }
+    }
 }

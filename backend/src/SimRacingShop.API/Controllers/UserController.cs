@@ -18,7 +18,10 @@ namespace SimRacingShop.API.Controllers
         private readonly IUserRepository _userRepository;
         private readonly ILogger<UserController> _logger;
 
-        public UserController(IUserRepository userRepository, ILogger<UserController> logger)
+        public UserController(
+            IUserRepository userRepository,
+            IUserCommunicationPreferencesRepository communicationPreferencesRepository,
+            ILogger<UserController> logger)
         {
             _userRepository = userRepository;
             _logger = logger;
@@ -90,7 +93,6 @@ namespace SimRacingShop.API.Controllers
             _logger.LogInformation("User deleted: {UserId}", userId);
             return NoContent();
         }
-
 
         private UserDetailDto MapToUserDto(User user)
         {
