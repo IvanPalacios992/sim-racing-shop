@@ -184,6 +184,7 @@ try
     builder.Services.AddScoped<ICategoryAdminRepository, CategoryAdminRepository>();
     builder.Services.AddScoped<IUserAddressRepository, UserAddressRepository>();
     builder.Services.AddScoped<IUserRepository, UserRepository>();
+    builder.Services.AddScoped<IUserCommunicationPreferencesRepository, UserCommunicationPreferencesRepository>();
     builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
     builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryDtoValidator>();
     builder.Services.AddFluentValidationAutoValidation();

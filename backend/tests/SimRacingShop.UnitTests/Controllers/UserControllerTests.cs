@@ -14,6 +14,7 @@ namespace SimRacingShop.UnitTests.Controllers;
 public class UserControllerTests
 {
     private readonly Mock<IUserRepository> _repositoryMock;
+    private readonly Mock<IUserCommunicationPreferencesRepository> _communicationPreferencesRepositoryMock;
     private readonly Mock<ILogger<UserController>> _loggerMock;
     private readonly UserController _controller;
     private readonly Guid _userId;
@@ -21,8 +22,12 @@ public class UserControllerTests
     public UserControllerTests()
     {
         _repositoryMock = new Mock<IUserRepository>();
+        _communicationPreferencesRepositoryMock = new Mock<IUserCommunicationPreferencesRepository>();
         _loggerMock = new Mock<ILogger<UserController>>();
-        _controller = new UserController(_repositoryMock.Object, _loggerMock.Object);
+        _controller = new UserController(
+            _repositoryMock.Object,
+            _communicationPreferencesRepositoryMock.Object,
+            _loggerMock.Object);
         _userId = Guid.NewGuid();
 
         SetupAuthenticatedUser(_userId);
