@@ -155,7 +155,7 @@ export function LoginForm() {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full bg-racing-red hover:bg-racing-red/90 text-white font-semibold h-12 text-base"
+        className="w-full h-12 text-base"
       >
         {isSubmitting ? (
           <Loader2 className="h-5 w-5 animate-spin" />

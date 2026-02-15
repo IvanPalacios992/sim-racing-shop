@@ -1,21 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuthStore } from "@/stores/auth-store";
+import { authApi } from "@/lib/api/auth";
+import { User, ShoppingBag, Heart, Settings, LogOut } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 
 interface NavItem {
   href: string;
   labelKey: string;
-  icon: string;
+  icon: LucideIcon;
 }
 
 const navItems: NavItem[] = [
-  { href: "/perfil", labelKey: "profile", icon: "account_circle" },
-  { href: "/pedidos", labelKey: "orders", icon: "shopping_bag" },
-  { href: "/favoritos", labelKey: "wishlist", icon: "favorite" },
-  { href: "/configuracion", labelKey: "settings", icon: "settings" },
+  { href: "/perfil", labelKey: "profile", icon: User },
+  { href: "/pedidos", labelKey: "orders", icon: ShoppingBag },
+  { href: "/favoritos", labelKey: "wishlist", icon: Heart },
+  { href: "/configuracion", labelKey: "settings", icon: Settings },
 ];
 
 export default function PrivateAreaLayout({
@@ -24,8 +27,22 @@ export default function PrivateAreaLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const t = useTranslations("PrivateArea");
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
+
+  const handleLogout = async () => {
+    try {
+      await authApi.logout();
+      logout();
+      router.push("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Even if API call fails, clear local state and redirect
+      logout();
+      router.push("/");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-obsidian-black pt-20">
@@ -33,14 +50,12 @@ export default function PrivateAreaLayout({
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8">
           {/* Sidebar */}
           <aside className="lg:sticky lg:top-24 h-fit">
-            <div className="bg-carbon-gray border border-graphite rounded-lg overflow-hidden">
+            <div className="p-6 bg-carbon rounded-lg overflow-hidden">
               {/* User Info */}
-              <div className="p-6 border-b border-graphite">
+              <div className="py-6 mb-6 border-b border-graphite">
                 <div className="flex items-center justify-center mb-4">
                   <div className="w-20 h-20 rounded-full bg-graphite flex items-center justify-center">
-                    <span className="material-symbols-outlined text-4xl text-silver">
-                      person
-                    </span>
+                    <User className="w-10 h-10 text-silver" />
                   </div>
                 </div>
                 <div className="text-center">
@@ -57,7 +72,10 @@ export default function PrivateAreaLayout({
               <nav className="p-4">
                 <ul className="space-y-1">
                   {navItems.map((item) => {
-                    const isActive = pathname === item.href;
+                    // Check if current path ends with the item href (works with i18n routes like /es/perfil, /en/perfil)
+                    const isActive = pathname.endsWith(item.href);
+                    const Icon = item.icon;
+
                     return (
                       <li key={item.href}>
                         <Link
@@ -65,24 +83,33 @@ export default function PrivateAreaLayout({
                           className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                             isActive
                               ? "bg-racing-red text-pure-white"
-                              : "text-silver hover:bg-graphite hover:text-pure-white"
+                              : "text-pure-white hover:bg-graphite"
                           }`}
                         >
-                          <span className="material-symbols-outlined">
-                            {item.icon}
-                          </span>
+                          <Icon className="w-5 h-5" />
                           <span className="font-medium">{t(item.labelKey)}</span>
                         </Link>
                       </li>
                     );
                   })}
+
+                  {/* Logout Button */}
+                  <li className="pt-4 border-t border-graphite">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-racing-red cursor-pointer hover:bg-graphite"
+                    >
+                      <LogOut className="w-5 h-5" />
+                      <span className="font-medium">{t("logout")}</span>
+                    </button>
+                  </li>
                 </ul>
               </nav>
             </div>
           </aside>
 
           {/* Main Content */}
-          <main>{children}</main>
+          <main className="p-6 bg-carbon">{children}</main>
         </div>
       </div>
     </div>
