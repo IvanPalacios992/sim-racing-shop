@@ -366,5 +366,56 @@
       "editProfile": "EDITAR PERFIL",
       "changePassword": "CAMBIAR CONTRASEÑA"
     }
+  },
+  "Settings": {
+    "pageTitle": "Configuración - SimRacing Shop",
+    "pageDescription": "Gestiona la configuración y preferencias de tu cuenta",
+    "title": "Configuración",
+    "subtitle": "Gestiona la configuración y preferencias de tu cuenta",
+    "communicationPreferences": {
+      "title": "Preferencias de Comunicación",
+      "loadError": "Error al cargar las preferencias. Inténtalo de nuevo.",
+      "saveError": "Error al guardar las preferencias. Inténtalo de nuevo.",
+      "saveSuccess": "Preferencias guardadas correctamente",
+      "newsletter": {
+        "title": "Newsletter",
+        "description": "Recibe ofertas exclusivas y novedades"
+      },
+      "orderNotifications": {
+        "title": "Notificaciones de Pedidos",
+        "description": "Actualizaciones sobre el estado de tus pedidos"
+      },
+      "smsPromotions": {
+        "title": "Promociones SMS",
+        "description": "Recibe ofertas por mensaje de texto"
+      }
+    },
+    "security": {
+      "title": "Seguridad",
+      "description": "Para cambiar tu contraseña, te enviaremos un enlace de recuperación a tu email registrado.",
+      "sendButton": "ENVIAR EMAIL DE CAMBIO DE CONTRASEÑA",
+      "sending": "Enviando...",
+      "emailSent": "Email de recuperación enviado correctamente. Revisa tu bandeja de entrada.",
+      "emailError": "Error al enviar el email. Inténtalo de nuevo."
+    },
+    "dangerZone": {
+      "title": "Zona Peligrosa",
+      "description": "Una vez elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate.",
+      "deleteButton": "ELIMINAR CUENTA",
+      "emailMismatch": "El email no coincide. Por favor, introduce tu email correctamente.",
+      "deleteError": "Error al eliminar la cuenta. Inténtalo de nuevo.",
+      "modal": {
+        "title": "Eliminar Cuenta",
+        "description": "Esta acción es permanente y no se puede deshacer. Todos tus datos serán eliminados.",
+        "warning": "Al eliminar tu cuenta:",
+        "consequence1": "Toda tu información personal será eliminada permanentemente",
+        "consequence2": "Tu historial de pedidos se perderá",
+        "consequence3": "No podrás recuperar tu cuenta",
+        "emailLabel": "Para confirmar, escribe tu email: {email}",
+        "cancel": "Cancelar",
+        "confirm": "ELIMINAR MI CUENTA",
+        "deleting": "Eliminando..."
+      }
+    }
   }
 }

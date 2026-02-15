@@ -366,5 +366,56 @@
       "editProfile": "EDIT PROFILE",
       "changePassword": "CHANGE PASSWORD"
     }
+  },
+  "Settings": {
+    "pageTitle": "Settings - SimRacing Shop",
+    "pageDescription": "Manage your account settings and preferences",
+    "title": "Settings",
+    "subtitle": "Manage your account settings and preferences",
+    "communicationPreferences": {
+      "title": "Communication Preferences",
+      "loadError": "Error loading preferences. Please try again.",
+      "saveError": "Error saving preferences. Please try again.",
+      "saveSuccess": "Preferences saved successfully",
+      "newsletter": {
+        "title": "Newsletter",
+        "description": "Receive exclusive offers and news"
+      },
+      "orderNotifications": {
+        "title": "Order Notifications",
+        "description": "Updates about your order status"
+      },
+      "smsPromotions": {
+        "title": "SMS Promotions",
+        "description": "Receive offers via text message"
+      }
+    },
+    "security": {
+      "title": "Security",
+      "description": "To change your password, we'll send you a recovery link to your registered email.",
+      "sendButton": "SEND PASSWORD CHANGE EMAIL",
+      "sending": "Sending...",
+      "emailSent": "Password reset email sent successfully. Check your inbox.",
+      "emailError": "Error sending email. Please try again."
+    },
+    "dangerZone": {
+      "title": "Danger Zone",
+      "description": "Once you delete your account, there is no going back. Please be certain.",
+      "deleteButton": "DELETE ACCOUNT",
+      "emailMismatch": "Email does not match. Please enter your email correctly.",
+      "deleteError": "Error deleting account. Please try again.",
+      "modal": {
+        "title": "Delete Account",
+        "description": "This action is permanent and cannot be undone. All your data will be deleted.",
+        "warning": "By deleting your account:",
+        "consequence1": "All your personal information will be permanently deleted",
+        "consequence2": "Your order history will be lost",
+        "consequence3": "You will not be able to recover your account",
+        "emailLabel": "To confirm, type your email: {email}",
+        "cancel": "Cancel",
+        "confirm": "DELETE MY ACCOUNT",
+        "deleting": "Deleting..."
+      }
+    }
   }
 }
