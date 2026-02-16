@@ -163,6 +163,8 @@ try
 
     // Add services to the container.
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IOrderService, OrderService>();
+    builder.Services.AddScoped<IShippingService, ShippingService>();
     builder.Services.AddScoped<ProductRepository>();
     builder.Services.AddScoped<IProductRepository>(sp =>
         new CachedProductRepository(
@@ -185,6 +187,8 @@ try
     builder.Services.AddScoped<IUserAddressRepository, UserAddressRepository>();
     builder.Services.AddScoped<IUserRepository, UserRepository>();
     builder.Services.AddScoped<IUserCommunicationPreferencesRepository, UserCommunicationPreferencesRepository>();
+    builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+    builder.Services.AddScoped<IShippingZoneRepository, ShippingZoneRepository>();
     builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
     builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryDtoValidator>();
     builder.Services.AddFluentValidationAutoValidation();
@@ -294,10 +298,12 @@ try
         var services = scope.ServiceProvider;
         var userManager = services.GetRequiredService<UserManager<User>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        var context = services.GetRequiredService<ApplicationDbContext>();
         var logger = services.GetRequiredService<ILogger<Program>>();
         var adminSettings = builder.Configuration.GetSection("AdminSeed").Get<AdminSeedSettings>() ?? new AdminSeedSettings();
 
         await DbInitializer.SeedAsync(userManager, roleManager, adminSettings, logger);
+        await ShippingZoneSeeder.SeedAsync(context, logger);
     }
 
     // Log startup
