@@ -30,7 +30,7 @@ public class CreateOrderItemDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotHaveAnyValidationErrors();
@@ -51,7 +51,7 @@ public class CreateOrderItemDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.ProductId);
@@ -72,7 +72,7 @@ public class CreateOrderItemDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.ProductName)
@@ -94,7 +94,7 @@ public class CreateOrderItemDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.Quantity)
@@ -116,7 +116,7 @@ public class CreateOrderItemDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.Quantity)
@@ -138,7 +138,7 @@ public class CreateOrderItemDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.UnitPrice);
@@ -159,7 +159,7 @@ public class CreateOrderItemDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x)
@@ -206,7 +206,7 @@ public class CreateOrderDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotHaveAnyValidationErrors();
@@ -220,7 +220,7 @@ public class CreateOrderDtoValidatorTests
         dto.ShippingStreet = "";
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.ShippingStreet);
@@ -234,7 +234,7 @@ public class CreateOrderDtoValidatorTests
         dto.ShippingCountry = "ESP"; // Debería ser 2 caracteres
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.ShippingCountry)
@@ -249,7 +249,7 @@ public class CreateOrderDtoValidatorTests
         dto.Subtotal = -100m;
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.Subtotal);
@@ -263,7 +263,7 @@ public class CreateOrderDtoValidatorTests
         dto.OrderItems = new List<CreateOrderItemDto>();
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.OrderItems)
@@ -286,7 +286,7 @@ public class CreateOrderDtoValidatorTests
         }).ToList();
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.OrderItems)
@@ -301,7 +301,7 @@ public class CreateOrderDtoValidatorTests
         dto.Subtotal = 500m; // No coincide con los items
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x)
@@ -316,7 +316,7 @@ public class CreateOrderDtoValidatorTests
         dto.TotalAmount = 1000m; // No coincide con subtotal + IVA + envío
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x)

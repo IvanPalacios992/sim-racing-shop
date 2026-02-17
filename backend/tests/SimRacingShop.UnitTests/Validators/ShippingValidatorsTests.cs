@@ -26,7 +26,7 @@ public class CalculateShippingRequestDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotHaveAnyValidationErrors();
@@ -44,7 +44,7 @@ public class CalculateShippingRequestDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.PostalCode)
@@ -63,7 +63,7 @@ public class CalculateShippingRequestDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.PostalCode)
@@ -85,7 +85,7 @@ public class CalculateShippingRequestDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.PostalCode);
@@ -103,7 +103,7 @@ public class CalculateShippingRequestDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.Subtotal)
@@ -122,7 +122,7 @@ public class CalculateShippingRequestDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.WeightKg)
@@ -141,7 +141,7 @@ public class CalculateShippingRequestDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldHaveValidationErrorFor(x => x.WeightKg)
@@ -164,7 +164,7 @@ public class CalculateShippingRequestDtoValidatorTests
         };
 
         // Act
-        var result = await _validator.TestValidateAsync(dto);
+        var result = await _validator.TestValidateAsync(dto, cancellationToken: TestContext.Current.CancellationToken);
 
         // Assert
         result.ShouldNotHaveAnyValidationErrors();
