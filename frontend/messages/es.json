@@ -417,5 +417,32 @@
         "deleting": "Eliminando..."
       }
     }
+  },
+  "Orders": {
+    "pageTitle": "Mis Pedidos",
+    "pageDescription": "Consulta el estado de tus pedidos y compras anteriores",
+    "title": "Mis Pedidos",
+    "subtitle": "Consulta el estado de tus pedidos y compras anteriores",
+    "filterAll": "Todos",
+    "filterPending": "Pendiente",
+    "filterProcessing": "Procesando",
+    "filterShipped": "Enviado",
+    "filterDelivered": "Entregado",
+    "filterCancelled": "Cancelado",
+    "orderedOn": "Realizado el",
+    "total": "Total",
+    "viewDetails": "Ver detalles",
+    "andMore": "y {count} más",
+    "empty": "Aún no tienes pedidos",
+    "emptySubtitle": "Cuando realices tu primer pedido aparecerá aquí",
+    "shopNow": "Explorar productos",
+    "errorLoading": "Error al cargar los pedidos",
+    "retry": "Reintentar",
+    "noOrdersForFilter": "No hay pedidos con este estado",
+    "statusPending": "Pendiente",
+    "statusProcessing": "Procesando",
+    "statusShipped": "Enviado",
+    "statusDelivered": "Entregado",
+    "statusCancelled": "Cancelado"
   }
 }

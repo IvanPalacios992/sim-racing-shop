@@ -417,5 +417,32 @@
         "deleting": "Deleting..."
       }
     }
+  },
+  "Orders": {
+    "pageTitle": "My Orders",
+    "pageDescription": "Check the status of your orders and previous purchases",
+    "title": "My Orders",
+    "subtitle": "Check the status of your orders and previous purchases",
+    "filterAll": "All",
+    "filterPending": "Pending",
+    "filterProcessing": "Processing",
+    "filterShipped": "Shipped",
+    "filterDelivered": "Delivered",
+    "filterCancelled": "Cancelled",
+    "orderedOn": "Ordered on",
+    "total": "Total",
+    "viewDetails": "View details",
+    "andMore": "and {count} more",
+    "empty": "No orders yet",
+    "emptySubtitle": "When you place your first order it will appear here",
+    "shopNow": "Explore products",
+    "errorLoading": "Error loading orders",
+    "retry": "Retry",
+    "noOrdersForFilter": "No orders with this status",
+    "statusPending": "Pending",
+    "statusProcessing": "Processing",
+    "statusShipped": "Shipped",
+    "statusDelivered": "Delivered",
+    "statusCancelled": "Cancelled"
   }
 }
