@@ -227,7 +227,7 @@ public class UserAddressesControllerTests
 
         // Assert
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
-        okResult.Value.Should().BeOfType<UserAddress>();
+        okResult.Value.Should().BeOfType<BillingAddressDetailDto>();
     }
 
     [Fact]
@@ -535,7 +535,7 @@ public class UserAddressesControllerTests
 
         // Assert
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
-        var response = okResult.Value.Should().BeAssignableTo<IEnumerable<UserAddress>>().Subject;
+        var response = okResult.Value.Should().BeAssignableTo<IEnumerable<DeliveryAddressDetailDto>>().Subject;
         response.Should().HaveCount(2);
     }
 
