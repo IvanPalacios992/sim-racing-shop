@@ -65,6 +65,7 @@ export default function SettingsContent() {
     key: keyof CommunicationPreferences,
     value: boolean
   ) => {
+    const previousPreferences = preferences;
     const newPreferences = { ...preferences, [key]: value };
     setPreferences(newPreferences);
 
@@ -81,7 +82,7 @@ export default function SettingsContent() {
       console.error("Error updating preferences:", error);
       setPreferencesError(t("communicationPreferences.saveError"));
       // Revert the change on error
-      setPreferences(preferences);
+      setPreferences(previousPreferences);
     } finally {
       setPreferencesSaving(false);
     }
