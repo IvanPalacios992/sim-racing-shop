@@ -1369,6 +1369,365 @@
             }
         }
 
+        /* Order Detail Page */
+        .order-detail-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .order-detail-header {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        .order-detail-info {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .order-detail-number {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .order-detail-meta {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .order-detail-meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .order-detail-meta-label {
+            font-size: 12px;
+            color: var(--silver);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .order-detail-meta-value {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .order-detail-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .order-timeline {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-steps {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline-step {
+            position: relative;
+            padding-bottom: 2.5rem;
+        }
+
+        .timeline-step:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: var(--graphite);
+        }
+
+        .timeline-step.completed::before {
+            background: var(--success);
+        }
+
+        .timeline-step.current::before {
+            background: linear-gradient(to bottom, var(--success) 50%, var(--graphite) 50%);
+        }
+
+        .timeline-step:last-child::before {
+            display: none;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: -3rem;
+            top: 0;
+            width: 32px;
+            height: 32px;
+            background: var(--graphite);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--carbon-gray);
+        }
+
+        .timeline-step.completed .timeline-icon {
+            background: var(--success);
+        }
+
+        .timeline-step.current .timeline-icon {
+            background: var(--racing-red);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.7); }
+            50% { box-shadow: 0 0 0 10px rgba(229, 57, 53, 0); }
+        }
+
+        .timeline-icon .material-symbols-outlined {
+            font-size: 18px;
+            color: var(--pure-white);
+        }
+
+        .timeline-content {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .timeline-step-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .timeline-step-desc {
+            font-size: 14px;
+            color: var(--silver);
+        }
+
+        .timeline-step-date {
+            font-size: 13px;
+            color: var(--silver);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .order-items-section {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .order-items-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+
+        .order-detail-item {
+            display: grid;
+            grid-template-columns: 100px 1fr auto;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--obsidian-black);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+        }
+
+        .order-detail-item-img {
+            width: 100px;
+            height: 75px;
+            background: var(--graphite);
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .order-detail-item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .order-detail-item-brand {
+            font-size: 13px;
+            color: var(--silver);
+        }
+
+        .order-detail-item-name {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .order-detail-item-specs {
+            font-size: 13px;
+            color: var(--silver);
+        }
+
+        .order-detail-item-right {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-end;
+            text-align: right;
+        }
+
+        .order-detail-item-price {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .order-detail-item-qty {
+            font-size: 13px;
+            color: var(--silver);
+        }
+
+        .order-detail-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .order-detail-card {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .order-detail-card-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .order-detail-address {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--silver);
+        }
+
+        .order-detail-address strong {
+            color: var(--pure-white);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .order-summary-detail {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .tracking-info {
+            background: var(--obsidian-black);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .tracking-number {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .tracking-code {
+            font-family: 'Courier New', monospace;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--electric-blue);
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: 1px solid var(--graphite);
+            color: var(--silver);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            border-color: var(--electric-blue);
+            color: var(--electric-blue);
+        }
+
+        .help-section {
+            background: var(--carbon-gray);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .help-section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .help-section p {
+            color: var(--silver);
+            margin-bottom: 1.5rem;
+        }
+
+        .help-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        @media (max-width: 1024px) {
+            .order-detail-header {
+                grid-template-columns: 1fr;
+            }
+
+            .order-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .order-detail-actions {
+                flex-direction: row;
+            }
+        }
+
         .cart-badge {
             position: absolute;
             top: -8px;
@@ -2445,6 +2804,7 @@
                 <button class="page-btn" data-page="pdp">Product Detail</button>
                 <button class="page-btn" data-page="profile">Perfil</button>
                 <button class="page-btn" data-page="orders">Pedidos</button>
+                <button class="page-btn" data-page="order-detail">Detalle Pedido</button>
                 <button class="page-btn" data-page="settings">Configuración</button>
                 <button class="page-btn" data-page="cart">Carrito</button>
                 <button class="page-btn" data-page="checkout">Checkout</button>
@@ -3833,6 +4193,356 @@
         </div>
     </div>
 
+    <!-- PAGE 5.5: ORDER DETAIL -->
+    <div id="order-detail" class="page-content">
+        <header class="site-header">
+            <div class="header-container">
+                <a href="#" class="logo">SIM<span>RACING</span></a>
+                <nav>
+                    <ul class="nav-links">
+                        <li><a href="#">WHEELS</a></li>
+                        <li><a href="#">PEDALS</a></li>
+                        <li><a href="#">COCKPITS</a></li>
+                        <li><a href="#">ACCESSORIES</a></li>
+                        <li><a href="#">SALE</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="icon-btn">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <div class="dropdown" id="userDropdown5b">
+                        <button class="icon-btn">
+                            <span class="material-symbols-outlined">person</span>
+                        </button>
+                        <div class="dropdown-menu">
+                            <div class="user-menu">
+                                <div class="user-menu-header">
+                                    <div class="user-menu-name">John Doe</div>
+                                    <div class="user-menu-email">john.doe@example.com</div>
+                                </div>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">account_circle</span>
+                                    <span>Mi Perfil</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">shopping_bag</span>
+                                    <span>Mis Pedidos</span>
+                                </a>
+                                <a href="#" class="user-menu-item">
+                                    <span class="material-symbols-outlined">settings</span>
+                                    <span>Configuración</span>
+                                </a>
+                                <div class="user-menu-divider"></div>
+                                <button class="user-menu-item user-menu-logout">
+                                    <span class="material-symbols-outlined">logout</span>
+                                    <span>Cerrar Sesión</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown" id="cartDropdown5b">
+                        <button class="icon-btn">
+                            <span class="material-symbols-outlined">shopping_cart</span>
+                            <span class="cart-badge">3</span>
+                        </button>
+                        <div class="dropdown-menu mini-cart">
+                            <div class="mini-cart-header">
+                                <h3 class="mini-cart-title">Carrito de Compras</h3>
+                                <span class="mini-cart-count">3 artículos</span>
+                            </div>
+                            <div class="mini-cart-items">
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=160&h=120&fit=crop&q=80" alt="Product" class="mini-cart-item-img">
+                                    <div class="mini-cart-item-info">
+                                        <div class="mini-cart-item-brand">Fanatec</div>
+                                        <div class="mini-cart-item-name">ClubSport Steering Wheel</div>
+                                        <div class="mini-cart-item-qty">Cantidad: 1</div>
+                                        <div class="mini-cart-item-price">€349.95</div>
+                                    </div>
+                                    <button class="mini-cart-item-remove">
+                                        <span class="material-symbols-outlined">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-subtotal">
+                                    <span class="mini-cart-subtotal-label">Subtotal:</span>
+                                    <span class="mini-cart-subtotal-amount">€1,747.95</span>
+                                </div>
+                                <div class="mini-cart-actions">
+                                    <button class="btn btn-primary" style="width: 100%;">VER CARRITO</button>
+                                    <button class="btn btn-secondary" style="width: 100%;">FINALIZAR COMPRA</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="account-page">
+            <div class="order-detail-layout">
+                <div class="breadcrumb" style="margin-bottom: 2rem;">
+                    <a href="#">Home</a> <span>/</span> 
+                    <a href="#">Mi Cuenta</a> <span>/</span> 
+                    <a href="#">Pedidos</a> <span>/</span> 
+                    <span>SR-2024-001234</span>
+                </div>
+
+                <!-- Order Header -->
+                <div class="order-detail-header">
+                    <div class="order-detail-info">
+                        <div class="order-detail-number">Pedido #SR-2024-001234</div>
+                        <div class="order-detail-meta">
+                            <div class="order-detail-meta-item">
+                                <div class="order-detail-meta-label">Fecha del Pedido</div>
+                                <div class="order-detail-meta-value">5 Febrero 2024, 14:32</div>
+                            </div>
+                            <div class="order-detail-meta-item">
+                                <div class="order-detail-meta-label">Estado</div>
+                                <div class="order-detail-meta-value">
+                                    <span class="order-status delivered">Entregado</span>
+                                </div>
+                            </div>
+                            <div class="order-detail-meta-item">
+                                <div class="order-detail-meta-label">Método de Pago</div>
+                                <div class="order-detail-meta-value">Tarjeta •••• 4242</div>
+                            </div>
+                            <div class="order-detail-meta-item">
+                                <div class="order-detail-meta-label">Total</div>
+                                <div class="order-detail-meta-value" style="color: var(--racing-red); font-size: 20px;">€1,148.95</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="order-detail-actions">
+                        <button class="btn btn-primary">
+                            <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.5rem;">receipt_long</span>
+                            DESCARGAR FACTURA
+                        </button>
+                        <button class="btn btn-secondary">
+                            <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.5rem;">support_agent</span>
+                            AYUDA
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Order Timeline -->
+                <div class="order-timeline">
+                    <h2 class="timeline-title">Estado del Envío</h2>
+                    <div class="timeline-steps">
+                        <div class="timeline-step completed">
+                            <div class="timeline-icon">
+                                <span class="material-symbols-outlined">check</span>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-step-title">Pedido Confirmado</div>
+                                <div class="timeline-step-desc">Tu pedido ha sido recibido y está siendo procesado</div>
+                                <div class="timeline-step-date">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">schedule</span>
+                                    5 Feb 2024, 14:32
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-step completed">
+                            <div class="timeline-icon">
+                                <span class="material-symbols-outlined">check</span>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-step-title">Preparando Envío</div>
+                                <div class="timeline-step-desc">Los productos están siendo empaquetados en nuestro almacén</div>
+                                <div class="timeline-step-date">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">schedule</span>
+                                    5 Feb 2024, 18:45
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-step completed">
+                            <div class="timeline-icon">
+                                <span class="material-symbols-outlined">check</span>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-step-title">En Tránsito</div>
+                                <div class="timeline-step-desc">El paquete ha sido recogido por la empresa de transporte</div>
+                                <div class="timeline-step-date">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">schedule</span>
+                                    6 Feb 2024, 09:15
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="timeline-step completed">
+                            <div class="timeline-icon">
+                                <span class="material-symbols-outlined">check</span>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-step-title">Entregado</div>
+                                <div class="timeline-step-desc">El pedido fue entregado exitosamente</div>
+                                <div class="timeline-step-date">
+                                    <span class="material-symbols-outlined" style="font-size: 16px;">schedule</span>
+                                    7 Feb 2024, 16:22
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tracking-info">
+                        <div style="font-weight: 600; margin-bottom: 0.75rem;">Número de Seguimiento</div>
+                        <div class="tracking-number">
+                            <span class="tracking-code">1Z999AA10123456784</span>
+                            <button class="copy-btn">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">content_copy</span>
+                                Copiar
+                            </button>
+                        </div>
+                        <a href="#" class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">
+                            <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.5rem;">location_on</span>
+                            RASTREAR EN TIEMPO REAL
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Order Items & Summary -->
+                <div class="order-detail-grid">
+                    <div class="order-items-section">
+                        <h2 class="order-items-title">Productos (2 artículos)</h2>
+
+                        <div class="order-detail-item">
+                            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&h=150&fit=crop&q=80" alt="Product" class="order-detail-item-img">
+                            <div class="order-detail-item-info">
+                                <div class="order-detail-item-brand">Fanatec</div>
+                                <div class="order-detail-item-name">ClubSport Steering Wheel Formula V2.5</div>
+                                <div class="order-detail-item-specs">
+                                    Color: Negro Carbon • Plataforma: PC/PlayStation
+                                </div>
+                                <div style="margin-top: 0.5rem;">
+                                    <a href="#" class="btn-ghost" style="font-size: 13px;">
+                                        <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">rate_review</span>
+                                        Escribir Reseña
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="order-detail-item-right">
+                                <div class="order-detail-item-price">€349.95</div>
+                                <div class="order-detail-item-qty">Cantidad: 1</div>
+                            </div>
+                        </div>
+
+                        <div class="order-detail-item">
+                            <img src="https://images.unsplash.com/photo-1611651338412-8403fa6e3599?w=200&h=150&fit=crop&q=80" alt="Product" class="order-detail-item-img">
+                            <div class="order-detail-item-info">
+                                <div class="order-detail-item-brand">Heusinkveld</div>
+                                <div class="order-detail-item-name">Sprint Pedal Set</div>
+                                <div class="order-detail-item-specs">
+                                    Configuración: 3 Pedales • Material: Aluminio
+                                </div>
+                                <div style="margin-top: 0.5rem;">
+                                    <a href="#" class="btn-ghost" style="font-size: 13px;">
+                                        <span class="material-symbols-outlined" style="font-size: 14px; vertical-align: middle;">rate_review</span>
+                                        Escribir Reseña
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="order-detail-item-right">
+                                <div class="order-detail-item-price">€799.00</div>
+                                <div class="order-detail-item-qty">Cantidad: 1</div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(34, 197, 94, 0.1); border-radius: 8px; border-left: 4px solid var(--success);">
+                            <div style="display: flex; gap: 0.75rem; align-items: start;">
+                                <span class="material-symbols-outlined" style="color: var(--success); font-size: 24px;">verified</span>
+                                <div>
+                                    <div style="font-weight: 600; margin-bottom: 0.25rem;">¿Todo llegó en perfecto estado?</div>
+                                    <div style="font-size: 14px; color: var(--silver); margin-bottom: 1rem;">Ayuda a otros compradores compartiendo tu experiencia con estos productos</div>
+                                    <button class="btn btn-secondary" style="padding: 0.75rem 1.5rem;">ESCRIBIR RESEÑAS</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-detail-sidebar">
+                        <!-- Shipping Address -->
+                        <div class="order-detail-card">
+                            <h3 class="order-detail-card-title">
+                                <span class="material-symbols-outlined">local_shipping</span>
+                                Dirección de Envío
+                            </h3>
+                            <div class="order-detail-address">
+                                <strong>John Doe</strong>
+                                Calle Mayor 123, 4º A<br>
+                                28001 Madrid, Madrid<br>
+                                España<br>
+                                <div style="margin-top: 0.5rem;">Tel: +34 612 345 678</div>
+                            </div>
+                        </div>
+
+                        <!-- Billing Address -->
+                        <div class="order-detail-card">
+                            <h3 class="order-detail-card-title">
+                                <span class="material-symbols-outlined">receipt</span>
+                                Dirección de Facturación
+                            </h3>
+                            <div class="order-detail-address">
+                                <strong>John Doe</strong>
+                                Calle Mayor 123, 4º A<br>
+                                28001 Madrid, Madrid<br>
+                                España
+                            </div>
+                        </div>
+
+                        <!-- Order Summary -->
+                        <div class="order-summary-detail">
+                            <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 1rem;">Resumen del Pedido</h3>
+                            <div class="summary-row">
+                                <span class="summary-label">Subtotal (2 artículos)</span>
+                                <span class="summary-value">€1,148.95</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">Envío</span>
+                                <span class="summary-value success">GRATIS</span>
+                            </div>
+                            <div class="summary-row">
+                                <span class="summary-label">IVA (21%)</span>
+                                <span class="summary-value">€241.28</span>
+                            </div>
+                            <div class="summary-row" style="padding-top: 1rem; border-top: 1px solid var(--graphite); margin-top: 1rem;">
+                                <span class="summary-label">Descuento</span>
+                                <span class="summary-value" style="color: var(--success);">-€50.00</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>Total Pagado</span>
+                                <span>€1,340.23</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Help Section -->
+                <div class="help-section">
+                    <h3>¿Necesitas Ayuda con tu Pedido?</h3>
+                    <p>Nuestro equipo de soporte está disponible para ayudarte con cualquier pregunta o problema</p>
+                    <div class="help-actions">
+                        <button class="btn btn-secondary">
+                            <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.5rem;">chat</span>
+                            CHAT EN VIVO
+                        </button>
+                        <button class="btn btn-secondary">
+                            <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.5rem;">email</span>
+                            ENVIAR EMAIL
+                        </button>
+                        <button class="btn btn-secondary">
+                            <span class="material-symbols-outlined" style="font-size: 18px; vertical-align: middle; margin-right: 0.5rem;">assignment_return</span>
+                            SOLICITAR DEVOLUCIÓN
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- PAGE 6: SETTINGS -->
     <div id="settings" class="page-content">
         <header class="site-header">
@@ -4374,7 +5084,7 @@
                             <div class="user-menu">
                                 <div class="user-menu-header">
                                     <div class="user-menu-name">John Doe</div>
-                                    <div class="user-menu-email">john.doe@example.com</div>
+                                    <div class="user-menu-email"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="355f5a5d5b1b515a5075504d54584559501b565a58">[email&#160;protected]</a></div>
                                 </div>
                                 <a href="#" class="user-menu-item">
                                     <span class="material-symbols-outlined">account_circle</span>
@@ -4882,7 +5592,7 @@
         </div>
     </div>
 
-    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+    <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
         // Page navigation
         const pageButtons = document.querySelectorAll('.page-btn');
         const pages = document.querySelectorAll('.page-content');
@@ -4941,6 +5651,8 @@
         initDropdown('cartDropdown4');
         initDropdown('userDropdown5');
         initDropdown('cartDropdown5');
+        initDropdown('userDropdown5b');
+        initDropdown('cartDropdown5b');
         initDropdown('userDropdown6');
         initDropdown('cartDropdown6');
         initDropdown('userDropdown7');
@@ -5113,6 +5825,29 @@
                 
                 // Add selected class to clicked method
                 method.classList.add('selected');
+            });
+        });
+
+        // Copy tracking number
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const trackingCode = btn.closest('.tracking-number').querySelector('.tracking-code').textContent;
+                
+                try {
+                    await navigator.clipboard.writeText(trackingCode);
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">check</span> Copiado';
+                    btn.style.borderColor = 'var(--success)';
+                    btn.style.color = 'var(--success)';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.borderColor = '';
+                        btn.style.color = '';
+                    }, 2000);
+                } catch (err) {
+                    console.error('Error al copiar:', err);
+                }
             });
         });
     </script>
