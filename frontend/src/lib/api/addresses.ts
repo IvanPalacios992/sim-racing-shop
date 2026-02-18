@@ -13,8 +13,8 @@ export const addressesApi = {
     try {
       const response = await apiClient.get<BillingAddressDetailDto>("/addresses/billing");
       return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      if ((error as { response?: { status?: number } }).response?.status === 404) {
         return null; // No billing address found
       }
       throw error;
@@ -25,8 +25,8 @@ export const addressesApi = {
     try {
       const response = await apiClient.get<DeliveryAddressDetailDto[]>("/addresses/delivery");
       return response.data;
-    } catch (error: any) {
-      if (error.response?.status === 404) {
+    } catch (error: unknown) {
+      if ((error as { response?: { status?: number } }).response?.status === 404) {
         return []; // No delivery addresses found
       }
       throw error;

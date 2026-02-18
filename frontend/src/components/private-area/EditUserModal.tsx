@@ -56,9 +56,10 @@ export default function EditUserModal({
       const updatedUser = await authApi.updateUser(dto);
       onSuccess(updatedUser);
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Error updating user:", err);
-      setError(err.response?.data?.message || t("errorUpdating"));
+      const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
+      setError(message || t("errorUpdating"));
     } finally {
       setLoading(false);
     }

@@ -269,7 +269,7 @@ describe("AddBillingAddressModal", () => {
     it("shows loading state during submission", async () => {
       const user = userEvent.setup();
       vi.mocked(addressesApi.createBillingAddress).mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve({} as any), 100))
+        () => new Promise((resolve) => setTimeout(() => resolve({} as BillingAddressDetailDto), 100))
       );
 
       render(

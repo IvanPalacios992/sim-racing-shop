@@ -91,9 +91,10 @@ export default function AddDeliveryAddressModal({
       }
       onSuccess();
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(`Error ${isEditMode ? 'updating' : 'creating'} delivery address:`, err);
-      setError(err.response?.data?.message || t(isEditMode ? "errorUpdating" : "errorCreating"));
+      const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
+      setError(message || t(isEditMode ? "errorUpdating" : "errorCreating"));
     } finally {
       setLoading(false);
     }

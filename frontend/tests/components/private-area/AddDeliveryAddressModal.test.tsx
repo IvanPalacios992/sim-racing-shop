@@ -330,7 +330,7 @@ describe("AddDeliveryAddressModal", () => {
 
     it("creates address with isDefault false when checkbox is unchecked", async () => {
       const user = userEvent.setup();
-      vi.mocked(addressesApi.createDeliveryAddress).mockResolvedValue({} as any);
+      vi.mocked(addressesApi.createDeliveryAddress).mockResolvedValue({} as DeliveryAddressDetailDto);
 
       render(
         <AddDeliveryAddressModal

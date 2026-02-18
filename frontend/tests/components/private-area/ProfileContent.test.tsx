@@ -337,7 +337,7 @@ describe("ProfileContent", () => {
     });
 
     it("shows error when no user data is available", async () => {
-      vi.mocked(authApi.getMe).mockResolvedValue(null as any);
+      vi.mocked(authApi.getMe).mockResolvedValue(null as unknown as UserDto);
 
       render(<ProfileContent />);
 

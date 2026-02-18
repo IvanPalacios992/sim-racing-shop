@@ -53,7 +53,7 @@ export default function SettingsContent() {
       setPreferencesError(null);
       const data = await communicationPreferencesApi.getPreferences();
       setPreferences(data);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error loading preferences:", error);
       setPreferencesError(t("communicationPreferences.loadError"));
     } finally {
@@ -77,7 +77,7 @@ export default function SettingsContent() {
 
       setPreferencesSuccess(true);
       setTimeout(() => setPreferencesSuccess(false), 3000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error updating preferences:", error);
       setPreferencesError(t("communicationPreferences.saveError"));
       // Revert the change on error
@@ -99,7 +99,7 @@ export default function SettingsContent() {
 
       setPasswordResetSuccess(true);
       setTimeout(() => setPasswordResetSuccess(false), 5000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error sending password reset email:", error);
       setPasswordResetError(t("security.emailError"));
     } finally {
@@ -123,7 +123,7 @@ export default function SettingsContent() {
       // Logout and redirect
       logout();
       router.push("/");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error deleting account:", error);
       setDeleteError(t("dangerZone.deleteError"));
     } finally {
