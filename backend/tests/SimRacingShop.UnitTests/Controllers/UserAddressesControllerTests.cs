@@ -44,6 +44,14 @@ public class UserAddressesControllerTests
         };
     }
 
+    private void SetupUnauthenticatedUser()
+    {
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity()) }
+        };
+    }
+
     #region CreateCurrentUserBillingAddress Tests
 
     [Fact]
@@ -108,10 +116,7 @@ public class UserAddressesControllerTests
     public async Task CreateCurrentUserBillingAddress_WithNoAuth_ReturnsUnauthorized()
     {
         // Arrange
-        _controller.ControllerContext = new ControllerContext
-        {
-            HttpContext = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity()) }
-        };
+        SetupUnauthenticatedUser();
 
         var dto = new CreateBillingAddressDto
         {
@@ -127,6 +132,7 @@ public class UserAddressesControllerTests
 
         // Assert
         result.Should().BeOfType<UnauthorizedResult>();
+        _repositoryMock.Verify(x => x.CreateAsync(It.IsAny<UserAddress>()), Times.Never);
     }
 
     #endregion
@@ -200,6 +206,28 @@ public class UserAddressesControllerTests
         _repositoryMock.Verify(x => x.UpdateAsync(It.IsAny<UserAddress>()), Times.Never);
     }
 
+    [Fact]
+    public async Task UpdateCurrentUserBillingAddress_WithNoAuth_ReturnsUnauthorized()
+    {
+        // Arrange
+        SetupUnauthenticatedUser();
+
+        var dto = new UpdateBillingAddressDto
+        {
+            Street = "New Street",
+            City = "Madrid",
+            PostalCode = "28001",
+            Country = "ES"
+        };
+
+        // Act
+        var result = await _controller.UpdateCurrentUserBillingAddress(dto);
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+        _repositoryMock.Verify(x => x.GetBillingAddressByUserIdAsync(It.IsAny<Guid>()), Times.Never);
+    }
+
     #endregion
 
     #region GetCurrentUserBillingAddress Tests
@@ -227,7 +255,40 @@ public class UserAddressesControllerTests
 
         // Assert
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
-        okResult.Value.Should().BeOfType<UserAddress>();
+        okResult.Value.Should().BeOfType<BillingAddressDetailDto>();
+    }
+
+    [Fact]
+    public async Task GetCurrentUserBillingAddress_WithExistingAddress_ReturnsMappedData()
+    {
+        // Arrange
+        var address = new UserAddress
+        {
+            Id = Guid.NewGuid(),
+            UserId = _userId,
+            AddressType = AddressType.Billing,
+            Street = "Main Street 123",
+            City = "Madrid",
+            State = "Madrid",
+            PostalCode = "28001",
+            Country = "ES"
+        };
+
+        _repositoryMock.Setup(x => x.GetBillingAddressByUserIdAsync(_userId))
+            .ReturnsAsync(address);
+
+        // Act
+        var result = await _controller.GetCurrentUserBillingAdress();
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        var response = okResult.Value.Should().BeOfType<BillingAddressDetailDto>().Subject;
+        response.Id.Should().Be(address.Id);
+        response.Street.Should().Be(address.Street);
+        response.City.Should().Be(address.City);
+        response.State.Should().Be(address.State);
+        response.PostalCode.Should().Be(address.PostalCode);
+        response.Country.Should().Be(address.Country);
     }
 
     [Fact]
@@ -242,6 +303,20 @@ public class UserAddressesControllerTests
 
         // Assert
         result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task GetCurrentUserBillingAddress_WithNoAuth_ReturnsUnauthorized()
+    {
+        // Arrange
+        SetupUnauthenticatedUser();
+
+        // Act
+        var result = await _controller.GetCurrentUserBillingAdress();
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+        _repositoryMock.Verify(x => x.GetBillingAddressByUserIdAsync(It.IsAny<Guid>()), Times.Never);
     }
 
     #endregion
@@ -281,6 +356,37 @@ public class UserAddressesControllerTests
     }
 
     [Fact]
+    public async Task CreateCurrentUserDeliveryAddress_WithIsDefaultFalse_SetsIsDefaultFalse()
+    {
+        // Arrange
+        var dto = new CreateDeliveryAddressDto
+        {
+            UserId = _userId,
+            Name = "Office",
+            Street = "Office Street 456",
+            City = "Barcelona",
+            PostalCode = "08001",
+            Country = "ES",
+            IsDefault = false
+        };
+
+        _repositoryMock.Setup(x => x.CreateAsync(It.IsAny<UserAddress>()))
+            .ReturnsAsync((UserAddress ua) => ua);
+
+        // Act
+        var result = await _controller.CreateCurrentUserDeliveryAddress(dto);
+
+        // Assert
+        var createdResult = result.Should().BeOfType<CreatedAtActionResult>().Subject;
+        var response = createdResult.Value.Should().BeOfType<DeliveryAddressDetailDto>().Subject;
+        response.IsDefault.Should().BeFalse();
+
+        _repositoryMock.Verify(x => x.CreateAsync(It.Is<UserAddress>(
+            ua => ua.IsDefault == false && ua.AddressType == AddressType.Delivery
+        )), Times.Once);
+    }
+
+    [Fact]
     public async Task CreateCurrentUserDeliveryAddress_WithMismatchedUserId_ReturnsUnauthorized()
     {
         // Arrange
@@ -299,6 +405,31 @@ public class UserAddressesControllerTests
 
         // Assert
         result.Should().BeOfType<UnauthorizedResult>();
+        _repositoryMock.Verify(x => x.CreateAsync(It.IsAny<UserAddress>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateCurrentUserDeliveryAddress_WithNoAuth_ReturnsUnauthorized()
+    {
+        // Arrange
+        SetupUnauthenticatedUser();
+
+        var dto = new CreateDeliveryAddressDto
+        {
+            UserId = Guid.NewGuid(),
+            Name = "Home",
+            Street = "Main Street 123",
+            City = "Madrid",
+            PostalCode = "28001",
+            Country = "ES"
+        };
+
+        // Act
+        var result = await _controller.CreateCurrentUserDeliveryAddress(dto);
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+        _repositoryMock.Verify(x => x.CreateAsync(It.IsAny<UserAddress>()), Times.Never);
     }
 
     #endregion
@@ -348,6 +479,10 @@ public class UserAddressesControllerTests
         var response = okResult.Value.Should().BeOfType<DeliveryAddressDetailDto>().Subject;
         response.Name.Should().Be(dto.Name);
         response.IsDefault.Should().Be(dto.IsDefault);
+
+        _repositoryMock.Verify(x => x.UpdateAsync(It.Is<UserAddress>(
+            ua => ua.Street == dto.Street && ua.City == dto.City
+        )), Times.Once);
     }
 
     [Fact]
@@ -372,6 +507,7 @@ public class UserAddressesControllerTests
 
         // Assert
         result.Should().BeOfType<NotFoundObjectResult>();
+        _repositoryMock.Verify(x => x.UpdateAsync(It.IsAny<UserAddress>()), Times.Never);
     }
 
     [Fact]
@@ -409,6 +545,30 @@ public class UserAddressesControllerTests
         // Assert
         result.Should().BeOfType<UnauthorizedResult>();
         _repositoryMock.Verify(x => x.UpdateAsync(It.IsAny<UserAddress>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateCurrentUserDeliveryAddress_WithNoAuth_ReturnsUnauthorized()
+    {
+        // Arrange
+        SetupUnauthenticatedUser();
+
+        var addressId = Guid.NewGuid();
+        var dto = new UpdateDeliveryAddressDto
+        {
+            Name = "Home",
+            Street = "New Street",
+            City = "Madrid",
+            PostalCode = "28001",
+            Country = "ES"
+        };
+
+        // Act
+        var result = await _controller.UpdateCurrentUserDeliveryAddress(addressId, dto);
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+        _repositoryMock.Verify(x => x.GetDeliveryAddressByIdAsync(It.IsAny<Guid>()), Times.Never);
     }
 
     #endregion
@@ -491,6 +651,21 @@ public class UserAddressesControllerTests
         _repositoryMock.Verify(x => x.DeleteAsync(It.IsAny<UserAddress>()), Times.Never);
     }
 
+    [Fact]
+    public async Task DeleteCurrentUserDeliveryAddress_WithNoAuth_ReturnsUnauthorized()
+    {
+        // Arrange
+        SetupUnauthenticatedUser();
+        var addressId = Guid.NewGuid();
+
+        // Act
+        var result = await _controller.DeleteCurrentUserDeliveryAddress(addressId);
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+        _repositoryMock.Verify(x => x.GetDeliveryAddressByIdAsync(It.IsAny<Guid>()), Times.Never);
+    }
+
     #endregion
 
     #region GetCurrentUserDeliveryAddresses Tests
@@ -535,8 +710,45 @@ public class UserAddressesControllerTests
 
         // Assert
         var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
-        var response = okResult.Value.Should().BeAssignableTo<IEnumerable<UserAddress>>().Subject;
+        var response = okResult.Value.Should().BeAssignableTo<IEnumerable<DeliveryAddressDetailDto>>().Subject;
         response.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task GetCurrentUserDeliveryAddresses_ReturnsMappedData()
+    {
+        // Arrange
+        var address = new UserAddress
+        {
+            Id = Guid.NewGuid(),
+            UserId = _userId,
+            AddressType = AddressType.Delivery,
+            Name = "Home",
+            Street = "Main Street",
+            City = "Madrid",
+            State = "Madrid",
+            PostalCode = "28001",
+            Country = "ES",
+            IsDefault = true
+        };
+
+        _repositoryMock.Setup(x => x.GetDeliveryAddressesByUserIdAsync(_userId))
+            .ReturnsAsync(new List<UserAddress> { address });
+
+        // Act
+        var result = await _controller.GetCurrentUserDeliveryAdresses();
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        var response = okResult.Value.Should().BeAssignableTo<IEnumerable<DeliveryAddressDetailDto>>().Subject;
+        var dto = response.Single();
+        dto.Id.Should().Be(address.Id);
+        dto.Name.Should().Be(address.Name);
+        dto.Street.Should().Be(address.Street);
+        dto.City.Should().Be(address.City);
+        dto.PostalCode.Should().Be(address.PostalCode);
+        dto.Country.Should().Be(address.Country);
+        dto.IsDefault.Should().BeTrue();
     }
 
     [Fact]
@@ -551,6 +763,119 @@ public class UserAddressesControllerTests
 
         // Assert
         result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task GetCurrentUserDeliveryAddresses_WithNoAuth_ReturnsUnauthorized()
+    {
+        // Arrange
+        SetupUnauthenticatedUser();
+
+        // Act
+        var result = await _controller.GetCurrentUserDeliveryAdresses();
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+        _repositoryMock.Verify(x => x.GetDeliveryAddressesByUserIdAsync(It.IsAny<Guid>()), Times.Never);
+    }
+
+    #endregion
+
+    #region GetCurrentUserDeliveryAdress (single) Tests
+
+    [Fact]
+    public async Task GetCurrentUserDeliveryAdress_WithExistingAddress_ReturnsOk()
+    {
+        // Arrange
+        var addressId = Guid.NewGuid();
+        var address = new UserAddress
+        {
+            Id = addressId,
+            UserId = _userId,
+            AddressType = AddressType.Delivery,
+            Name = "Home",
+            Street = "Main Street 123",
+            City = "Madrid",
+            State = "Madrid",
+            PostalCode = "28001",
+            Country = "ES",
+            IsDefault = true
+        };
+
+        _repositoryMock.Setup(x => x.GetDeliveryAddressByIdAsync(addressId))
+            .ReturnsAsync(address);
+
+        // Act
+        var result = await _controller.GetCurrentUserDeliveryAdress(addressId);
+
+        // Assert
+        var okResult = result.Should().BeOfType<OkObjectResult>().Subject;
+        var response = okResult.Value.Should().BeOfType<DeliveryAddressDetailDto>().Subject;
+        response.Id.Should().Be(addressId);
+        response.Name.Should().Be(address.Name);
+        response.Street.Should().Be(address.Street);
+        response.City.Should().Be(address.City);
+        response.PostalCode.Should().Be(address.PostalCode);
+        response.Country.Should().Be(address.Country);
+        response.IsDefault.Should().Be(address.IsDefault);
+    }
+
+    [Fact]
+    public async Task GetCurrentUserDeliveryAdress_WithNonExistentAddress_ReturnsNotFound()
+    {
+        // Arrange
+        var addressId = Guid.NewGuid();
+
+        _repositoryMock.Setup(x => x.GetDeliveryAddressByIdAsync(addressId))
+            .ReturnsAsync((UserAddress?)null);
+
+        // Act
+        var result = await _controller.GetCurrentUserDeliveryAdress(addressId);
+
+        // Assert
+        result.Should().BeOfType<NotFoundResult>();
+    }
+
+    [Fact]
+    public async Task GetCurrentUserDeliveryAdress_WithDifferentUser_ReturnsUnauthorized()
+    {
+        // Arrange
+        var addressId = Guid.NewGuid();
+        var address = new UserAddress
+        {
+            Id = addressId,
+            UserId = Guid.NewGuid(), // Different user
+            AddressType = AddressType.Delivery,
+            Name = "Home",
+            Street = "Main Street 123",
+            City = "Madrid",
+            PostalCode = "28001",
+            Country = "ES"
+        };
+
+        _repositoryMock.Setup(x => x.GetDeliveryAddressByIdAsync(addressId))
+            .ReturnsAsync(address);
+
+        // Act
+        var result = await _controller.GetCurrentUserDeliveryAdress(addressId);
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+    }
+
+    [Fact]
+    public async Task GetCurrentUserDeliveryAdress_WithNoAuth_ReturnsUnauthorized()
+    {
+        // Arrange
+        SetupUnauthenticatedUser();
+        var addressId = Guid.NewGuid();
+
+        // Act
+        var result = await _controller.GetCurrentUserDeliveryAdress(addressId);
+
+        // Assert
+        result.Should().BeOfType<UnauthorizedResult>();
+        _repositoryMock.Verify(x => x.GetDeliveryAddressByIdAsync(It.IsAny<Guid>()), Times.Never);
     }
 
     #endregion

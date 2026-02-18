@@ -96,6 +96,7 @@ namespace SimRacingShop.API.Controllers
             userAddress.City = dto.City;
             userAddress.State = dto.State;
             userAddress.Country = dto.Country;
+            userAddress.PostalCode = dto.PostalCode;
 
             await _userAddressRepository.UpdateAsync(userAddress);
 
@@ -121,15 +122,16 @@ namespace SimRacingShop.API.Controllers
                 return Unauthorized();
             }
 
-            var billingAddress = await _userAddressRepository.GetBillingAddressByUserIdAsync(userId);
+            var userAddress = await _userAddressRepository.GetBillingAddressByUserIdAsync(userId);
 
-            if (billingAddress == null)
+            if (userAddress == null)
             {
                 _logger.LogWarning("Billing address not found for user: {UserId}", userId);
                 return NotFound();
             }
 
-            return Ok(billingAddress);
+            var result = MapToBillingAddressDetailDto(userAddress);
+            return Ok(result);
         }
 
         /// <summary>
@@ -154,7 +156,7 @@ namespace SimRacingShop.API.Controllers
             {
                 Id = Guid.NewGuid(),
                 UserId = userId,
-                AddressType = Core.Enums.AddressType.Billing,
+                AddressType = Core.Enums.AddressType.Delivery,
                 Street = dto.Street,
                 City = dto.City,
                 State = dto.State,
@@ -171,7 +173,7 @@ namespace SimRacingShop.API.Controllers
             var result = MapToDeliveryAddressDetailDto(userAddress);
 
             return CreatedAtAction(
-                actionName: "GetCurrentUserDeliveryAddress",
+                actionName: "GetCurrentUserDeliveryAdress",
                 controllerName: "UserAddresses",
                 routeValues: new { id = userAddress.Id },
                 value: result);
@@ -212,6 +214,7 @@ namespace SimRacingShop.API.Controllers
             userAddress.Country = dto.Country;
             userAddress.Name = dto.Name;
             userAddress.IsDefault = dto.IsDefault;
+            userAddress.PostalCode = dto.PostalCode;
 
             await _userAddressRepository.UpdateAsync(userAddress);
 
@@ -270,15 +273,47 @@ namespace SimRacingShop.API.Controllers
                 return Unauthorized();
             }
 
-            var billinAddress = await _userAddressRepository.GetDeliveryAddressesByUserIdAsync(userId);
+            var userAddresses = await _userAddressRepository.GetDeliveryAddressesByUserIdAsync(userId);
 
-            if (!billinAddress.Any())
+            if (!userAddresses.Any())
             {
                 _logger.LogWarning("Delivery addresses not found for user: {UserId}", userId);
                 return NotFound();
             }
 
-            return Ok(billinAddress);
+            var billingAddresses = userAddresses.Select(address => MapToDeliveryAddressDetailDto(address));
+            return Ok(billingAddresses);
+        }
+
+        /// <summary>
+        /// Obtener detalle de las direcciones de envio para el usuario actual
+        /// </summary>
+        [HttpGet("delivery/{id:guid}")]
+        [ProducesResponseType(typeof(IEnumerable<DeliveryAddressDetailDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetCurrentUserDeliveryAdress(Guid id)
+        {
+            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            {
+                return Unauthorized();
+            }
+
+            var userAddress = await _userAddressRepository.GetDeliveryAddressByIdAsync(id);
+
+            if (userAddress == null)
+            {
+                _logger.LogWarning("Delivery addresses not found for user: {UserId}", userId);
+                return NotFound();
+            }
+            else if (userAddress.UserId != userId)
+            {
+                return Unauthorized();
+            }
+
+            var deliveryAddress = MapToDeliveryAddressDetailDto(userAddress);
+            return Ok(deliveryAddress);
         }
 
 

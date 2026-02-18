@@ -6,6 +6,7 @@ import type {
   ResetPasswordDto,
   AuthResponseDto,
   UserDto,
+  UpdateUserDto,
 } from "@/types/auth";
 
 export const authApi = {
@@ -45,12 +46,17 @@ export const authApi = {
   },
 
   async refreshToken(refreshToken: string): Promise<AuthResponseDto> {
-    const response = await apiClient.post<AuthResponseDto>("/auth/refresh", {
+    const response = await apiClient.post<AuthResponseDto>("/auth/refresh-token", {
       refreshToken,
     });
     const data = response.data;
     setStoredTokens(data.token, data.refreshToken);
     return data;
+  },
+
+  async updateUser(dto: UpdateUserDto): Promise<UserDto> {
+    const response = await apiClient.put<UserDto>("/user", dto);
+    return response.data;
   },
 };
 

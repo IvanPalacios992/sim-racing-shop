@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AuthStore, AuthResponseDto, UserDto } from "@/types/auth";
+import { setStoredTokens, clearStoredTokens } from "@/lib/api-client";
 
 const initialState = {
   user: null,
@@ -8,6 +9,7 @@ const initialState = {
   refreshToken: null,
   isLoading: false,
   isAuthenticated: false,
+  _hasHydrated: false,
 };
 
 export const useAuthStore = create<AuthStore>()(
@@ -16,6 +18,9 @@ export const useAuthStore = create<AuthStore>()(
       ...initialState,
 
       setAuth: (response: AuthResponseDto) => {
+        // Sync tokens with apiClient localStorage
+        setStoredTokens(response.token, response.refreshToken);
+
         set({
           user: response.user,
           token: response.token,
@@ -34,13 +39,20 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       logout: () => {
+        // Clear tokens from apiClient localStorage
+        clearStoredTokens();
+
         set({
           ...initialState,
+          _hasHydrated: true, // Keep hydration flag
         });
       },
 
       reset: () => {
-        set(initialState);
+        // Clear tokens from apiClient localStorage
+        clearStoredTokens();
+
+        set({ ...initialState, _hasHydrated: true });
       },
     }),
     {
@@ -51,9 +63,21 @@ export const useAuthStore = create<AuthStore>()(
         refreshToken: state.refreshToken,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (!state) return;
+        state._hasHydrated = true;
+      },
     }
   )
 );
+
+// Sync tokens with apiClient on store initialization
+if (typeof window !== "undefined") {
+  const state = useAuthStore.getState();
+  if (state.token && state.refreshToken) {
+    setStoredTokens(state.token, state.refreshToken);
+  }
+}
 
 // Selector hooks for common use cases
 export const useUser = () => useAuthStore((state) => state.user);

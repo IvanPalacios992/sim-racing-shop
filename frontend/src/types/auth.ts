@@ -39,6 +39,12 @@ export interface UserDto {
   roles: string[];
 }
 
+export interface UpdateUserDto {
+  email: string;
+  firstName?: string;
+  lastName?: string;
+}
+
 export interface AuthResponseDto {
   token: string;
   refreshToken: string;
@@ -53,6 +59,7 @@ export interface AuthState {
   refreshToken: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  _hasHydrated: boolean;
 }
 
 export interface AuthActions {
