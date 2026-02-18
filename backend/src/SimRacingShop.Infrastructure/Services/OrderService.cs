@@ -65,7 +65,7 @@ namespace SimRacingShop.Infrastructure.Services
                     ProductId = itemDto.ProductId,
                     ProductName = itemDto.ProductName,
                     ProductSku = product.Sku, // Usar el SKU real del producto
-                    ConfigurationJson = itemDto.ConfigurationJson,
+                    ConfigurationJson = string.IsNullOrWhiteSpace(itemDto.ConfigurationJson) ? null : itemDto.ConfigurationJson,
                     Quantity = itemDto.Quantity,
                     UnitPrice = calculatedPrice, // Usar precio calculado
                     LineTotal = calculatedLineTotal, // Usar total calculado

@@ -443,6 +443,8 @@
     "statusProcessing": "Procesando",
     "statusShipped": "Enviado",
     "statusDelivered": "Entregado",
-    "statusCancelled": "Cancelado"
+    "statusCancelled": "Cancelado",
+    "order": "Pedido",
+    "amount": "Cantidad"
   }
 }

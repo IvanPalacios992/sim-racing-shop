@@ -443,6 +443,8 @@
     "statusProcessing": "Processing",
     "statusShipped": "Shipped",
     "statusDelivered": "Delivered",
-    "statusCancelled": "Cancelled"
+    "statusCancelled": "Cancelled",
+    "order": "Order",
+    "amount": "Amount"
   }
 }

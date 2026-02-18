@@ -31,12 +31,10 @@ export default function OrderCard({ order }: OrderCardProps) {
   return (
     <Card className="bg-obsidian border-graphite hover:border-electric-blue transition-colors duration-200">
       <CardHeader>
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-4 border-b">
           <div>
-            <p className="text-pure-white font-semibold">{order.orderNumber}</p>
-            <p className="text-sm text-silver mt-0.5">
-              {t("orderedOn")} {formattedDate}
-            </p>
+            <p className="text-pure-white font-semibold">{t("order")} #{order.orderNumber}</p>
+            <p className="text-sm text-silver mt-1 mb-4">{t("orderedOn")} {formattedDate}</p>
           </div>
           <OrderStatusBadge status={order.orderStatus} />
         </div>
@@ -45,9 +43,14 @@ export default function OrderCard({ order }: OrderCardProps) {
       <CardContent>
         <ul className="space-y-1">
           {visibleItems.map((item) => (
-            <li key={item.id} className="text-sm text-silver">
-              {item.productName}{" "}
-              <span className="text-zinc-500">×{item.quantity}</span>
+            <li key={item.id} className="flex justify-between">
+              <div>
+                <p className="text-pure-white font-semibold">{item.productName}</p>
+                <p className="text-sm text-silver mt-1 mb-4">{t("amount")}: {item.quantity}</p>
+              </div>
+              <div>
+                €{item.lineTotal}
+              </div>
             </li>
           ))}
           {remainingCount > 0 && (
@@ -59,7 +62,7 @@ export default function OrderCard({ order }: OrderCardProps) {
       </CardContent>
 
       <CardFooter>
-        <div className="flex items-center justify-between w-full">
+        <div className="flex items-center justify-between w-full border-t pt-4">
           <span className="text-pure-white font-semibold">
             {t("total")}: {formattedTotal}
           </span>
