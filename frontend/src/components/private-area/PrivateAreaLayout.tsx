@@ -109,7 +109,7 @@ export default function PrivateAreaLayout({
           </aside>
 
           {/* Main Content */}
-          <main className="p-6 bg-carbon">{children}</main>
+          <main className="p-6 bg-carbon rounded-lg">{children}</main>
         </div>
       </div>
     </div>
