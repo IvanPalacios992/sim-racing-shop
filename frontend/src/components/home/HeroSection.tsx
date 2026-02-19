@@ -18,7 +18,11 @@ export function HeroSection() {
         className="absolute inset-0"
         style={{
           backgroundImage:
-            "radial-gradient(circle at 20% 50%, rgba(229, 57, 53, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(33, 150, 243, 0.1) 0%, transparent 50%)",
+            "url(/main.webp)",
+          backgroundRepeat:
+            "no-repeat",
+          backgroundSize:
+            "cover"
         }}
       />
 
