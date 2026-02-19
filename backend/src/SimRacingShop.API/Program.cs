@@ -20,6 +20,7 @@ using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using SimRacingShop.Core.Validators;
+using StackExchange.Redis;
 
 // Bootstrap logger (usado antes de leer configuraci�n)
 Log.Logger = new LoggerConfiguration()
@@ -161,6 +162,11 @@ try
         options.InstanceName = "SimRacingShop:";
     });
 
+    // IConnectionMultiplexer para operaciones nativas de Redis Hash (carrito)
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        _ => ConnectionMultiplexer.Connect(
+            builder.Configuration.GetConnectionString("Redis")!));
+
     // Add services to the container.
     builder.Services.AddScoped<IAuthService, AuthService>();
     builder.Services.AddScoped<IOrderService, OrderService>();
@@ -189,6 +195,8 @@ try
     builder.Services.AddScoped<IUserCommunicationPreferencesRepository, UserCommunicationPreferencesRepository>();
     builder.Services.AddScoped<IOrderRepository, OrderRepository>();
     builder.Services.AddScoped<IShippingZoneRepository, ShippingZoneRepository>();
+    builder.Services.AddScoped<ICartRepository, CartRepository>();
+    builder.Services.AddScoped<ICartService, CartService>();
     builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
     builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryDtoValidator>();
     builder.Services.AddFluentValidationAutoValidation();
