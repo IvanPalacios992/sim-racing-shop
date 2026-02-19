@@ -1,8 +1,30 @@
+import React from "react";
 import { render, screen } from "../../helpers/render";
 import userEvent from "@testing-library/user-event";
 import { Navbar } from "@/components/layout/Navbar";
+import { useCartStore } from "@/stores/cart-store";
+import { createMockCart, emptyMockCart, resetCartStore } from "../../helpers/cart";
+
+// Isolate Navbar from MiniCart internals
+vi.mock("@/components/cart/MiniCart", () => ({
+  MiniCart: ({ isOpen }: { isOpen: boolean }) =>
+    isOpen ? React.createElement("div", { "data-testid": "mini-cart" }, "Mini Cart") : null,
+}));
+
+// Prevent real API calls from cart store hooks
+vi.mock("@/lib/api/cart", () => ({
+  cartApi: { getCart: vi.fn(), addItem: vi.fn(), updateItem: vi.fn(), removeItem: vi.fn(), clearCart: vi.fn(), mergeCart: vi.fn() },
+  ensureSessionId: vi.fn(() => "test-session"),
+  getSessionId: vi.fn(() => null),
+  clearSessionId: vi.fn(),
+}));
 
 describe("Navbar", () => {
+  beforeEach(() => {
+    resetCartStore();
+    vi.clearAllMocks();
+  });
+
   describe("rendering", () => {
     it("renders the logo", () => {
       render(<Navbar />);
@@ -56,11 +78,78 @@ describe("Navbar", () => {
       const accountButton = screen.getByLabelText("Account");
       expect(accountButton.closest("a")).toHaveAttribute("href", "/login");
     });
+  });
 
-    it("displays cart badge with item count", () => {
+  describe("cart badge", () => {
+    it("does not show badge when cart is empty", () => {
+      useCartStore.setState({ cart: emptyMockCart() });
       render(<Navbar />);
 
-      expect(screen.getByText("0")).toBeInTheDocument();
+      // Badge should not be visible
+      expect(screen.queryByText("0")).not.toBeInTheDocument();
+    });
+
+    it("does not show badge when cart is null", () => {
+      useCartStore.setState({ cart: null });
+      render(<Navbar />);
+
+      expect(screen.queryByText("0")).not.toBeInTheDocument();
+    });
+
+    it("shows badge with item count when cart has items", () => {
+      useCartStore.setState({ cart: createMockCart({ totalItems: 3 }) });
+      render(<Navbar />);
+
+      expect(screen.getByText("3")).toBeInTheDocument();
+    });
+
+    it("shows 99+ when cart has more than 99 items", () => {
+      useCartStore.setState({ cart: createMockCart({ totalItems: 100 }) });
+      render(<Navbar />);
+
+      expect(screen.getByText("99+")).toBeInTheDocument();
+    });
+  });
+
+  describe("mini cart", () => {
+    it("mini cart is closed by default", () => {
+      render(<Navbar />);
+
+      expect(screen.queryByTestId("mini-cart")).not.toBeInTheDocument();
+    });
+
+    it("opens mini cart when cart button is clicked", async () => {
+      const user = userEvent.setup();
+      render(<Navbar />);
+
+      await user.click(screen.getByLabelText("Cart"));
+
+      expect(screen.getByTestId("mini-cart")).toBeInTheDocument();
+    });
+
+    it("closes mini cart when cart button is clicked again", async () => {
+      const user = userEvent.setup();
+      render(<Navbar />);
+
+      await user.click(screen.getByLabelText("Cart"));
+      expect(screen.getByTestId("mini-cart")).toBeInTheDocument();
+
+      await user.click(screen.getByLabelText("Cart"));
+      expect(screen.queryByTestId("mini-cart")).not.toBeInTheDocument();
+    });
+
+    it("cart button has aria-expanded=false when closed", () => {
+      render(<Navbar />);
+      expect(screen.getByLabelText("Cart")).toHaveAttribute("aria-expanded", "false");
+    });
+
+    it("cart button has aria-expanded=true when open", async () => {
+      const user = userEvent.setup();
+      render(<Navbar />);
+
+      await user.click(screen.getByLabelText("Cart"));
+
+      expect(screen.getByLabelText("Cart")).toHaveAttribute("aria-expanded", "true");
     });
   });
 
@@ -74,10 +163,7 @@ describe("Navbar", () => {
     it("mobile menu is hidden by default", () => {
       render(<Navbar />);
 
-      // Check that mobile menu links are not visible initially
-      // We look for duplicate PRODUCTS text (one in desktop nav, one in mobile menu)
       const allProductsLinks = screen.queryAllByText("PRODUCTS");
-      // Only the desktop one should be visible
       expect(allProductsLinks).toHaveLength(1);
     });
 
@@ -88,7 +174,6 @@ describe("Navbar", () => {
       const menuButton = screen.getByLabelText("Menu");
       await user.click(menuButton);
 
-      // After clicking, mobile menu should appear with duplicate links
       const allProductsLinks = screen.queryAllByText("PRODUCTS");
       expect(allProductsLinks.length).toBeGreaterThan(1);
     });
@@ -97,16 +182,13 @@ describe("Navbar", () => {
       const user = userEvent.setup();
       render(<Navbar />);
 
-      // Open menu
       const menuButton = screen.getByLabelText("Menu");
       await user.click(menuButton);
 
-      // Click a link in the mobile menu
       const allProductsLinks = screen.queryAllByText("PRODUCTS");
-      const mobileLink = allProductsLinks[1]; // Second one is the mobile menu link
+      const mobileLink = allProductsLinks[1];
       await user.click(mobileLink);
 
-      // Menu should close
       const linksAfterClose = screen.queryAllByText("PRODUCTS");
       expect(linksAfterClose).toHaveLength(1);
     });
