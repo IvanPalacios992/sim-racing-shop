@@ -16,12 +16,15 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { createLoginSchema, type LoginFormData } from "@/lib/validations/auth";
 import { authApi } from "@/lib/api/auth";
 import { useAuthStore } from "@/stores/auth-store";
+import { useCartStore } from "@/stores/cart-store";
+import { getSessionId } from "@/lib/api/cart";
 import { cn } from "@/lib/utils";
 
 export function LoginForm() {
   const t = useTranslations();
   const router = useRouter();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const mergeCart = useCartStore((state) => state.mergeCart);
   const [error, setError] = useState<string | null>(null);
 
   const loginSchema = createLoginSchema(t);
@@ -52,6 +55,11 @@ export function LoginForm() {
         rememberMe: data.rememberMe,
       });
       setAuth(response);
+      // Merge any anonymous session cart into the user's cart
+      const sessionId = getSessionId();
+      if (sessionId) {
+        await mergeCart(sessionId, "es");
+      }
       router.push("/");
     } catch (err) {
       if (err instanceof AxiosError) {
