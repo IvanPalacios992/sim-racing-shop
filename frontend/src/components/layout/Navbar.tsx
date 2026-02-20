@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Search, User, ShoppingCart, Menu, X } from "lucide-react";
+import { useCartItemCount } from "@/stores/cart-store";
+import { MiniCart } from "@/components/cart/MiniCart";
 
 type NavLink = {
   key: "products" | "wheels" | "pedals" | "cockpits" | "accessories";
@@ -21,7 +23,12 @@ const NAV_LINKS: NavLink[] = [
 
 export function Navbar() {
   const t = useTranslations("nav");
+  const itemCount = useCartItemCount();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [miniCartOpen, setMiniCartOpen] = useState(false);
+
+  const toggleMiniCart = useCallback(() => setMiniCartOpen((prev) => !prev), []);
+  const closeMiniCart = useCallback(() => setMiniCartOpen(false), []);
 
   return (
     <header className="sticky top-0 z-50 h-18 border-b border-graphite bg-obsidian/95 backdrop-blur-md">
@@ -72,15 +79,26 @@ export function Navbar() {
             <User className="size-5" />
           </Link>
 
-          <button
-            className="relative p-2 text-white transition-colors hover:text-electric-blue"
-            aria-label={t("cart")}
-          >
-            <ShoppingCart className="size-5" />
-            <span className="absolute -top-1 -right-1 flex size-[18px] items-center justify-center rounded-full bg-racing-red text-[11px] font-bold text-white">
-              0
-            </span>
-          </button>
+          {/* Cart button + MiniCart dropdown */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={toggleMiniCart}
+              className="relative p-2 text-white transition-colors hover:text-electric-blue"
+              aria-label={t("cart")}
+              aria-expanded={miniCartOpen}
+              aria-haspopup="dialog"
+            >
+              <ShoppingCart className="size-5" />
+              {itemCount > 0 && (
+                <span className="absolute -right-1 -top-1 flex size-[18px] items-center justify-center rounded-full bg-racing-red text-[11px] font-bold text-white">
+                  {itemCount > 99 ? "99+" : itemCount}
+                </span>
+              )}
+            </button>
+
+            <MiniCart isOpen={miniCartOpen} onClose={closeMiniCart} />
+          </div>
 
           {/* Mobile menu button */}
           <button
