@@ -12,5 +12,12 @@ namespace SimRacingShop.Core.Repositories
         Task ReplaceTranslationsAsync(Guid productId, List<ProductTranslation> translations);
         Task<bool> SkuExistsAsync(string sku);
         bool SkuExists(string sku);
+
+        // ProductComponentOption management
+        Task<List<ProductComponentOption>> GetComponentOptionsAsync(Guid productId);
+        Task<ProductComponentOption?> GetComponentOptionByIdAsync(Guid optionId);
+        Task<ProductComponentOption> AddComponentOptionAsync(ProductComponentOption option);
+        Task UpdateComponentOptionAsync(ProductComponentOption option);
+        Task DeleteComponentOptionAsync(ProductComponentOption option);
     }
 }

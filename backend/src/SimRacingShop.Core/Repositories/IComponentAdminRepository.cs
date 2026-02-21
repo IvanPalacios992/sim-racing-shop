@@ -11,5 +11,6 @@ namespace SimRacingShop.Core.Repositories
         Task ReplaceTranslationsAsync(Guid componentId, List<ComponentTranslation> translations);
         Task<List<Component>> GetLowStockAsync();
         Task<bool> SkuExistsAsync(string sku);
+        bool SkuExists(string sku);
     }
 }

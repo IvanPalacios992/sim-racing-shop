@@ -62,6 +62,11 @@ namespace SimRacingShop.Infrastructure.Repositories
             return await _context.Components.AnyAsync(c => c.Sku == sku);
         }
 
+        public bool SkuExists(string sku)
+        {
+            return _context.Components.Any(c => c.Sku == sku);
+        }
+
         public async Task<List<Component>> GetLowStockAsync()
         {
             return await _context.Components

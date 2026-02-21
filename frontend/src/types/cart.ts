@@ -20,6 +20,8 @@ export interface CartDto {
 export interface AddToCartDto {
   productId: string;
   quantity: number;
+  /** IDs de los componentes seleccionados en el configurador 3D */
+  selectedComponentIds?: string[];
 }
 
 export interface UpdateCartItemDto {

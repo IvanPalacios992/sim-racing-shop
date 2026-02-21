@@ -113,5 +113,43 @@ namespace SimRacingShop.Infrastructure.Repositories
             var db = _redis.GetDatabase();
             return await db.KeyExistsAsync(Prefixed(cartKey));
         }
+
+        // ── Modificadores de precio ──────────────────────────────────────────
+        // Clave paralela: SimRacingShop:{cartKey}:modifiers → Hash { productId: priceModifier }
+
+        private static string ModifiersKey(string cartKey) => $"SimRacingShop:{cartKey}:modifiers";
+
+        public async Task SetPriceModifierAsync(string cartKey, string productId, decimal priceModifier, TimeSpan ttl)
+        {
+            var db = _redis.GetDatabase();
+            var key = ModifiersKey(cartKey);
+            await db.HashSetAsync(key, productId, priceModifier.ToString("G"));
+            await db.KeyExpireAsync(key, ttl);
+        }
+
+        public async Task<Dictionary<string, decimal>> GetAllPriceModifiersAsync(string cartKey)
+        {
+            var db = _redis.GetDatabase();
+            var entries = await db.HashGetAllAsync(ModifiersKey(cartKey));
+            var result = new Dictionary<string, decimal>(entries.Length);
+            foreach (var entry in entries)
+            {
+                if (decimal.TryParse((string?)entry.Value, out var modifier))
+                    result[entry.Name.ToString()] = modifier;
+            }
+            return result;
+        }
+
+        public async Task RemovePriceModifierAsync(string cartKey, string productId)
+        {
+            var db = _redis.GetDatabase();
+            await db.HashDeleteAsync(ModifiersKey(cartKey), productId);
+        }
+
+        public async Task DeletePriceModifiersAsync(string cartKey)
+        {
+            var db = _redis.GetDatabase();
+            await db.KeyDeleteAsync(ModifiersKey(cartKey));
+        }
     }
 }

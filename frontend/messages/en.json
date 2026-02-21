@@ -235,6 +235,24 @@
       "warranty": "2-year warranty included",
       "securePayment": "Secure payment with SSL encryption"
     },
+    "configurator": {
+      "title": "Configure",
+      "close": "Close configurator",
+      "loading": "Loading 3D model...",
+      "loadingOptions": "Loading customization options...",
+      "required": "Required",
+      "optional": "Optional",
+      "none": "None",
+      "noModel": "No 3D model available for this product",
+      "basePrice": "Base price",
+      "extras": "Extras",
+      "total": "Total",
+      "addToCart": "ADD TO CART",
+      "missingRequired": "Please select all required options to continue",
+      "priceModifier": "+€{amount}",
+      "outOfStock": "Out of stock",
+      "noOptions": "This product has no customization options configured"
+    },
     "error": "Error loading product",
     "errorDesc": "Could not load the product. Please try again.",
     "retry": "Retry"

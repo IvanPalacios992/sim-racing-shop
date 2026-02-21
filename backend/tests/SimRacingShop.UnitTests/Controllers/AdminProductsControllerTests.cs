@@ -16,6 +16,7 @@ namespace SimRacingShop.UnitTests.Controllers;
 public class AdminProductsControllerTests
 {
     private readonly Mock<IProductAdminRepository> _adminRepoMock;
+    private readonly Mock<IComponentAdminRepository> _componentAdminRepoMock;
     private readonly Mock<IFileStorageService> _fileStorageMock;
     private readonly Mock<IDistributedCache> _cacheMock;
     private readonly Mock<ILogger<AdminProductsController>> _loggerMock;
@@ -24,12 +25,14 @@ public class AdminProductsControllerTests
     public AdminProductsControllerTests()
     {
         _adminRepoMock = new Mock<IProductAdminRepository>();
+        _componentAdminRepoMock = new Mock<IComponentAdminRepository>();
         _fileStorageMock = new Mock<IFileStorageService>();
         _cacheMock = new Mock<IDistributedCache>();
         _loggerMock = new Mock<ILogger<AdminProductsController>>();
 
         _controller = new AdminProductsController(
             _adminRepoMock.Object,
+            _componentAdminRepoMock.Object,
             _fileStorageMock.Object,
             _cacheMock.Object,
             _loggerMock.Object);

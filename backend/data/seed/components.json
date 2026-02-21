@@ -1,0 +1,112 @@
+[
+  {
+    "_group": "Empuñaduras",
+    "id": "aaaaaaaa-0001-4000-8000-000000000001",
+    "sku": "COMP-GRIP-ALC-BLK",
+    "componentType": "grip",
+    "stockQuantity": 50,
+    "minStockThreshold": 5,
+    "leadTimeDays": 3,
+    "weightGrams": 120,
+    "costPrice": 15.00
+  },
+  {
+    "_group": "Empuñaduras",
+    "id": "aaaaaaaa-0001-4000-8000-000000000002",
+    "sku": "COMP-GRIP-ALC-RED",
+    "componentType": "grip",
+    "stockQuantity": 30,
+    "minStockThreshold": 5,
+    "leadTimeDays": 3,
+    "weightGrams": 120,
+    "costPrice": 15.00
+  },
+  {
+    "_group": "Empuñaduras",
+    "id": "aaaaaaaa-0001-4000-8000-000000000003",
+    "sku": "COMP-GRIP-LEATHER",
+    "componentType": "grip",
+    "stockQuantity": 40,
+    "minStockThreshold": 5,
+    "leadTimeDays": 3,
+    "weightGrams": 130,
+    "costPrice": 12.00
+  },
+  {
+    "_group": "Empuñaduras",
+    "id": "aaaaaaaa-0001-4000-8000-000000000004",
+    "sku": "COMP-GRIP-CARBON",
+    "componentType": "grip",
+    "stockQuantity": 20,
+    "minStockThreshold": 5,
+    "leadTimeDays": 5,
+    "weightGrams": 100,
+    "costPrice": 22.00
+  },
+  {
+    "_group": "Placa Frontal",
+    "id": "aaaaaaaa-0002-4000-8000-000000000001",
+    "sku": "COMP-PLATE-CARBON-GRY",
+    "componentType": "front_plate",
+    "stockQuantity": 35,
+    "minStockThreshold": 5,
+    "leadTimeDays": 5,
+    "weightGrams": 180,
+    "costPrice": 25.00
+  },
+  {
+    "_group": "Placa Frontal",
+    "id": "aaaaaaaa-0002-4000-8000-000000000002",
+    "sku": "COMP-PLATE-CARBON-RED",
+    "componentType": "front_plate",
+    "stockQuantity": 25,
+    "minStockThreshold": 5,
+    "leadTimeDays": 5,
+    "weightGrams": 180,
+    "costPrice": 25.00
+  },
+  {
+    "_group": "Placa Frontal",
+    "id": "aaaaaaaa-0002-4000-8000-000000000003",
+    "sku": "COMP-PLATE-CARBON-BLU",
+    "componentType": "front_plate",
+    "stockQuantity": 25,
+    "minStockThreshold": 5,
+    "leadTimeDays": 5,
+    "weightGrams": 180,
+    "costPrice": 25.00
+  },
+  {
+    "_group": "Levas",
+    "id": "aaaaaaaa-0003-4000-8000-000000000001",
+    "sku": "COMP-PADDLES-ALU",
+    "componentType": "paddle",
+    "stockQuantity": 60,
+    "minStockThreshold": 5,
+    "leadTimeDays": 3,
+    "weightGrams": 95,
+    "costPrice": 28.00
+  },
+  {
+    "_group": "Levas",
+    "id": "aaaaaaaa-0003-4000-8000-000000000002",
+    "sku": "COMP-PADDLES-CARBON",
+    "componentType": "paddle",
+    "stockQuantity": 30,
+    "minStockThreshold": 5,
+    "leadTimeDays": 5,
+    "weightGrams": 70,
+    "costPrice": 48.00
+  },
+  {
+    "_group": "Levas",
+    "id": "aaaaaaaa-0003-4000-8000-000000000003",
+    "sku": "COMP-PADDLES-TITANIUM",
+    "componentType": "paddle",
+    "stockQuantity": 15,
+    "minStockThreshold": 3,
+    "leadTimeDays": 7,
+    "weightGrams": 80,
+    "costPrice": 72.00
+  }
+]

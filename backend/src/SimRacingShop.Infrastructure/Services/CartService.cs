@@ -9,25 +9,28 @@ namespace SimRacingShop.Infrastructure.Services
     {
         private readonly ICartRepository _cartRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IComponentRepository _componentRepository;
         private readonly ILogger<CartService> _logger;
 
         private static readonly TimeSpan SessionCartTtl = TimeSpan.FromDays(7);
-        private static readonly TimeSpan UserCartTtl = TimeSpan.FromDays(30);
+        private static readonly TimeSpan UserCartTtl   = TimeSpan.FromDays(30);
 
         public CartService(
             ICartRepository cartRepository,
             IProductRepository productRepository,
+            IComponentRepository componentRepository,
             ILogger<CartService> logger)
         {
-            _cartRepository = cartRepository;
-            _productRepository = productRepository;
-            _logger = logger;
+            _cartRepository      = cartRepository;
+            _productRepository   = productRepository;
+            _componentRepository = componentRepository;
+            _logger              = logger;
         }
 
         public async Task<CartDto> GetCartAsync(string cartKey, string locale)
         {
             var items = await _cartRepository.GetAllItemsAsync(cartKey);
-            return await BuildCartDtoAsync(items, locale);
+            return await BuildCartDtoAsync(cartKey, items, locale);
         }
 
         public async Task<CartDto> AddItemAsync(string cartKey, AddToCartDto dto, string locale)
@@ -52,11 +55,27 @@ namespace SimRacingShop.Infrastructure.Services
             var ttl = GetTtl(cartKey);
             await _cartRepository.SetItemAsync(cartKey, productIdStr, newQty, ttl);
 
-            _logger.LogInformation("Cart {CartKey}: added {Qty} of {ProductId} (total now {NewQty})",
-                cartKey, dto.Quantity, dto.ProductId, newQty);
+            // Calcular modificador de precio a partir de los componentes seleccionados
+            if (dto.SelectedComponentIds is { Count: > 0 })
+            {
+                var modifier = await _componentRepository.GetPriceModifiersSumAsync(
+                    dto.ProductId, dto.SelectedComponentIds);
+
+                await _cartRepository.SetPriceModifierAsync(cartKey, productIdStr, modifier, ttl);
+
+                _logger.LogInformation(
+                    "Cart {CartKey}: added {Qty} of {ProductId} (total {NewQty}), price modifier {Modifier}",
+                    cartKey, dto.Quantity, dto.ProductId, newQty, modifier);
+            }
+            else
+            {
+                _logger.LogInformation(
+                    "Cart {CartKey}: added {Qty} of {ProductId} (total {NewQty}), no customization",
+                    cartKey, dto.Quantity, dto.ProductId, newQty);
+            }
 
             items[productIdStr] = newQty;
-            return await BuildCartDtoAsync(items, locale);
+            return await BuildCartDtoAsync(cartKey, items, locale);
         }
 
         public async Task<CartDto> UpdateItemAsync(string cartKey, Guid productId, int quantity, string locale)
@@ -74,24 +93,36 @@ namespace SimRacingShop.Infrastructure.Services
                 cartKey, productId, quantity);
 
             items[productIdStr] = quantity;
-            return await BuildCartDtoAsync(items, locale);
+            return await BuildCartDtoAsync(cartKey, items, locale);
         }
 
         public async Task RemoveItemAsync(string cartKey, Guid productId)
         {
-            await _cartRepository.RemoveItemAsync(cartKey, productId.ToString());
+            var productIdStr = productId.ToString();
+            await _cartRepository.RemoveItemAsync(cartKey, productIdStr);
+            await _cartRepository.RemovePriceModifierAsync(cartKey, productIdStr);
             _logger.LogInformation("Cart {CartKey}: removed product {ProductId}", cartKey, productId);
         }
 
         public async Task ClearCartAsync(string cartKey)
         {
             await _cartRepository.DeleteCartAsync(cartKey);
+            await _cartRepository.DeletePriceModifiersAsync(cartKey);
             _logger.LogInformation("Cart {CartKey}: cleared", cartKey);
         }
 
         public async Task<CartDto> MergeCartsAsync(string sessionKey, string userKey, string locale)
         {
+            // Fusionar cantidades
             await _cartRepository.MergeAsync(sessionKey, userKey, UserCartTtl);
+
+            // Fusionar modificadores de precio: copiar los de sesión al carrito de usuario
+            var sessionModifiers = await _cartRepository.GetAllPriceModifiersAsync(sessionKey);
+            foreach (var (productId, modifier) in sessionModifiers)
+                await _cartRepository.SetPriceModifierAsync(userKey, productId, modifier, UserCartTtl);
+
+            await _cartRepository.DeletePriceModifiersAsync(sessionKey);
+
             _logger.LogInformation("Merged session cart {SessionKey} into user cart {UserKey}", sessionKey, userKey);
             return await GetCartAsync(userKey, locale);
         }
@@ -101,11 +132,12 @@ namespace SimRacingShop.Infrastructure.Services
         private static TimeSpan GetTtl(string cartKey) =>
             cartKey.StartsWith("cart:user:") ? UserCartTtl : SessionCartTtl;
 
-        private async Task<CartDto> BuildCartDtoAsync(Dictionary<string, int> items, string locale)
+        private async Task<CartDto> BuildCartDtoAsync(string cartKey, Dictionary<string, int> items, string locale)
         {
             if (items.Count == 0)
                 return new CartDto();
 
+            var modifiers = await _cartRepository.GetAllPriceModifiersAsync(cartKey);
             var cartItems = new List<CartItemDto>(items.Count);
 
             foreach (var (productIdStr, quantity) in items)
@@ -120,33 +152,34 @@ namespace SimRacingShop.Infrastructure.Services
                     continue;
                 }
 
-                var subtotal = Math.Round(product.BasePrice * quantity, 2);
-                var imageUrl = product.Images.FirstOrDefault()?.ImageUrl;
+                var priceModifier = modifiers.GetValueOrDefault(productIdStr, 0m);
+                var unitPrice     = product.BasePrice + priceModifier;
+                var subtotal      = Math.Round(unitPrice * quantity, 2);
+                var imageUrl      = product.Images.FirstOrDefault()?.ImageUrl;
 
                 cartItems.Add(new CartItemDto
                 {
                     ProductId = productId,
-                    Sku = product.Sku,
-                    Name = product.Name,
-                    ImageUrl = imageUrl,
-                    Quantity = quantity,
-                    UnitPrice = product.BasePrice,
-                    VatRate = product.VatRate,
-                    Subtotal = subtotal,
+                    Sku       = product.Sku,
+                    Name      = product.Name,
+                    ImageUrl  = imageUrl,
+                    Quantity  = quantity,
+                    UnitPrice = unitPrice,
+                    VatRate   = product.VatRate,
+                    Subtotal  = subtotal,
                 });
             }
 
             var subtotalTotal = cartItems.Sum(i => i.Subtotal);
-            // Cada producto puede tener su propio tipo de IVA
-            var vatAmount = Math.Round(cartItems.Sum(i => i.Subtotal * i.VatRate / 100m), 2);
+            var vatAmount     = Math.Round(cartItems.Sum(i => i.Subtotal * i.VatRate / 100m), 2);
 
             return new CartDto
             {
-                Items = cartItems.AsReadOnly(),
+                Items      = cartItems.AsReadOnly(),
                 TotalItems = cartItems.Sum(i => i.Quantity),
-                Subtotal = subtotalTotal,
-                VatAmount = vatAmount,
-                Total = Math.Round(subtotalTotal + vatAmount, 2),
+                Subtotal   = subtotalTotal,
+                VatAmount  = vatAmount,
+                Total      = Math.Round(subtotalTotal + vatAmount, 2),
             };
         }
     }

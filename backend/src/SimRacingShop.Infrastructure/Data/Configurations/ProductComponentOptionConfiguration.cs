@@ -14,6 +14,15 @@ namespace SimRacingShop.Infrastructure.Data.Configurations
                 .IsRequired()
                 .HasMaxLength(50);
 
+            builder.Property(pco => pco.IsGroupRequired)
+                .HasDefaultValue(false);
+
+            builder.Property(pco => pco.GlbObjectName)
+                .HasMaxLength(100);
+
+            builder.Property(pco => pco.ThumbnailUrl)
+                .HasMaxLength(500);
+
             builder.Property(pco => pco.PriceModifier)
                 .HasPrecision(10, 2)
                 .HasDefaultValue(0.00m);

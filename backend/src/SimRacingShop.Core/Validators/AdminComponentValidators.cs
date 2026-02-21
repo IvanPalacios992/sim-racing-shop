@@ -11,7 +11,7 @@ namespace SimRacingShop.Core.Validators
             RuleFor(x => x.Sku)
                 .NotEmpty()
                 .MaximumLength(50)
-                .MustAsync(async (sku, ct) => !await componentAdminRepository.SkuExistsAsync(sku))
+                .Must(sku => !componentAdminRepository.SkuExists(sku))
                 .WithMessage("Ya existe un componente con este SKU.");
 
             RuleFor(x => x.ComponentType)

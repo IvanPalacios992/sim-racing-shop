@@ -10,6 +10,9 @@ namespace SimRacingShop.Core.Entities
         public Guid ProductId { get; set; }
         public Guid ComponentId { get; set; }
         public string OptionGroup { get; set; } = null!;
+        public bool IsGroupRequired { get; set; } = false;
+        public string? GlbObjectName { get; set; }
+        public string? ThumbnailUrl { get; set; }
         public decimal PriceModifier { get; set; }
         public bool IsDefault { get; set; }
         public int DisplayOrder { get; set; }

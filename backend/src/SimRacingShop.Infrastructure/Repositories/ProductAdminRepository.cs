@@ -79,5 +79,41 @@ namespace SimRacingShop.Infrastructure.Repositories
             _context.ProductTranslations.AddRange(translations);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<ProductComponentOption>> GetComponentOptionsAsync(Guid productId)
+        {
+            return await _context.ProductComponentOptions
+                .Include(pco => pco.Component)
+                .Where(pco => pco.ProductId == productId)
+                .OrderBy(pco => pco.OptionGroup)
+                .ThenBy(pco => pco.DisplayOrder)
+                .ToListAsync();
+        }
+
+        public async Task<ProductComponentOption?> GetComponentOptionByIdAsync(Guid optionId)
+        {
+            return await _context.ProductComponentOptions
+                .Include(pco => pco.Component)
+                .FirstOrDefaultAsync(pco => pco.Id == optionId);
+        }
+
+        public async Task<ProductComponentOption> AddComponentOptionAsync(ProductComponentOption option)
+        {
+            _context.ProductComponentOptions.Add(option);
+            await _context.SaveChangesAsync();
+            return option;
+        }
+
+        public async Task UpdateComponentOptionAsync(ProductComponentOption option)
+        {
+            _context.ProductComponentOptions.Update(option);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteComponentOptionAsync(ProductComponentOption option)
+        {
+            _context.ProductComponentOptions.Remove(option);
+            await _context.SaveChangesAsync();
+        }
     }
 }

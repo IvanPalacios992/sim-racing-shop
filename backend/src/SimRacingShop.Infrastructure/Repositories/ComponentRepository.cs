@@ -78,6 +78,16 @@ namespace SimRacingShop.Infrastructure.Repositories
             };
         }
 
+        public async Task<decimal> GetPriceModifiersSumAsync(Guid productId, IEnumerable<Guid> componentIds)
+        {
+            var ids = componentIds.ToList();
+            if (ids.Count == 0) return 0m;
+
+            return await _context.ProductComponentOptions
+                .Where(pco => pco.ProductId == productId && ids.Contains(pco.ComponentId))
+                .SumAsync(pco => pco.PriceModifier);
+        }
+
         public async Task<List<ProductComponentOptionDto>> GetComponentsByProductIdAsync(Guid productId, string locale)
         {
             var query = from pco in _context.ProductComponentOptions
@@ -96,6 +106,9 @@ namespace SimRacingShop.Infrastructure.Repositories
                             Name = ct.Name,
                             Description = ct.Description,
                             OptionGroup = pco.OptionGroup,
+                            IsGroupRequired = pco.IsGroupRequired,
+                            GlbObjectName = pco.GlbObjectName,
+                            ThumbnailUrl = pco.ThumbnailUrl,
                             PriceModifier = pco.PriceModifier,
                             IsDefault = pco.IsDefault,
                             DisplayOrder = pco.DisplayOrder,
