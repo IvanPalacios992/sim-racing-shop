@@ -1,5 +1,12 @@
 import React from "react";
 import { render, screen, waitFor } from "../../helpers/render";
+import {
+  Mesh,
+  MeshStandardMaterial,
+  MeshPhysicalMaterial,
+  MeshBasicMaterial,
+  BufferGeometry,
+} from "three";
 import type { CustomizationGroup } from "@/types/products";
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
@@ -289,6 +296,147 @@ describe("ConfiguratorViewer", () => {
         // getObjectByName should not be called for options without glbObjectName
         expect(getObjectByName).not.toHaveBeenCalled();
       });
+    });
+  });
+
+  // ── Material overrides via traverse ────────────────────────────────────────
+
+  describe("material overrides via traverse", () => {
+    beforeAll(() => {
+      // jsdom doesn't implement Canvas 2D; stub it so createCarbonFiberTexture
+      // (triggered by the "Carbon Fiber - Twill" override) doesn't throw.
+      HTMLCanvasElement.prototype.getContext = vi.fn((type: string) => {
+        if (type !== "2d") return null;
+        return {
+          fillStyle: "" as string,
+          fillRect: vi.fn(),
+          createLinearGradient: vi.fn(() => ({ addColorStop: vi.fn() })),
+        };
+      }) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+    });
+
+    /** Clone mock whose traverse actually calls the callback with each supplied object */
+    function makeTraverseClone(objects: object[], getObjectByName = vi.fn()) {
+      return {
+        scale: { setScalar: vi.fn() },
+        position: { set: vi.fn() },
+        traverse: vi.fn((cb: (obj: unknown) => void) => {
+          for (const obj of objects) cb(obj);
+        }),
+        getObjectByName,
+        updateWorldMatrix: vi.fn(),
+        geometry: undefined,
+        children: [],
+      };
+    }
+
+    /** Create a Mesh with a named MeshStandardMaterial */
+    function makeMesh(
+      matName: string,
+      { roughness = 0.5, metalness = 0.0 } = {},
+    ) {
+      const mat = new MeshStandardMaterial({ roughness, metalness });
+      mat.name = matName;
+      return new Mesh(new BufferGeometry(), mat);
+    }
+
+    function renderWithMeshes(...meshes: object[]) {
+      const clone = makeTraverseClone(meshes);
+      mockUseGLTF.mockReturnValue({ scene: makeMockScene(clone) });
+      render(
+        <ConfiguratorViewer
+          modelUrl="/models/product.glb"
+          groups={defaultGroups}
+          selections={defaultSelections}
+        />,
+      );
+      return clone;
+    }
+
+    it("applies standard material override (roughness + metalness)", () => {
+      const mesh = makeMesh("Aluminio - Anodizado brillante (negro)");
+      renderWithMeshes(mesh);
+
+      const mat = mesh.material as MeshStandardMaterial;
+      expect(mat.roughness).toBe(0.12);
+      expect(mat.metalness).toBe(0.9);
+    });
+
+    it("applies color override", () => {
+      const mesh = makeMesh("Aluminum - Anodized Glossy (Blue)");
+      renderWithMeshes(mesh);
+
+      // #1555e0 → strong blue channel
+      const mat = mesh.material as MeshStandardMaterial;
+      expect(mat.color.b).toBeGreaterThan(0.5);
+    });
+
+    it("upgrades to MeshPhysicalMaterial for clearcoat overrides", () => {
+      const mesh = makeMesh("Carbon Fiber - Twill");
+      renderWithMeshes(mesh);
+
+      expect(mesh.material).toBeInstanceOf(MeshPhysicalMaterial);
+      expect((mesh.material as MeshPhysicalMaterial).clearcoat).toBe(0.1);
+      expect((mesh.material as MeshPhysicalMaterial).clearcoatRoughness).toBe(0.9);
+    });
+
+    it("applies generic roughness fix for CAD exports (roughness ≥ 0.9 and metalness ≥ 0.9)", () => {
+      const mesh = makeMesh("SomeCADExport", { roughness: 1.0, metalness: 1.0 });
+      renderWithMeshes(mesh);
+
+      const mat = mesh.material as MeshStandardMaterial;
+      expect(mat.roughness).toBe(0.3);
+    });
+
+    it("named override takes precedence over the generic fix", () => {
+      // Aluminio starts with roughness=1 / metalness=1 — override should win
+      const mesh = makeMesh("Aluminio - Anodizado brillante (negro)", {
+        roughness: 1.0,
+        metalness: 1.0,
+      });
+      renderWithMeshes(mesh);
+
+      const mat = mesh.material as MeshStandardMaterial;
+      expect(mat.roughness).toBe(0.12); // override, not generic 0.3
+    });
+
+    it("leaves material unchanged when no override and not a CAD material", () => {
+      const mesh = makeMesh("RegularPaint", { roughness: 0.5, metalness: 0.2 });
+      renderWithMeshes(mesh);
+
+      const mat = mesh.material as MeshStandardMaterial;
+      expect(mat.roughness).toBe(0.5);
+      expect(mat.metalness).toBe(0.2);
+    });
+
+    it("skips non-Mesh objects in traverse without throwing", () => {
+      const light = { type: "DirectionalLight", updateWorldMatrix: vi.fn() };
+      expect(() => renderWithMeshes(light)).not.toThrow();
+    });
+
+    it("skips non-MeshStandardMaterial materials without modifying them", () => {
+      const mat = new MeshBasicMaterial();
+      // Same name as an override — ignored because it's not MeshStandardMaterial
+      mat.name = "Aluminio - Anodizado brillante (negro)";
+      const mesh = new Mesh(new BufferGeometry(), mat);
+      renderWithMeshes(mesh);
+
+      expect(mesh.material).toBe(mat);
+    });
+
+    it("handles meshes with an array of materials", () => {
+      const mat1 = new MeshStandardMaterial({ roughness: 0.5 });
+      mat1.name = "Aluminio - Anodizado brillante (negro)";
+      const mat2 = new MeshStandardMaterial({ roughness: 0.5 });
+      mat2.name = "Aluminum - Anodized Glossy (Red)";
+
+      const mesh = new Mesh(new BufferGeometry(), [mat1, mat2]);
+      renderWithMeshes(mesh);
+
+      const mats = mesh.material as MeshStandardMaterial[];
+      expect(Array.isArray(mats)).toBe(true);
+      expect(mats[0].roughness).toBe(0.12);
+      expect(mats[1].roughness).toBe(0.12);
     });
   });
 });
