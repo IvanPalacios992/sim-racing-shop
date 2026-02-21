@@ -13,7 +13,7 @@ namespace SimRacingShop.Infrastructure.Services
         private readonly ILogger<CartService> _logger;
 
         private static readonly TimeSpan SessionCartTtl = TimeSpan.FromDays(7);
-        private static readonly TimeSpan UserCartTtl   = TimeSpan.FromDays(30);
+        private static readonly TimeSpan UserCartTtl = TimeSpan.FromDays(30);
 
         public CartService(
             ICartRepository cartRepository,
@@ -21,10 +21,10 @@ namespace SimRacingShop.Infrastructure.Services
             IComponentRepository componentRepository,
             ILogger<CartService> logger)
         {
-            _cartRepository      = cartRepository;
-            _productRepository   = productRepository;
+            _cartRepository = cartRepository;
+            _productRepository = productRepository;
             _componentRepository = componentRepository;
-            _logger              = logger;
+            _logger = logger;
         }
 
         public async Task<CartDto> GetCartAsync(string cartKey, string locale)
@@ -153,33 +153,33 @@ namespace SimRacingShop.Infrastructure.Services
                 }
 
                 var priceModifier = modifiers.GetValueOrDefault(productIdStr, 0m);
-                var unitPrice     = product.BasePrice + priceModifier;
-                var subtotal      = Math.Round(unitPrice * quantity, 2);
-                var imageUrl      = product.Images.FirstOrDefault()?.ImageUrl;
+                var unitPrice = product.BasePrice + priceModifier;
+                var subtotal = Math.Round(unitPrice * quantity, 2);
+                var imageUrl = product.Images.FirstOrDefault()?.ImageUrl;
 
                 cartItems.Add(new CartItemDto
                 {
                     ProductId = productId,
-                    Sku       = product.Sku,
-                    Name      = product.Name,
-                    ImageUrl  = imageUrl,
-                    Quantity  = quantity,
+                    Sku = product.Sku,
+                    Name = product.Name,
+                    ImageUrl = imageUrl,
+                    Quantity = quantity,
                     UnitPrice = unitPrice,
-                    VatRate   = product.VatRate,
-                    Subtotal  = subtotal,
+                    VatRate = product.VatRate,
+                    Subtotal = subtotal,
                 });
             }
 
             var subtotalTotal = cartItems.Sum(i => i.Subtotal);
-            var vatAmount     = Math.Round(cartItems.Sum(i => i.Subtotal * i.VatRate / 100m), 2);
+            var vatAmount = Math.Round(cartItems.Sum(i => i.Subtotal * i.VatRate / 100m), 2);
 
             return new CartDto
             {
-                Items      = cartItems.AsReadOnly(),
+                Items = cartItems.AsReadOnly(),
                 TotalItems = cartItems.Sum(i => i.Quantity),
-                Subtotal   = subtotalTotal,
-                VatAmount  = vatAmount,
-                Total      = Math.Round(subtotalTotal + vatAmount, 2),
+                Subtotal = subtotalTotal,
+                VatAmount = vatAmount,
+                Total = Math.Round(subtotalTotal + vatAmount, 2),
             };
         }
     }
