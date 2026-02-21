@@ -12,6 +12,7 @@ namespace SimRacingShop.UnitTests.Services
     {
         private readonly Mock<ICartRepository> _cartRepositoryMock;
         private readonly Mock<IProductRepository> _productRepositoryMock;
+        private readonly Mock<IComponentRepository> _componentRepositoryMock;
         private readonly Mock<ILogger<CartService>> _loggerMock;
         private readonly CartService _service;
 
@@ -22,11 +23,18 @@ namespace SimRacingShop.UnitTests.Services
         {
             _cartRepositoryMock = new Mock<ICartRepository>();
             _productRepositoryMock = new Mock<IProductRepository>();
+            _componentRepositoryMock = new Mock<IComponentRepository>();
             _loggerMock = new Mock<ILogger<CartService>>();
+
+            // Default: no price modifiers stored for any cart key
+            _cartRepositoryMock
+                .Setup(x => x.GetAllPriceModifiersAsync(It.IsAny<string>()))
+                .ReturnsAsync(new Dictionary<string, decimal>());
 
             _service = new CartService(
                 _cartRepositoryMock.Object,
                 _productRepositoryMock.Object,
+                _componentRepositoryMock.Object,
                 _loggerMock.Object);
         }
 

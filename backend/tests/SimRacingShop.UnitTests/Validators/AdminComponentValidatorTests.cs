@@ -15,7 +15,7 @@ public class CreateComponentDtoValidatorTests
     public CreateComponentDtoValidatorTests()
     {
         _repoMock = new Mock<IComponentAdminRepository>();
-        _repoMock.Setup(r => r.SkuExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
+        _repoMock.Setup(r => r.SkuExists(It.IsAny<string>())).Returns(false);
         _validator = new CreateComponentDtoValidator(_repoMock.Object);
     }
 
@@ -61,7 +61,7 @@ public class CreateComponentDtoValidatorTests
     [Fact]
     public async Task DuplicateSku_FailsValidation()
     {
-        _repoMock.Setup(r => r.SkuExistsAsync("COMP-DUP")).ReturnsAsync(true);
+        _repoMock.Setup(r => r.SkuExists("COMP-DUP")).Returns(true);
 
         var dto = new CreateComponentDto
         {
