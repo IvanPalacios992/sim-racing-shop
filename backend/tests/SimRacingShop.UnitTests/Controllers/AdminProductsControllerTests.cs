@@ -768,8 +768,12 @@ public class AdminProductsControllerTests
         };
         var component = new Component
         {
-            Id = componentId, Sku = "COMP-001", ComponentType = "grip",
-            StockQuantity = 10, MinStockThreshold = 5, LeadTimeDays = 3
+            Id = componentId,
+            Sku = "COMP-001",
+            ComponentType = "grip",
+            StockQuantity = 10,
+            MinStockThreshold = 5,
+            LeadTimeDays = 3
         };
 
         _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
@@ -839,8 +843,12 @@ public class AdminProductsControllerTests
         };
         var component = new Component
         {
-            Id = componentId, Sku = "COMP-001", ComponentType = "grip",
-            StockQuantity = 10, MinStockThreshold = 5, LeadTimeDays = 3
+            Id = componentId,
+            Sku = "COMP-001",
+            ComponentType = "grip",
+            StockQuantity = 10,
+            MinStockThreshold = 5,
+            LeadTimeDays = 3
         };
         var dto = new UpsertProductComponentOptionDto
         {

@@ -533,8 +533,12 @@ public class ProductAdminRepositoryTests : IDisposable
         _context.Products.Add(product);
         var component = new Component
         {
-            Id = Guid.NewGuid(), Sku = "COMP-001", ComponentType = "grip",
-            StockQuantity = 10, MinStockThreshold = 5, LeadTimeDays = 3
+            Id = Guid.NewGuid(),
+            Sku = "COMP-001",
+            ComponentType = "grip",
+            StockQuantity = 10,
+            MinStockThreshold = 5,
+            LeadTimeDays = 3
         };
         _context.Components.Add(component);
         await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
