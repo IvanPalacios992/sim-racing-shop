@@ -64,10 +64,10 @@ export function CartItemRow({ item, onUpdate, onRemove, isLoading }: Props) {
 
       {/* Price */}
       <div className="flex flex-col items-end justify-center">
-        <span className="text-2xl font-bold text-white">€{item.subtotal.toFixed(2)}</span>
+        <span className="text-2xl font-bold text-white">€{(item.subtotal * (1 + item.vatRate / 100)).toFixed(2)}</span>
         {item.quantity > 1 && (
           <span className="mt-1 text-xs text-silver">
-            €{item.unitPrice.toFixed(2)} / ud.
+            €{(item.unitPrice * (1 + item.vatRate / 100)).toFixed(2)} / ud.
           </span>
         )}
       </div>

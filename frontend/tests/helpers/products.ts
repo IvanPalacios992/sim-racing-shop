@@ -38,6 +38,7 @@ export function createMockProductListItem(
     slug: "formula-v25-steering-wheel",
     shortDescription: "Premium sim racing steering wheel",
     basePrice: 349.99,
+    vatRate: 21,
     imageUrl: "https://example.com/image1.jpg",
     isActive: true,
     isCustomizable: true,

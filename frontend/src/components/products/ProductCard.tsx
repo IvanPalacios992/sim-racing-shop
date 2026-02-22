@@ -70,7 +70,7 @@ export function ProductCard({ product }: ProductCardProps) {
         )}
         <div className="flex items-center gap-3">
           <span className="text-2xl font-bold text-white">
-            &euro;{product.basePrice.toFixed(2)}
+            &euro;{(product.basePrice * (1 + product.vatRate / 100)).toFixed(2)}
           </span>
         </div>
       </div>

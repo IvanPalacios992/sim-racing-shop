@@ -100,17 +100,19 @@ describe("MiniCart", () => {
       expect(screen.getByText("Quantity: 1")).toBeInTheDocument();
     });
 
-    it("shows item subtotal", () => {
+    it("shows item subtotal with VAT", () => {
+      // unitPrice: 349.99, vatRate: 21, quantity: 1 → subtotal 349.99 * 1.21 = 423.49
+      // Same value also appears in the footer (cart.total), so getAllByText
       useCartStore.setState({ cart: createMockCart() });
       render(<MiniCart {...defaultProps} />);
-      expect(screen.getAllByText("€349.99").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("€423.49").length).toBeGreaterThanOrEqual(1);
     });
 
-    it("shows cart subtotal in footer", () => {
-      useCartStore.setState({ cart: createMockCart({ subtotal: 349.99 }) });
+    it("shows cart total with VAT in footer", () => {
+      // cart.total = 423.49 (subtotal 349.99 + vatAmount 73.50)
+      useCartStore.setState({ cart: createMockCart() });
       render(<MiniCart {...defaultProps} />);
-      // Both item subtotal and footer subtotal show €349.99
-      expect(screen.getAllByText("€349.99").length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText("€423.49").length).toBeGreaterThanOrEqual(1);
     });
 
     it("renders remove button for each item", () => {
