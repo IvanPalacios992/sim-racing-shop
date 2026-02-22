@@ -28,11 +28,12 @@ describe("ProductCard", () => {
       ).toBeInTheDocument();
     });
 
-    it("renders price", () => {
+    it("renders price with VAT", () => {
+      // basePrice: 349.99, vatRate: 21 → 349.99 * 1.21 = 423.49
       const product = createMockProductListItem({ basePrice: 349.99 });
       render(<ProductCard product={product} />);
 
-      expect(screen.getByText(/349\.99/)).toBeInTheDocument();
+      expect(screen.getByText(/423\.49/)).toBeInTheDocument();
     });
 
     it("renders product image", () => {

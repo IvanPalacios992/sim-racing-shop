@@ -16,6 +16,7 @@ interface Props {
 export function CartSummary({ cart, isLoading }: Props) {
   const t = useTranslations("Cart");
   const hasFreeShipping = cart.subtotal >= FREE_SHIPPING_THRESHOLD;
+  const vatRate = cart.items[0]?.vatRate ?? 0;
 
   return (
     <aside className="flex flex-col gap-6 rounded-xl bg-carbon p-6 lg:sticky lg:top-24">
@@ -40,7 +41,7 @@ export function CartSummary({ cart, isLoading }: Props) {
         </div>
 
         <div className="flex items-center justify-between text-base">
-          <span className="text-silver">{t("vatLine")}</span>
+          <span className="text-silver">{t("vatLine", { rate: vatRate })}</span>
           <span className="font-semibold text-white">€{cart.vatAmount.toFixed(2)}</span>
         </div>
       </div>

@@ -40,7 +40,7 @@ function MiniCartItemRow({ item, onRemove }: { item: CartItemDto; onRemove: () =
         <p className="text-xs text-silver">
           {t("quantity")}: {item.quantity}
         </p>
-        <p className="font-semibold text-white">€{item.subtotal.toFixed(2)}</p>
+        <p className="font-semibold text-white">€{(item.subtotal * (1 + item.vatRate / 100)).toFixed(2)}</p>
       </div>
 
       {/* Remove */}
@@ -134,7 +134,7 @@ export function MiniCart({ isOpen, onClose }: Props) {
           <div className="border-t border-graphite p-5">
             <div className="mb-4 flex items-center justify-between">
               <span className="text-silver">{t("subtotalLabel")}:</span>
-              <span className="text-xl font-bold text-white">€{cart!.subtotal.toFixed(2)}</span>
+              <span className="text-xl font-bold text-white">€{cart!.total.toFixed(2)}</span>
             </div>
             <div className="flex flex-col gap-3">
               <Link
