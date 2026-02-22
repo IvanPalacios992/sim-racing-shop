@@ -252,6 +252,33 @@ public class AdminProductsControllerTests
     }
 
     [Fact]
+    public async Task UpdateProduct_InvalidatesCacheAfterUpdate()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var dto = new UpdateProductDto
+        {
+            BasePrice = 399.99m,
+            VatRate = 21.00m,
+            IsActive = true,
+            IsCustomizable = true,
+            BaseProductionDays = 7
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Product>())).Returns(Task.CompletedTask);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.UpdateProduct(product.Id, dto);
+
+        // Assert
+        _cacheMock.Verify(c => c.RemoveAsync(
+            It.Is<string>(k => k.Contains("products:detail:")),
+            default), Times.AtLeastOnce);
+    }
+
+    [Fact]
     public async Task UpdateProduct_UpdatesProductFields()
     {
         // Arrange
@@ -327,6 +354,23 @@ public class AdminProductsControllerTests
 
         // Assert
         result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task DeleteProduct_SinImagenes_NuncaLlamaAFileStorage()
+    {
+        // Arrange
+        var product = BuildProduct(); // Images = empty list
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.DeleteAsync(product)).Returns(Task.CompletedTask);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.DeleteProduct(product.Id);
+
+        // Assert
+        _fileStorageMock.Verify(f => f.DeleteFileAsync(It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
@@ -439,6 +483,58 @@ public class AdminProductsControllerTests
 
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    [Fact]
+    public async Task UploadImages_EstableceAltTextComoCaret_SinExtension()
+    {
+        // Arrange – AltText debe ser Path.GetFileNameWithoutExtension(fileName)
+        var product = BuildProduct();
+        var fileMock = CreateMockFormFile("volante-rojo.jpg");
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _fileStorageMock.Setup(f => f.SaveFileAsync(It.IsAny<Stream>(), It.IsAny<string>(), "products"))
+            .ReturnsAsync("/uploads/products/img.jpg");
+        _adminRepoMock.Setup(r => r.AddImagesAsync(product.Id, It.IsAny<List<ProductImage>>()))
+            .ReturnsAsync((Guid _, List<ProductImage> images) => images);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.UploadImages(product.Id, new List<IFormFile> { fileMock.Object });
+
+        // Assert
+        var createdResult = result.Should().BeOfType<CreatedResult>().Subject;
+        var images = createdResult.Value.Should().BeAssignableTo<List<ProductImageUploadResultDto>>().Subject;
+        images[0].AltText.Should().Be("volante-rojo");
+    }
+
+    [Fact]
+    public async Task UploadImages_MultiplesArchivos_AsignaOrdenesIncrementalesDesdMax()
+    {
+        // Arrange – producto ya tiene una imagen con DisplayOrder=3; las nuevas deben ser 4 y 5
+        var product = BuildProduct();
+        product.Images = new List<ProductImage>
+        {
+            new() { Id = Guid.NewGuid(), ImageUrl = "/uploads/products/existing.jpg", DisplayOrder = 3 }
+        };
+
+        var file1 = CreateMockFormFile("img1.jpg");
+        var file2 = CreateMockFormFile("img2.jpg");
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _fileStorageMock.Setup(f => f.SaveFileAsync(It.IsAny<Stream>(), It.IsAny<string>(), "products"))
+            .ReturnsAsync("/uploads/products/new.jpg");
+        _adminRepoMock.Setup(r => r.AddImagesAsync(product.Id, It.IsAny<List<ProductImage>>()))
+            .ReturnsAsync((Guid _, List<ProductImage> images) => images);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.UploadImages(product.Id, new List<IFormFile> { file1.Object, file2.Object });
+
+        // Assert
+        _adminRepoMock.Verify(r => r.AddImagesAsync(product.Id, It.Is<List<ProductImage>>(imgs =>
+            imgs[0].DisplayOrder == 4 &&
+            imgs[1].DisplayOrder == 5)), Times.Once);
     }
 
     [Fact]

@@ -69,6 +69,52 @@ namespace SimRacingShop.UnitTests.Services
         // --- GetCartAsync ---
 
         [Fact]
+        public async Task GetCartAsync_ItemConCantidadCero_SeOmiteDelCarrito()
+        {
+            // Arrange – la guardia de BuildCartDtoAsync descarta qty <= 0
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 0 } });
+
+            // Act
+            var result = await _service.GetCartAsync(cartKey, "es");
+
+            // Assert
+            result.Items.Should().BeEmpty();
+            result.TotalItems.Should().Be(0);
+            _productRepositoryMock.Verify(
+                x => x.GetProductByIdAsync(It.IsAny<Guid>(), It.IsAny<string>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task GetCartAsync_ProductoSinImagenes_ImageUrlEsNull()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var product = CreateProduct(productId, imageUrl: null);
+            var cartKey = "cart:user:uid";
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 1 } });
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(product);
+
+            // Act
+            var result = await _service.GetCartAsync(cartKey, "es");
+
+            // Assert
+            result.Items.Should().HaveCount(1);
+            result.Items[0].ImageUrl.Should().BeNull();
+        }
+
+        [Fact]
         public async Task GetCartAsync_CarritoVacio_DevuelveCarritoConCeroItems()
         {
             // Arrange
@@ -301,6 +347,34 @@ namespace SimRacingShop.UnitTests.Services
         }
 
         [Fact]
+        public async Task AddItemAsync_CantidadResultanteExacta99_NoLanzaExcepcion()
+        {
+            // Arrange – 95 existentes + 4 nuevos = 99, exactamente el límite permitido
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+            var dto = new AddToCartDto { ProductId = productId, Quantity = 4 };
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(CreateProduct(productId));
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 95 } });
+
+            _cartRepositoryMock
+                .Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>()))
+                .Returns(Task.CompletedTask);
+
+            // Act & Assert
+            var act = () => _service.AddItemAsync(cartKey, dto, "es");
+            await act.Should().NotThrowAsync();
+
+            _cartRepositoryMock.Verify(x => x.SetItemAsync(
+                cartKey, productId.ToString(), 99, UserCartTtl), Times.Once);
+        }
+
+        [Fact]
         public async Task AddItemAsync_CarritoSesion_UsaTtlDeSieteDias()
         {
             // Arrange
@@ -372,6 +446,33 @@ namespace SimRacingShop.UnitTests.Services
             // Act & Assert
             var act = () => _service.UpdateItemAsync(cartKey, productId, 3, "es");
             await act.Should().ThrowAsync<KeyNotFoundException>();
+        }
+
+        [Fact]
+        public async Task UpdateItemAsync_CarritoSesion_UsaTtlDeSieteDias()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:session:xyz";
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 2 } });
+
+            _cartRepositoryMock
+                .Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>()))
+                .Returns(Task.CompletedTask);
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(CreateProduct(productId, basePrice: 50m));
+
+            // Act
+            await _service.UpdateItemAsync(cartKey, productId, 5, "es");
+
+            // Assert – carrito de sesión → TTL de 7 días
+            _cartRepositoryMock.Verify(x => x.SetItemAsync(
+                cartKey, productId.ToString(), 5, SessionCartTtl), Times.Once);
         }
 
         // --- RemoveItemAsync ---

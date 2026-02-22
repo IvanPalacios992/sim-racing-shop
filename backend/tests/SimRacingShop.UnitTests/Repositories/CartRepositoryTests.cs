@@ -98,6 +98,32 @@ namespace SimRacingShop.UnitTests.Repositories
             result.Should().NotContainKey(zeroId);
         }
 
+        [Fact]
+        public async Task GetAllItemsAsync_EntradaConValorNoNumerico_SeOmite()
+        {
+            // Arrange
+            var cartKey = "cart:user:test";
+            var validId = Guid.NewGuid().ToString();
+            var invalidId = Guid.NewGuid().ToString();
+            var entries = new HashEntry[]
+            {
+                new(validId, 3),
+                new(invalidId, "invalid"),
+            };
+
+            _databaseMock
+                .Setup(x => x.HashGetAllAsync($"{KeyPrefix}{cartKey}", It.IsAny<CommandFlags>()))
+                .ReturnsAsync(entries);
+
+            // Act
+            var result = await _repository.GetAllItemsAsync(cartKey);
+
+            // Assert
+            result.Should().HaveCount(1);
+            result.Should().ContainKey(validId);
+            result.Should().NotContainKey(invalidId);
+        }
+
         // --- SetItemAsync ---
 
         [Fact]
@@ -259,6 +285,49 @@ namespace SimRacingShop.UnitTests.Repositories
             _databaseMock.Verify(x => x.HashSetAsync(
                 $"{KeyPrefix}{destKey}", (RedisValue)productId, (RedisValue)2,
                 It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+
+            _databaseMock.Verify(x => x.KeyDeleteAsync(
+                $"{KeyPrefix}{sourceKey}", It.IsAny<CommandFlags>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task MergeAsync_SourceConCantidadCeroOInvalida_ItemsSeIgnoranPeroExpireYDeleteSiEjecutan()
+        {
+            // Arrange
+            var sourceKey = "cart:session:src";
+            var destKey = "cart:user:dest";
+            var ttl = TimeSpan.FromDays(30);
+
+            // Source con una entrada qty=0 y otra con valor no numérico
+            var sourceEntries = new HashEntry[]
+            {
+                new(Guid.NewGuid().ToString(), 0),
+                new(Guid.NewGuid().ToString(), "invalid"),
+            };
+
+            _databaseMock
+                .Setup(x => x.HashGetAllAsync($"{KeyPrefix}{sourceKey}", It.IsAny<CommandFlags>()))
+                .ReturnsAsync(sourceEntries);
+
+            _databaseMock
+                .Setup(x => x.KeyExpireAsync(It.IsAny<RedisKey>(), It.IsAny<TimeSpan?>(), It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            _databaseMock
+                .Setup(x => x.KeyDeleteAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            // Act
+            await _repository.MergeAsync(sourceKey, destKey, ttl);
+
+            // Assert – ningún item se escribe en destino
+            _databaseMock.Verify(x => x.HashSetAsync(
+                It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<RedisValue>(),
+                It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Never);
+
+            // Pero sí se actualiza TTL del destino y se borra el source
+            _databaseMock.Verify(x => x.KeyExpireAsync(
+                $"{KeyPrefix}{destKey}", ttl, It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()), Times.Once);
 
             _databaseMock.Verify(x => x.KeyDeleteAsync(
                 $"{KeyPrefix}{sourceKey}", It.IsAny<CommandFlags>()), Times.Once);

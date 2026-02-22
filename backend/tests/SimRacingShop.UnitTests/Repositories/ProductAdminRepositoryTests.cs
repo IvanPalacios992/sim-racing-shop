@@ -299,6 +299,31 @@ public class ProductAdminRepositoryTests : IDisposable
         result.Should().BeFalse();
     }
 
+    [Fact]
+    public void SkuExists_WithExistingSku_ReturnsTrue()
+    {
+        // Arrange
+        var product = BuildProduct(sku: "SKU-SYNC-EXISTS");
+        _context.Products.Add(product);
+        _context.SaveChanges();
+
+        // Act
+        var result = _repository.SkuExists("SKU-SYNC-EXISTS");
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void SkuExists_WithNonExistentSku_ReturnsFalse()
+    {
+        // Act
+        var result = _repository.SkuExists("SKU-SYNC-NONEXISTENT");
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
     #endregion
 
     #region ReplaceTranslationsAsync Tests

@@ -395,6 +395,28 @@ public class ComponentRepositoryTests : IDisposable
     }
 
     [Fact]
+    public async Task GetComponentsByProductId_MapeaSkuComponentTypeYDescription()
+    {
+        // Arrange
+        var product = await SeedProduct();
+        var component = await SeedComponent(
+            sku: "COMP-GRIP-001",
+            componentType: "grip",
+            name: "Grip Alcantara",
+            description: "Grip de material alcantara premium");
+        await SeedProductComponentOption(product.Id, component.Id, "grip_material");
+
+        // Act
+        var result = await _repository.GetComponentsByProductIdAsync(product.Id, "es");
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].Sku.Should().Be("COMP-GRIP-001");
+        result[0].ComponentType.Should().Be("grip");
+        result[0].Description.Should().Be("Grip de material alcantara premium");
+    }
+
+    [Fact]
     public async Task GetComponentsByProductId_IncludesPriceModifierAndStockInfo()
     {
         // Arrange
