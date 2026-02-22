@@ -16,5 +16,7 @@ RUN dotnet publish src/SimRacingShop.API/SimRacingShop.API.csproj \
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app
 COPY --from=build /app/out .
+RUN adduser --disabled-password --gecos "" appuser && chown -R appuser /app
+USER appuser
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "SimRacingShop.API.dll"]
