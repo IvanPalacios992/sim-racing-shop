@@ -34,6 +34,7 @@ export const productsApi = {
     };
 
     if (filter.search) params.Search = filter.search;
+    if (filter.categorySlug) params.CategorySlug = filter.categorySlug;
     if (filter.minPrice !== undefined) params.MinPrice = filter.minPrice;
     if (filter.maxPrice !== undefined) params.MaxPrice = filter.maxPrice;
     if (filter.isCustomizable !== undefined)

@@ -186,6 +186,8 @@
     "search": "Buscar productos...",
     "filters": "Filtros",
     "clearFilters": "Limpiar filtros",
+    "category": "Categoría",
+    "allCategories": "Todas las categorías",
     "priceRange": "Rango de precio",
     "minPrice": "Mín",
     "maxPrice": "Máx",

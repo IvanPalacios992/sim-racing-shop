@@ -55,6 +55,7 @@ namespace SimRacingShop.Core.DTOs
     public record ProductFilterDto
     {
         public string? Search { get; init; }
+        public string? CategorySlug { get; init; }
         public decimal? MinPrice { get; init; }
         public decimal? MaxPrice { get; init; }
         public bool? IsActive { get; init; } = true;

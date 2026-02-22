@@ -7,6 +7,7 @@ describe("ProductFilters", () => {
   const mockOnFiltersChange = vi.fn();
   const defaultFilters: FilterValues = {
     search: "",
+    categorySlug: "",
     minPrice: "",
     maxPrice: "",
     isCustomizable: false,
@@ -24,6 +25,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -35,6 +37,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={{ ...defaultFilters, search: "steering wheel" }}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -48,6 +51,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -68,6 +72,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -79,6 +84,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -90,6 +96,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={{ ...defaultFilters, minPrice: "100", maxPrice: "500" }}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -103,6 +110,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -121,6 +129,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -140,6 +149,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -151,6 +161,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={{ ...defaultFilters, isCustomizable: true }}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -163,6 +174,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -181,6 +193,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -192,6 +205,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={{ ...defaultFilters, sortBy: "BasePrice", sortDescending: false }}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -204,6 +218,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -224,6 +239,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={{ ...defaultFilters, search: "pedals" }}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -235,6 +251,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -245,6 +262,7 @@ describe("ProductFilters", () => {
       const user = userEvent.setup();
       const filtersWithValues: FilterValues = {
         search: "pedals",
+        categorySlug: "volantes",
         minPrice: "100",
         maxPrice: "500",
         isCustomizable: true,
@@ -256,6 +274,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={filtersWithValues}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 

@@ -5,9 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter, usePathname } from "@/i18n/navigation";
 import { productsApi } from "@/lib/api/products";
+import { categoriesApi } from "@/lib/api/categories";
 import { ProductGrid, ProductFilters, Pagination } from "@/components/products";
 import type { FilterValues } from "@/components/products";
 import type { ProductListItem, PaginatedResult } from "@/types/products";
+import type { CategoryListItem } from "@/types/categories";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -20,6 +22,7 @@ function parseSearchParams(searchParams: URLSearchParams): {
   return {
     filters: {
       search: searchParams.get("search") ?? "",
+      categorySlug: searchParams.get("category") ?? "",
       minPrice: searchParams.get("minPrice") ?? "",
       maxPrice: searchParams.get("maxPrice") ?? "",
       isCustomizable: searchParams.get("customizable") === "true",
@@ -33,6 +36,7 @@ function parseSearchParams(searchParams: URLSearchParams): {
 function buildSearchParams(filters: FilterValues, page: number): string {
   const params = new URLSearchParams();
   if (filters.search) params.set("search", filters.search);
+  if (filters.categorySlug) params.set("category", filters.categorySlug);
   if (filters.minPrice) params.set("minPrice", filters.minPrice);
   if (filters.maxPrice) params.set("maxPrice", filters.maxPrice);
   if (filters.isCustomizable) params.set("customizable", "true");
@@ -58,6 +62,15 @@ export function ProductsPageContent() {
   const [data, setData] = useState<PaginatedResult<ProductListItem> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<CategoryListItem[]>([]);
+
+  // Load categories once on mount
+  useEffect(() => {
+    categoriesApi
+      .getCategories({ isActive: true, locale, page: 1, pageSize: 100 })
+      .then((result) => setCategories(result.items))
+      .catch(() => {/* silently ignore — categories filter is optional */});
+  }, [locale]);
 
   // Debounce timer for search input
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -69,6 +82,7 @@ export function ProductsPageContent() {
       try {
         const result = await productsApi.getProducts({
           search: f.search || undefined,
+          categorySlug: f.categorySlug || undefined,
           minPrice: f.minPrice ? Number(f.minPrice) : undefined,
           maxPrice: f.maxPrice ? Number(f.maxPrice) : undefined,
           isCustomizable: f.isCustomizable || undefined,
@@ -137,7 +151,7 @@ export function ProductsPageContent() {
       {/* Content */}
       <div className="mx-auto flex max-w-[1400px] gap-8 px-6 py-8">
         {/* Filters */}
-        <ProductFilters filters={filters} onFiltersChange={handleFiltersChange} />
+        <ProductFilters filters={filters} onFiltersChange={handleFiltersChange} categories={categories} />
 
         {/* Main content */}
         <div className="min-w-0 flex-1">

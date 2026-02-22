@@ -297,6 +297,7 @@ public class CachedProductRepositoryTests
             Page = 2,
             PageSize = 6,
             Search = "volante",
+            CategorySlug = "volantes",
             MinPrice = 100,
             MaxPrice = 500,
             IsActive = true,
@@ -311,6 +312,7 @@ public class CachedProductRepositoryTests
         key.Should().Contain("2");
         key.Should().Contain("6");
         key.Should().Contain("volante");
+        key.Should().Contain("volantes");
         key.Should().Contain("100");
         key.Should().Contain("500");
         key.Should().Contain("True");
@@ -328,6 +330,22 @@ public class CachedProductRepositoryTests
         var key2 = CachedProductRepository.BuildListCacheKey(filter2);
 
         key1.Should().NotBe(key2);
+    }
+
+    [Fact]
+    public void BuildListCacheKey_DifferentCategorySlug_ProducesDifferentKeys()
+    {
+        var filter1 = new ProductFilterDto { Page = 1, PageSize = 12, Locale = "es", CategorySlug = "volantes" };
+        var filter2 = new ProductFilterDto { Page = 1, PageSize = 12, Locale = "es", CategorySlug = "pedales" };
+        var filter3 = new ProductFilterDto { Page = 1, PageSize = 12, Locale = "es" };
+
+        var key1 = CachedProductRepository.BuildListCacheKey(filter1);
+        var key2 = CachedProductRepository.BuildListCacheKey(filter2);
+        var key3 = CachedProductRepository.BuildListCacheKey(filter3);
+
+        key1.Should().NotBe(key2);
+        key1.Should().NotBe(key3);
+        key2.Should().NotBe(key3);
     }
 
     [Fact]
