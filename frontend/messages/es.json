@@ -269,7 +269,13 @@
     "menu": "Menú",
     "products": "Productos",
     "about": "Nosotros",
-    "contact": "Contacto"
+    "contact": "Contacto",
+    "userMenu": {
+      "profile": "Mi Perfil",
+      "orders": "Mis Pedidos",
+      "settings": "Configuración",
+      "logout": "Cerrar Sesión"
+    }
   },
   "footer": {
     "tagline": "Diseñado para la Victoria",
