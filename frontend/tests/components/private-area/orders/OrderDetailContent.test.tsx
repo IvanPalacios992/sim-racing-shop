@@ -533,13 +533,13 @@ describe("OrderDetailContent", () => {
       });
     });
 
-    it("renders VAT (21%) label", async () => {
+    it("renders VAT label", async () => {
       vi.mocked(ordersApi.getOrderById).mockResolvedValue(mockOrder);
 
       render(<OrderDetailContent orderId="order-1" />);
 
       await waitFor(() => {
-        expect(screen.getByText("VAT (21%)")).toBeInTheDocument();
+        expect(screen.getByText("VAT")).toBeInTheDocument();
       });
     });
 
