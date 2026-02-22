@@ -106,7 +106,7 @@ namespace SimRacingShop.Infrastructure.Repositories
         public static string BuildListCacheKey(ProductFilterDto filter)
         {
             return $"products:list:{filter.Locale}:{filter.Page}:{filter.PageSize}" +
-                   $":{filter.Search}:{filter.MinPrice}:{filter.MaxPrice}" +
+                   $":{filter.Search}:{filter.CategorySlug}:{filter.MinPrice}:{filter.MaxPrice}" +
                    $":{filter.IsActive}:{filter.IsCustomizable}" +
                    $":{filter.SortBy}:{filter.SortDescending}";
         }

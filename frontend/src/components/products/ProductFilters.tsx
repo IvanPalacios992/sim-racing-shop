@@ -6,9 +6,11 @@ import { Search, SlidersHorizontal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import type { CategoryListItem } from "@/types/categories";
 
 export type FilterValues = {
   search: string;
+  categorySlug: string;
   minPrice: string;
   maxPrice: string;
   isCustomizable: boolean;
@@ -19,6 +21,7 @@ export type FilterValues = {
 type ProductFiltersProps = {
   filters: FilterValues;
   onFiltersChange: (filters: FilterValues) => void;
+  categories: CategoryListItem[];
 };
 
 const SORT_OPTIONS = [
@@ -29,7 +32,7 @@ const SORT_OPTIONS = [
   { value: "Name", descending: false, key: "name" },
 ] as const;
 
-export function ProductFilters({ filters, onFiltersChange }: Readonly<ProductFiltersProps>) {
+export function ProductFilters({ filters, onFiltersChange, categories }: Readonly<ProductFiltersProps>) {
   const t = useTranslations("products");
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -40,6 +43,7 @@ export function ProductFilters({ filters, onFiltersChange }: Readonly<ProductFil
   const clearFilters = useCallback(() => {
     onFiltersChange({
       search: "",
+      categorySlug: "",
       minPrice: "",
       maxPrice: "",
       isCustomizable: false,
@@ -54,6 +58,7 @@ export function ProductFilters({ filters, onFiltersChange }: Readonly<ProductFil
 
   const hasActiveFilters =
     filters.search ||
+    filters.categorySlug ||
     filters.minPrice ||
     filters.maxPrice ||
     filters.isCustomizable;
@@ -73,6 +78,32 @@ export function ProductFilters({ filters, onFiltersChange }: Readonly<ProductFil
           />
         </div>
       </div>
+
+      {/* Category */}
+      {categories.length > 0 && (
+        <div>
+          <h3 className="mb-3 text-sm font-semibold text-white">{t("category")}</h3>
+          <div className="flex flex-wrap gap-2">
+            {[{ id: "", slug: "", name: t("allCategories") }, ...categories].map((cat) => {
+              const isSelected = filters.categorySlug === cat.slug;
+              return (
+                <button
+                  key={cat.id || "__all__"}
+                  type="button"
+                  onClick={() => updateFilter({ categorySlug: cat.slug })}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+                    isSelected
+                      ? "border-electric-blue bg-electric-blue/10 text-electric-blue"
+                      : "border-graphite bg-obsidian text-silver hover:border-white/40 hover:text-white"
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Sort */}
       <div>

@@ -13,6 +13,7 @@ export type ProductListItem = {
 
 export type ProductFilter = {
   search?: string;
+  categorySlug?: string;
   minPrice?: number;
   maxPrice?: number;
   isCustomizable?: boolean;

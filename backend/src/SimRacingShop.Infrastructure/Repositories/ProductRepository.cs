@@ -38,6 +38,14 @@ namespace SimRacingShop.Infrastructure.Repositories
             if (filter.MaxPrice.HasValue)
                 query = query.Where(x => x.Product.BasePrice <= filter.MaxPrice.Value);
 
+            // Category filter
+            if (!string.IsNullOrWhiteSpace(filter.CategorySlug))
+            {
+                query = query.Where(x => x.Product.Categories
+                    .Any(c => c.Translations
+                        .Any(t => t.Locale == filter.Locale && t.Slug == filter.CategorySlug)));
+            }
+
             // Full-text search
             if (!string.IsNullOrWhiteSpace(filter.Search))
             {

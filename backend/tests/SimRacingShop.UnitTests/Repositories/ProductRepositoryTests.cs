@@ -28,6 +28,40 @@ public class ProductRepositoryTests : IDisposable
 
     #region Helper Methods
 
+    private async Task<Category> SeedCategory(
+        string slug = "volantes",
+        string name = "Volantes",
+        string locale = "es")
+    {
+        var category = new Category
+        {
+            Id = Guid.NewGuid(),
+            IsActive = true,
+        };
+        _context.Categories.Add(category);
+
+        _context.CategoriesTranslations.Add(new CategoryTranslation
+        {
+            Id = Guid.NewGuid(),
+            CategoryId = category.Id,
+            Locale = locale,
+            Name = name,
+            Slug = slug,
+        });
+
+        await _context.SaveChangesAsync();
+        return category;
+    }
+
+    private async Task AssignProductToCategory(Guid productId, Category category)
+    {
+        var product = await _context.Products
+            .Include(p => p.Categories)
+            .FirstAsync(p => p.Id == productId);
+        product.Categories.Add(category);
+        await _context.SaveChangesAsync();
+    }
+
     private async Task<Product> SeedProduct(
         string sku = "SKU-001",
         decimal basePrice = 299.99m,
@@ -350,6 +384,168 @@ public class ProductRepositoryTests : IDisposable
 
         // Assert
         result.Page.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetProducts_ReturnsNullImageUrl_WhenProductHasNoImages()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "No Image", slug: "no-image");
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items[0].ImageUrl.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetProducts_IsActiveNull_ReturnsActiveAndInactiveProducts()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "Active", slug: "active", isActive: true);
+        await SeedProduct(sku: "SKU-002", name: "Inactive", slug: "inactive", isActive: false);
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task GetProducts_FilterByMinAndMaxPrice_ReturnsProductsInRange()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "Cheap", slug: "cheap", basePrice: 50m);
+        await SeedProduct(sku: "SKU-002", name: "Mid", slug: "mid", basePrice: 200m);
+        await SeedProduct(sku: "SKU-003", name: "Expensive", slug: "expensive", basePrice: 800m);
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null, MinPrice = 100m, MaxPrice = 500m };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items.Should().HaveCount(1);
+        result.Items[0].Name.Should().Be("Mid");
+    }
+
+    [Fact]
+    public async Task GetProducts_SortByNameDescending_ReturnsSortedProducts()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "Alpha", slug: "alpha");
+        await SeedProduct(sku: "SKU-002", name: "Zeta", slug: "zeta");
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null, SortBy = "name", SortDescending = true };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items[0].Name.Should().Be("Zeta");
+        result.Items[1].Name.Should().Be("Alpha");
+    }
+
+    [Fact]
+    public async Task GetProducts_SortByNewest_ReturnsMostRecentFirst()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "Old", slug: "old");
+        await SeedProduct(sku: "SKU-002", name: "New", slug: "new");
+
+        // Force older CreatedAt on the first product (Modified state bypasses CreatedAt override)
+        var oldProduct = await _context.Products.FirstAsync(p => p.Sku == "SKU-001", TestContext.Current.CancellationToken);
+        oldProduct.CreatedAt = DateTime.UtcNow.AddDays(-10);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null, SortBy = "newest" };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items[0].Name.Should().Be("New");
+        result.Items[1].Name.Should().Be("Old");
+    }
+
+    [Fact]
+    public async Task GetProducts_UnknownSortKey_DefaultsToMostRecentFirst()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "Old", slug: "old");
+        await SeedProduct(sku: "SKU-002", name: "New", slug: "new");
+
+        var oldProduct = await _context.Products.FirstAsync(p => p.Sku == "SKU-001", TestContext.Current.CancellationToken);
+        oldProduct.CreatedAt = DateTime.UtcNow.AddDays(-10);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null, SortBy = "unknown_key" };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items[0].Name.Should().Be("New");
+        result.Items[1].Name.Should().Be("Old");
+    }
+
+    [Fact]
+    public async Task GetProducts_FilterByCategorySlug_ReturnsOnlyProductsInCategory()
+    {
+        // Arrange
+        var category = await SeedCategory(slug: "volantes", name: "Volantes");
+        var inCategory = await SeedProduct(sku: "SKU-001", name: "Volante F1", slug: "volante-f1");
+        await SeedProduct(sku: "SKU-002", name: "Pedales Pro", slug: "pedales-pro");
+
+        await AssignProductToCategory(inCategory.Id, category);
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null, CategorySlug = "volantes" };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items.Should().HaveCount(1);
+        result.Items[0].Name.Should().Be("Volante F1");
+    }
+
+    [Fact]
+    public async Task GetProducts_FilterByCategorySlug_ReturnsEmpty_WhenNoProductsInCategory()
+    {
+        // Arrange
+        await SeedCategory(slug: "cockpits", name: "Cockpits");
+        await SeedProduct(sku: "SKU-001", name: "Volante F1", slug: "volante-f1");
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null, CategorySlug = "cockpits" };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items.Should().BeEmpty();
+        result.TotalCount.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetProducts_NullCategorySlug_ReturnsAllProducts()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "Volante F1", slug: "volante-f1");
+        await SeedProduct(sku: "SKU-002", name: "Pedales Pro", slug: "pedales-pro");
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null, CategorySlug = null };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items.Should().HaveCount(2);
     }
 
     #endregion

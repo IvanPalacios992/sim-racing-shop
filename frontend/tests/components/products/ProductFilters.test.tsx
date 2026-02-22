@@ -2,11 +2,18 @@ import { render, screen } from "../../helpers/render";
 import userEvent from "@testing-library/user-event";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import type { FilterValues } from "@/components/products/ProductFilters";
+import type { CategoryListItem } from "@/types/categories";
+
+const mockCategories: CategoryListItem[] = [
+  { id: "cat-1", name: "Volantes", slug: "volantes", shortDescription: null, imageUrl: null, isActive: true },
+  { id: "cat-2", name: "Pedales", slug: "pedales", shortDescription: null, imageUrl: null, isActive: true },
+];
 
 describe("ProductFilters", () => {
   const mockOnFiltersChange = vi.fn();
   const defaultFilters: FilterValues = {
     search: "",
+    categorySlug: "",
     minPrice: "",
     maxPrice: "",
     isCustomizable: false,
@@ -24,6 +31,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -35,6 +43,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={{ ...defaultFilters, search: "steering wheel" }}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -48,6 +57,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -68,6 +78,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -79,6 +90,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -90,6 +102,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={{ ...defaultFilters, minPrice: "100", maxPrice: "500" }}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -103,6 +116,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -121,6 +135,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -140,6 +155,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -151,6 +167,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={{ ...defaultFilters, isCustomizable: true }}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -163,6 +180,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -181,6 +199,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -192,6 +211,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={{ ...defaultFilters, sortBy: "BasePrice", sortDescending: false }}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -204,6 +224,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -224,6 +245,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={{ ...defaultFilters, search: "pedals" }}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -235,6 +257,7 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={defaultFilters}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
@@ -245,6 +268,7 @@ describe("ProductFilters", () => {
       const user = userEvent.setup();
       const filtersWithValues: FilterValues = {
         search: "pedals",
+        categorySlug: "volantes",
         minPrice: "100",
         maxPrice: "500",
         isCustomizable: true,
@@ -256,12 +280,157 @@ describe("ProductFilters", () => {
         <ProductFilters
           filters={filtersWithValues}
           onFiltersChange={mockOnFiltersChange}
+          categories={[]}
         />
       );
 
       await user.click(screen.getByText("Clear filters"));
 
       expect(mockOnFiltersChange).toHaveBeenCalledWith(defaultFilters);
+    });
+
+    it("shows clear filters button when categorySlug is active", () => {
+      render(
+        <ProductFilters
+          filters={{ ...defaultFilters, categorySlug: "volantes" }}
+          onFiltersChange={mockOnFiltersChange}
+          categories={mockCategories}
+        />
+      );
+
+      expect(screen.getByText("Clear filters")).toBeInTheDocument();
+    });
+  });
+
+  describe("category chips", () => {
+    it("does not render category section when categories is empty", () => {
+      render(
+        <ProductFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+          categories={[]}
+        />
+      );
+
+      expect(screen.queryByText("Category")).not.toBeInTheDocument();
+    });
+
+    it("renders category heading when categories are provided", () => {
+      render(
+        <ProductFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+          categories={mockCategories}
+        />
+      );
+
+      expect(screen.getByText("Category")).toBeInTheDocument();
+    });
+
+    it("renders All categories chip", () => {
+      render(
+        <ProductFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+          categories={mockCategories}
+        />
+      );
+
+      expect(screen.getByRole("button", { name: "All categories" })).toBeInTheDocument();
+    });
+
+    it("renders a chip for each category", () => {
+      render(
+        <ProductFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+          categories={mockCategories}
+        />
+      );
+
+      expect(screen.getByRole("button", { name: "Volantes" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "Pedales" })).toBeInTheDocument();
+    });
+
+    it("clicking a category chip calls onFiltersChange with the slug", async () => {
+      const user = userEvent.setup();
+      render(
+        <ProductFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+          categories={mockCategories}
+        />
+      );
+
+      await user.click(screen.getByRole("button", { name: "Volantes" }));
+
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({
+        ...defaultFilters,
+        categorySlug: "volantes",
+      });
+    });
+
+    it("clicking All categories chip resets categorySlug to empty string", async () => {
+      const user = userEvent.setup();
+      render(
+        <ProductFilters
+          filters={{ ...defaultFilters, categorySlug: "volantes" }}
+          onFiltersChange={mockOnFiltersChange}
+          categories={mockCategories}
+        />
+      );
+
+      await user.click(screen.getByRole("button", { name: "All categories" }));
+
+      expect(mockOnFiltersChange).toHaveBeenCalledWith({
+        ...defaultFilters,
+        categorySlug: "",
+      });
+    });
+  });
+
+  describe("mobile toggle", () => {
+    it("renders the mobile filters toggle button", () => {
+      render(
+        <ProductFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+          categories={[]}
+        />
+      );
+
+      expect(screen.getByRole("button", { name: /filters/i })).toBeInTheDocument();
+    });
+
+    it("shows active badge on mobile toggle when filters are active", () => {
+      render(
+        <ProductFilters
+          filters={{ ...defaultFilters, search: "pedals" }}
+          onFiltersChange={mockOnFiltersChange}
+          categories={[]}
+        />
+      );
+
+      expect(screen.getByText("!")).toBeInTheDocument();
+    });
+
+    it("opens the mobile overlay when toggle is clicked", async () => {
+      const user = userEvent.setup();
+      render(
+        <ProductFilters
+          filters={defaultFilters}
+          onFiltersChange={mockOnFiltersChange}
+          categories={[]}
+        />
+      );
+
+      // Before click: only one h2 heading (desktop sidebar)
+      expect(screen.getAllByRole("heading", { name: "Filters" })).toHaveLength(1);
+
+      await user.click(screen.getByRole("button", { name: /filters/i }));
+
+      // After click: overlay h2 also appears
+      expect(screen.getAllByRole("heading", { name: "Filters" })).toHaveLength(2);
     });
   });
 });
