@@ -412,6 +412,146 @@ namespace SimRacingShop.UnitTests.Repositories
             result.Should().BeFalse();
         }
 
+        // --- SetPriceModifierAsync ---
+
+        [Fact]
+        public async Task SetPriceModifierAsync_EjecutaHashSetYExpire_EnClaveModifiers()
+        {
+            // Arrange
+            var cartKey = "cart:user:abc";
+            var productId = Guid.NewGuid().ToString();
+            var modifier = 15.50m;
+            var ttl = TimeSpan.FromDays(30);
+            var modifiersKey = $"SimRacingShop:{cartKey}:modifiers";
+
+            _databaseMock
+                .Setup(x => x.HashSetAsync(
+                    It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<RedisValue>(),
+                    It.IsAny<When>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            _databaseMock
+                .Setup(x => x.KeyExpireAsync(It.IsAny<RedisKey>(), It.IsAny<TimeSpan?>(), It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            // Act
+            await _repository.SetPriceModifierAsync(cartKey, productId, modifier, ttl);
+
+            // Assert
+            _databaseMock.Verify(x => x.HashSetAsync(
+                modifiersKey, (RedisValue)productId, It.IsAny<RedisValue>(),
+                It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+
+            _databaseMock.Verify(x => x.KeyExpireAsync(
+                modifiersKey, ttl, It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()), Times.Once);
+        }
+
+        // --- GetAllPriceModifiersAsync ---
+
+        [Fact]
+        public async Task GetAllPriceModifiersAsync_HashVacio_DevuelveDiccionarioVacio()
+        {
+            // Arrange
+            var cartKey = "cart:user:abc";
+            var modifiersKey = $"SimRacingShop:{cartKey}:modifiers";
+
+            _databaseMock
+                .Setup(x => x.HashGetAllAsync(modifiersKey, It.IsAny<CommandFlags>()))
+                .ReturnsAsync(Array.Empty<HashEntry>());
+
+            // Act
+            var result = await _repository.GetAllPriceModifiersAsync(cartKey);
+
+            // Assert
+            result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task GetAllPriceModifiersAsync_ConEntradas_DevuelveModificadoresParseados()
+        {
+            // Arrange
+            var cartKey = "cart:user:abc";
+            var productId = Guid.NewGuid().ToString();
+            var modifiersKey = $"SimRacingShop:{cartKey}:modifiers";
+
+            // Usamos valor entero para evitar dependencia de separador decimal según cultura
+            _databaseMock
+                .Setup(x => x.HashGetAllAsync(modifiersKey, It.IsAny<CommandFlags>()))
+                .ReturnsAsync(new HashEntry[] { new(productId, "15") });
+
+            // Act
+            var result = await _repository.GetAllPriceModifiersAsync(cartKey);
+
+            // Assert
+            result.Should().HaveCount(1);
+            result[productId].Should().Be(15m);
+        }
+
+        [Fact]
+        public async Task GetAllPriceModifiersAsync_EntradaNoDecimal_SeOmite()
+        {
+            // Arrange
+            var cartKey = "cart:user:abc";
+            var validId = Guid.NewGuid().ToString();
+            var invalidId = Guid.NewGuid().ToString();
+            var modifiersKey = $"SimRacingShop:{cartKey}:modifiers";
+
+            _databaseMock
+                .Setup(x => x.HashGetAllAsync(modifiersKey, It.IsAny<CommandFlags>()))
+                .ReturnsAsync(new HashEntry[] { new(validId, "10"), new(invalidId, "invalid") });
+
+            // Act
+            var result = await _repository.GetAllPriceModifiersAsync(cartKey);
+
+            // Assert
+            result.Should().HaveCount(1);
+            result.Should().ContainKey(validId);
+            result.Should().NotContainKey(invalidId);
+        }
+
+        // --- RemovePriceModifierAsync ---
+
+        [Fact]
+        public async Task RemovePriceModifierAsync_EjecutaHashDeleteEnClaveModifiers()
+        {
+            // Arrange
+            var cartKey = "cart:user:abc";
+            var productId = Guid.NewGuid().ToString();
+            var modifiersKey = $"SimRacingShop:{cartKey}:modifiers";
+
+            _databaseMock
+                .Setup(x => x.HashDeleteAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            // Act
+            await _repository.RemovePriceModifierAsync(cartKey, productId);
+
+            // Assert
+            _databaseMock.Verify(x => x.HashDeleteAsync(
+                modifiersKey, (RedisValue)productId, It.IsAny<CommandFlags>()), Times.Once);
+        }
+
+        // --- DeletePriceModifiersAsync ---
+
+        [Fact]
+        public async Task DeletePriceModifiersAsync_EjecutaKeyDeleteEnClaveModifiers()
+        {
+            // Arrange
+            var cartKey = "cart:session:abc";
+            var modifiersKey = $"SimRacingShop:{cartKey}:modifiers";
+
+            _databaseMock
+                .Setup(x => x.KeyDeleteAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            // Act
+            await _repository.DeletePriceModifiersAsync(cartKey);
+
+            // Assert
+            _databaseMock.Verify(x => x.KeyDeleteAsync(
+                modifiersKey, It.IsAny<CommandFlags>()), Times.Once);
+        }
+
         // --- RefreshTtlAsync ---
 
         [Fact]

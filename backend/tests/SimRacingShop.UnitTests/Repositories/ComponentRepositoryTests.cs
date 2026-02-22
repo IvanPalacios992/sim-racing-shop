@@ -105,7 +105,10 @@ public class ComponentRepositoryTests : IDisposable
         string optionGroup = "grip_color",
         decimal priceModifier = 0.00m,
         bool isDefault = false,
-        int displayOrder = 0)
+        int displayOrder = 0,
+        bool isGroupRequired = false,
+        string? glbObjectName = null,
+        string? thumbnailUrl = null)
     {
         var option = new ProductComponentOption
         {
@@ -115,7 +118,10 @@ public class ComponentRepositoryTests : IDisposable
             OptionGroup = optionGroup,
             PriceModifier = priceModifier,
             IsDefault = isDefault,
-            DisplayOrder = displayOrder
+            DisplayOrder = displayOrder,
+            IsGroupRequired = isGroupRequired,
+            GlbObjectName = glbObjectName,
+            ThumbnailUrl = thumbnailUrl
         };
 
         _context.ProductComponentOptions.Add(option);
@@ -432,6 +438,81 @@ public class ComponentRepositoryTests : IDisposable
         result[0].PriceModifier.Should().Be(15.00m);
         result[0].StockQuantity.Should().Be(3);
         result[0].InStock.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task GetComponentsByProductId_MapeaCamposNuevosIsGroupRequiredGlbObjectNameThumbnailUrl()
+    {
+        // Arrange
+        var product = await SeedProduct();
+        var component = await SeedComponent(sku: "COMP-001", name: "Grip");
+        await SeedProductComponentOption(
+            product.Id, component.Id,
+            isGroupRequired: true,
+            glbObjectName: "grip_red_obj",
+            thumbnailUrl: "/thumbs/grip_red.jpg");
+
+        // Act
+        var result = await _repository.GetComponentsByProductIdAsync(product.Id, "es");
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].IsGroupRequired.Should().BeTrue();
+        result[0].GlbObjectName.Should().Be("grip_red_obj");
+        result[0].ThumbnailUrl.Should().Be("/thumbs/grip_red.jpg");
+    }
+
+    #endregion
+
+    #region GetPriceModifiersSumAsync Tests
+
+    [Fact]
+    public async Task GetPriceModifiersSumAsync_ComponentIdsVacio_DevuelveCero()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+
+        // Act
+        var result = await _repository.GetPriceModifiersSumAsync(productId, new List<Guid>());
+
+        // Assert
+        result.Should().Be(0m);
+    }
+
+    [Fact]
+    public async Task GetPriceModifiersSumAsync_ComponentesDelProducto_SumaModificadores()
+    {
+        // Arrange
+        var product = await SeedProduct();
+        var comp1 = await SeedComponent(sku: "COMP-001", name: "Grip Rojo");
+        var comp2 = await SeedComponent(sku: "COMP-002", name: "Botonera 12");
+        await SeedProductComponentOption(product.Id, comp1.Id, "grip_color", priceModifier: 10m);
+        await SeedProductComponentOption(product.Id, comp2.Id, "button_plate", priceModifier: 20m);
+
+        // Act
+        var result = await _repository.GetPriceModifiersSumAsync(
+            product.Id, new List<Guid> { comp1.Id, comp2.Id });
+
+        // Assert
+        result.Should().Be(30m);
+    }
+
+    [Fact]
+    public async Task GetPriceModifiersSumAsync_IgnoraComponentesDeOtroProducto()
+    {
+        // Arrange
+        var product1 = await SeedProduct(sku: "SKU-001", slug: "p1");
+        var product2 = await SeedProduct(sku: "SKU-002", slug: "p2");
+        var comp = await SeedComponent(sku: "COMP-001", name: "Grip");
+
+        // El componente pertenece a product2, no a product1
+        await SeedProductComponentOption(product2.Id, comp.Id, "grip_color", priceModifier: 25m);
+
+        // Act – consulta sobre product1 → debe devolver 0
+        var result = await _repository.GetPriceModifiersSumAsync(product1.Id, new List<Guid> { comp.Id });
+
+        // Assert
+        result.Should().Be(0m);
     }
 
     #endregion

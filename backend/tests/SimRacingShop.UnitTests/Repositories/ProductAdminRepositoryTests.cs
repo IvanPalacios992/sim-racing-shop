@@ -27,6 +27,47 @@ public class ProductAdminRepositoryTests : IDisposable
 
     #region Helper Methods
 
+    private async Task<(Component component, ProductComponentOption option)> SeedComponentOption(
+        Guid productId,
+        string sku = "COMP-001",
+        string optionGroup = "grip_color",
+        decimal priceModifier = 0m,
+        bool isDefault = false,
+        int displayOrder = 0,
+        string? glbObjectName = null,
+        string? thumbnailUrl = null,
+        bool isGroupRequired = false)
+    {
+        var component = new Component
+        {
+            Id = Guid.NewGuid(),
+            Sku = sku,
+            ComponentType = "grip",
+            StockQuantity = 10,
+            MinStockThreshold = 5,
+            LeadTimeDays = 3
+        };
+        _context.Components.Add(component);
+
+        var option = new ProductComponentOption
+        {
+            Id = Guid.NewGuid(),
+            ProductId = productId,
+            ComponentId = component.Id,
+            OptionGroup = optionGroup,
+            IsGroupRequired = isGroupRequired,
+            GlbObjectName = glbObjectName,
+            ThumbnailUrl = thumbnailUrl,
+            PriceModifier = priceModifier,
+            IsDefault = isDefault,
+            DisplayOrder = displayOrder
+        };
+        _context.ProductComponentOptions.Add(option);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        return (component, option);
+    }
+
     private Product BuildProduct(
         string sku = "SKU-001",
         string locale = "es",
@@ -401,6 +442,175 @@ public class ProductAdminRepositoryTests : IDisposable
 
         translations.Should().HaveCount(1);
         translations[0].Locale.Should().Be("en");
+    }
+
+    #endregion
+
+    #region GetComponentOptionsAsync Tests
+
+    [Fact]
+    public async Task GetComponentOptionsAsync_DevuelveOpcionesOrdenadasConComponente()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var (_, opt1) = await SeedComponentOption(product.Id, "COMP-001", "grip_color", displayOrder: 0);
+        var (_, opt2) = await SeedComponentOption(product.Id, "COMP-002", "grip_color", displayOrder: 1);
+        var (_, opt3) = await SeedComponentOption(product.Id, "COMP-003", "button_plate", displayOrder: 0);
+
+        // Act
+        var result = await _repository.GetComponentOptionsAsync(product.Id);
+
+        // Assert
+        result.Should().HaveCount(3);
+        result[0].OptionGroup.Should().Be("button_plate"); // b < g
+        result[1].OptionGroup.Should().Be("grip_color");
+        result[1].DisplayOrder.Should().Be(0);
+        result[2].OptionGroup.Should().Be("grip_color");
+        result[2].DisplayOrder.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetComponentOptionsAsync_ProductoSinOpciones_DevuelveListaVacia()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetComponentOptionsAsync(product.Id);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region GetComponentOptionByIdAsync Tests
+
+    [Fact]
+    public async Task GetComponentOptionByIdAsync_ConOpcionExistente_DevuelveConComponente()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var (_, option) = await SeedComponentOption(product.Id, "COMP-001");
+
+        // Act
+        var result = await _repository.GetComponentOptionByIdAsync(option.Id);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(option.Id);
+        result.Component.Should().NotBeNull();
+        result.Component.Sku.Should().Be("COMP-001");
+    }
+
+    [Fact]
+    public async Task GetComponentOptionByIdAsync_OpcionNoExistente_DevuelveNull()
+    {
+        // Act
+        var result = await _repository.GetComponentOptionByIdAsync(Guid.NewGuid());
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    #endregion
+
+    #region AddComponentOptionAsync Tests
+
+    [Fact]
+    public async Task AddComponentOptionAsync_GuardaOpcionEnBaseDeDatos()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        var component = new Component
+        {
+            Id = Guid.NewGuid(), Sku = "COMP-001", ComponentType = "grip",
+            StockQuantity = 10, MinStockThreshold = 5, LeadTimeDays = 3
+        };
+        _context.Components.Add(component);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var option = new ProductComponentOption
+        {
+            Id = Guid.NewGuid(),
+            ProductId = product.Id,
+            ComponentId = component.Id,
+            OptionGroup = "grip_color",
+            PriceModifier = 5m,
+            IsDefault = true,
+            DisplayOrder = 0
+        };
+
+        // Act
+        var result = await _repository.AddComponentOptionAsync(option);
+
+        // Assert
+        result.Id.Should().Be(option.Id);
+        var saved = await _context.ProductComponentOptions.FindAsync(
+            new object[] { option.Id }, TestContext.Current.CancellationToken);
+        saved.Should().NotBeNull();
+        saved!.PriceModifier.Should().Be(5m);
+        saved.IsDefault.Should().BeTrue();
+    }
+
+    #endregion
+
+    #region UpdateComponentOptionAsync Tests
+
+    [Fact]
+    public async Task UpdateComponentOptionAsync_ActualizaCamposDeOpcion()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var (_, option) = await SeedComponentOption(product.Id, priceModifier: 0m, isDefault: false);
+
+        // Act
+        option.PriceModifier = 20m;
+        option.IsDefault = true;
+        option.GlbObjectName = "grip_red";
+        await _repository.UpdateComponentOptionAsync(option);
+
+        // Assert
+        var updated = await _context.ProductComponentOptions.FindAsync(
+            new object[] { option.Id }, TestContext.Current.CancellationToken);
+        updated!.PriceModifier.Should().Be(20m);
+        updated.IsDefault.Should().BeTrue();
+        updated.GlbObjectName.Should().Be("grip_red");
+    }
+
+    #endregion
+
+    #region DeleteComponentOptionAsync Tests
+
+    [Fact]
+    public async Task DeleteComponentOptionAsync_EliminaOpcionDeBD()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var (_, option) = await SeedComponentOption(product.Id);
+
+        // Act
+        await _repository.DeleteComponentOptionAsync(option);
+
+        // Assert
+        var deleted = await _context.ProductComponentOptions.FindAsync(
+            new object[] { option.Id }, TestContext.Current.CancellationToken);
+        deleted.Should().BeNull();
     }
 
     #endregion
