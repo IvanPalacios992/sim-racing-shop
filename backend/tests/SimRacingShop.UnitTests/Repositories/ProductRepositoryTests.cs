@@ -460,9 +460,9 @@ public class ProductRepositoryTests : IDisposable
         await SeedProduct(sku: "SKU-002", name: "New", slug: "new");
 
         // Force older CreatedAt on the first product (Modified state bypasses CreatedAt override)
-        var oldProduct = await _context.Products.FirstAsync(p => p.Sku == "SKU-001");
+        var oldProduct = await _context.Products.FirstAsync(p => p.Sku == "SKU-001", TestContext.Current.CancellationToken);
         oldProduct.CreatedAt = DateTime.UtcNow.AddDays(-10);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var filter = new ProductFilterDto { Locale = "es", IsActive = null, SortBy = "newest" };
 
@@ -481,9 +481,9 @@ public class ProductRepositoryTests : IDisposable
         await SeedProduct(sku: "SKU-001", name: "Old", slug: "old");
         await SeedProduct(sku: "SKU-002", name: "New", slug: "new");
 
-        var oldProduct = await _context.Products.FirstAsync(p => p.Sku == "SKU-001");
+        var oldProduct = await _context.Products.FirstAsync(p => p.Sku == "SKU-001", TestContext.Current.CancellationToken);
         oldProduct.CreatedAt = DateTime.UtcNow.AddDays(-10);
-        await _context.SaveChangesAsync();
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
 
         var filter = new ProductFilterDto { Locale = "es", IsActive = null, SortBy = "unknown_key" };
 
