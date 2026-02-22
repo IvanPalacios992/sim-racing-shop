@@ -10,6 +10,8 @@ import { ProductImageGallery } from "@/components/products/ProductImageGallery";
 import { ProductInfo } from "@/components/products/ProductInfo";
 import { ProductSpecifications } from "@/components/products/ProductSpecifications";
 import { ProductJsonLd } from "@/components/products/ProductJsonLd";
+import { ProductConfigurator } from "@/components/configurator/ProductConfigurator";
+import { useCartStore } from "@/stores/cart-store";
 
 type Props = {
   slug: string;
@@ -22,6 +24,9 @@ export function ProductDetailContent({ slug }: Props) {
   const [product, setProduct] = useState<ProductDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [configuratorOpen, setConfiguratorOpen] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
+  const addItem = useCartStore((state) => state.addItem);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,7 +81,10 @@ export function ProductDetailContent({ slug }: Props) {
             images={product.images}
             productName={product.name}
           />
-          <ProductInfo product={product} />
+          <ProductInfo
+            product={product}
+            onCustomize={() => setConfiguratorOpen(true)}
+          />
         </div>
 
         {/* Specifications */}
@@ -101,6 +109,26 @@ export function ProductDetailContent({ slug }: Props) {
 
       {/* JSON-LD for SEO */}
       <ProductJsonLd product={product} locale={locale} />
+
+      {/* Editor 3D */}
+      {configuratorOpen && (
+        <ProductConfigurator
+          product={product}
+          onClose={() => setConfiguratorOpen(false)}
+          isAddingToCart={isAddingToCart}
+          onAddToCart={async (selections, _totalPrice) => {
+            const selectedComponentIds = Object.values(selections).filter(
+              (id): id is string => id !== null
+            );
+            setIsAddingToCart(true);
+            try {
+              await addItem(product.id, 1, locale, selectedComponentIds);
+            } finally {
+              setIsAddingToCart(false);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

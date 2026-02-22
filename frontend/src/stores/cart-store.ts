@@ -21,7 +21,7 @@ interface CartActions {
   /** Ensures a session ID exists for anonymous carts. Call on app mount. */
   initSession: () => string;
   fetchCart: (locale?: string) => Promise<void>;
-  addItem: (productId: string, quantity?: number, locale?: string) => Promise<void>;
+  addItem: (productId: string, quantity?: number, locale?: string, selectedComponentIds?: string[]) => Promise<void>;
   updateItem: (productId: string, quantity: number, locale?: string) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -75,10 +75,13 @@ export const useCartStore = create<CartStore>()(
         }
       },
 
-      addItem: async (productId, quantity = 1, locale = "es") => {
+      addItem: async (productId, quantity = 1, locale = "es", selectedComponentIds) => {
         set({ isLoading: true, error: null });
         try {
-          const cart = await cartApi.addItem({ productId, quantity }, locale);
+          const cart = await cartApi.addItem(
+            { productId, quantity, selectedComponentIds },
+            locale,
+          );
           const addedName = cart.items.find((i) => i.productId === productId)?.name ?? null;
           set({ cart, isLoading: false, lastAddedItem: addedName });
         } catch (err) {

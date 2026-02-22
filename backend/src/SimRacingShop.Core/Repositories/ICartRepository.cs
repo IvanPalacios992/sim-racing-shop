@@ -24,5 +24,19 @@ namespace SimRacingShop.Core.Repositories
 
         /// <summary>Comprueba si el carrito existe en Redis</summary>
         Task<bool> ExistsAsync(string cartKey);
+
+        // ── Modificadores de precio por personalización ──────────────────────
+
+        /// <summary>Guarda el modificador de precio para un producto del carrito</summary>
+        Task SetPriceModifierAsync(string cartKey, string productId, decimal priceModifier, TimeSpan ttl);
+
+        /// <summary>Devuelve todos los modificadores de precio: productId -> priceModifier</summary>
+        Task<Dictionary<string, decimal>> GetAllPriceModifiersAsync(string cartKey);
+
+        /// <summary>Elimina el modificador de precio de un producto</summary>
+        Task RemovePriceModifierAsync(string cartKey, string productId);
+
+        /// <summary>Elimina el hash completo de modificadores del carrito</summary>
+        Task DeletePriceModifiersAsync(string cartKey);
     }
 }

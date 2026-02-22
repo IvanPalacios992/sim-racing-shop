@@ -25,6 +25,12 @@ namespace SimRacingShop.Core.DTOs
     {
         public Guid ProductId { get; set; }
         public int Quantity { get; set; } = 1;
+
+        /// <summary>
+        /// IDs de los componentes seleccionados en el configurador 3D.
+        /// El backend suma sus PriceModifier para calcular el precio unitario real.
+        /// </summary>
+        public List<Guid>? SelectedComponentIds { get; set; }
     }
 
     public class UpdateCartItemDto

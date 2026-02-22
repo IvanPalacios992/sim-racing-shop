@@ -16,6 +16,7 @@ namespace SimRacingShop.UnitTests.Controllers;
 public class AdminProductsControllerTests
 {
     private readonly Mock<IProductAdminRepository> _adminRepoMock;
+    private readonly Mock<IComponentAdminRepository> _componentAdminRepoMock;
     private readonly Mock<IFileStorageService> _fileStorageMock;
     private readonly Mock<IDistributedCache> _cacheMock;
     private readonly Mock<ILogger<AdminProductsController>> _loggerMock;
@@ -24,12 +25,14 @@ public class AdminProductsControllerTests
     public AdminProductsControllerTests()
     {
         _adminRepoMock = new Mock<IProductAdminRepository>();
+        _componentAdminRepoMock = new Mock<IComponentAdminRepository>();
         _fileStorageMock = new Mock<IFileStorageService>();
         _cacheMock = new Mock<IDistributedCache>();
         _loggerMock = new Mock<ILogger<AdminProductsController>>();
 
         _controller = new AdminProductsController(
             _adminRepoMock.Object,
+            _componentAdminRepoMock.Object,
             _fileStorageMock.Object,
             _cacheMock.Object,
             _loggerMock.Object);
@@ -249,6 +252,33 @@ public class AdminProductsControllerTests
     }
 
     [Fact]
+    public async Task UpdateProduct_InvalidatesCacheAfterUpdate()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var dto = new UpdateProductDto
+        {
+            BasePrice = 399.99m,
+            VatRate = 21.00m,
+            IsActive = true,
+            IsCustomizable = true,
+            BaseProductionDays = 7
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.UpdateAsync(It.IsAny<Product>())).Returns(Task.CompletedTask);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.UpdateProduct(product.Id, dto);
+
+        // Assert
+        _cacheMock.Verify(c => c.RemoveAsync(
+            It.Is<string>(k => k.Contains("products:detail:")),
+            default), Times.AtLeastOnce);
+    }
+
+    [Fact]
     public async Task UpdateProduct_UpdatesProductFields()
     {
         // Arrange
@@ -324,6 +354,23 @@ public class AdminProductsControllerTests
 
         // Assert
         result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task DeleteProduct_SinImagenes_NuncaLlamaAFileStorage()
+    {
+        // Arrange
+        var product = BuildProduct(); // Images = empty list
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.DeleteAsync(product)).Returns(Task.CompletedTask);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.DeleteProduct(product.Id);
+
+        // Assert
+        _fileStorageMock.Verify(f => f.DeleteFileAsync(It.IsAny<string>()), Times.Never);
     }
 
     [Fact]
@@ -436,6 +483,58 @@ public class AdminProductsControllerTests
 
         // Assert
         result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    [Fact]
+    public async Task UploadImages_EstableceAltTextComoCaret_SinExtension()
+    {
+        // Arrange – AltText debe ser Path.GetFileNameWithoutExtension(fileName)
+        var product = BuildProduct();
+        var fileMock = CreateMockFormFile("volante-rojo.jpg");
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _fileStorageMock.Setup(f => f.SaveFileAsync(It.IsAny<Stream>(), It.IsAny<string>(), "products"))
+            .ReturnsAsync("/uploads/products/img.jpg");
+        _adminRepoMock.Setup(r => r.AddImagesAsync(product.Id, It.IsAny<List<ProductImage>>()))
+            .ReturnsAsync((Guid _, List<ProductImage> images) => images);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.UploadImages(product.Id, new List<IFormFile> { fileMock.Object });
+
+        // Assert
+        var createdResult = result.Should().BeOfType<CreatedResult>().Subject;
+        var images = createdResult.Value.Should().BeAssignableTo<List<ProductImageUploadResultDto>>().Subject;
+        images[0].AltText.Should().Be("volante-rojo");
+    }
+
+    [Fact]
+    public async Task UploadImages_MultiplesArchivos_AsignaOrdenesIncrementalesDesdMax()
+    {
+        // Arrange – producto ya tiene una imagen con DisplayOrder=3; las nuevas deben ser 4 y 5
+        var product = BuildProduct();
+        product.Images = new List<ProductImage>
+        {
+            new() { Id = Guid.NewGuid(), ImageUrl = "/uploads/products/existing.jpg", DisplayOrder = 3 }
+        };
+
+        var file1 = CreateMockFormFile("img1.jpg");
+        var file2 = CreateMockFormFile("img2.jpg");
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _fileStorageMock.Setup(f => f.SaveFileAsync(It.IsAny<Stream>(), It.IsAny<string>(), "products"))
+            .ReturnsAsync("/uploads/products/new.jpg");
+        _adminRepoMock.Setup(r => r.AddImagesAsync(product.Id, It.IsAny<List<ProductImage>>()))
+            .ReturnsAsync((Guid _, List<ProductImage> images) => images);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.UploadImages(product.Id, new List<IFormFile> { file1.Object, file2.Object });
+
+        // Assert
+        _adminRepoMock.Verify(r => r.AddImagesAsync(product.Id, It.Is<List<ProductImage>>(imgs =>
+            imgs[0].DisplayOrder == 4 &&
+            imgs[1].DisplayOrder == 5)), Times.Once);
     }
 
     [Fact]
@@ -598,6 +697,277 @@ public class AdminProductsControllerTests
         // Assert
         _adminRepoMock.Verify(r => r.ReplaceTranslationsAsync(product.Id,
             It.Is<List<ProductTranslation>>(t => t.Count == 2)), Times.Once);
+    }
+
+    #endregion
+
+    #region GetComponentOptions Tests
+
+    [Fact]
+    public async Task GetComponentOptions_ProductoExistente_Devuelve200ConOpciones()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var option = new ProductComponentOption
+        {
+            Id = Guid.NewGuid(),
+            ProductId = product.Id,
+            ComponentId = Guid.NewGuid(),
+            OptionGroup = "grip_color",
+            PriceModifier = 5m,
+            IsDefault = true,
+            DisplayOrder = 0,
+            Component = new Component { Id = Guid.NewGuid(), Sku = "COMP-001", ComponentType = "grip", StockQuantity = 10, MinStockThreshold = 5, LeadTimeDays = 3 }
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.GetComponentOptionsAsync(product.Id))
+            .ReturnsAsync(new List<ProductComponentOption> { option });
+
+        // Act
+        var result = await _controller.GetComponentOptions(product.Id);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var list = ok.Value.Should().BeAssignableTo<List<ProductComponentOptionAdminDto>>().Subject;
+        list.Should().HaveCount(1);
+        list[0].OptionGroup.Should().Be("grip_color");
+        list[0].ComponentSku.Should().Be("COMP-001");
+    }
+
+    [Fact]
+    public async Task GetComponentOptions_ProductoNoExistente_Devuelve404()
+    {
+        // Arrange
+        _adminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+
+        // Act
+        var result = await _controller.GetComponentOptions(Guid.NewGuid());
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    #endregion
+
+    #region AddComponentOption Tests
+
+    [Fact]
+    public async Task AddComponentOption_DatosValidos_Devuelve201ConDto()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var componentId = Guid.NewGuid();
+        var dto = new UpsertProductComponentOptionDto
+        {
+            ComponentId = componentId,
+            OptionGroup = "grip_color",
+            PriceModifier = 5m,
+            IsDefault = true,
+            DisplayOrder = 0
+        };
+        var component = new Component
+        {
+            Id = componentId,
+            Sku = "COMP-001",
+            ComponentType = "grip",
+            StockQuantity = 10,
+            MinStockThreshold = 5,
+            LeadTimeDays = 3
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _componentAdminRepoMock.Setup(r => r.GetByIdAsync(componentId)).ReturnsAsync(component);
+        _adminRepoMock.Setup(r => r.AddComponentOptionAsync(It.IsAny<ProductComponentOption>()))
+            .ReturnsAsync((ProductComponentOption o) => o);
+
+        // Act
+        var result = await _controller.AddComponentOption(product.Id, dto);
+
+        // Assert
+        var created = result.Should().BeOfType<CreatedResult>().Subject;
+        created.StatusCode.Should().Be(201);
+        var body = created.Value.Should().BeOfType<ProductComponentOptionAdminDto>().Subject;
+        body.OptionGroup.Should().Be("grip_color");
+        body.ComponentSku.Should().Be("COMP-001");
+        body.PriceModifier.Should().Be(5m);
+    }
+
+    [Fact]
+    public async Task AddComponentOption_ProductoNoExistente_Devuelve404()
+    {
+        // Arrange
+        _adminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+        var dto = new UpsertProductComponentOptionDto { ComponentId = Guid.NewGuid(), OptionGroup = "grip" };
+
+        // Act
+        var result = await _controller.AddComponentOption(Guid.NewGuid(), dto);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task AddComponentOption_ComponenteNoExistente_Devuelve400()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _componentAdminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Component?)null);
+        var dto = new UpsertProductComponentOptionDto { ComponentId = Guid.NewGuid(), OptionGroup = "grip" };
+
+        // Act
+        var result = await _controller.AddComponentOption(product.Id, dto);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    #endregion
+
+    #region UpdateComponentOption Tests
+
+    [Fact]
+    public async Task UpdateComponentOption_DatosValidos_Devuelve200ConDto()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var componentId = Guid.NewGuid();
+        var option = new ProductComponentOption
+        {
+            Id = Guid.NewGuid(),
+            ProductId = productId,
+            ComponentId = componentId,
+            OptionGroup = "grip_color",
+            PriceModifier = 0m
+        };
+        var component = new Component
+        {
+            Id = componentId,
+            Sku = "COMP-001",
+            ComponentType = "grip",
+            StockQuantity = 10,
+            MinStockThreshold = 5,
+            LeadTimeDays = 3
+        };
+        var dto = new UpsertProductComponentOptionDto
+        {
+            ComponentId = componentId,
+            OptionGroup = "grip_color",
+            PriceModifier = 10m,
+            IsDefault = true,
+            DisplayOrder = 1
+        };
+
+        _adminRepoMock.Setup(r => r.GetComponentOptionByIdAsync(option.Id)).ReturnsAsync(option);
+        _componentAdminRepoMock.Setup(r => r.GetByIdAsync(componentId)).ReturnsAsync(component);
+        _adminRepoMock.Setup(r => r.UpdateComponentOptionAsync(It.IsAny<ProductComponentOption>())).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.UpdateComponentOption(productId, option.Id, dto);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var body = ok.Value.Should().BeOfType<ProductComponentOptionAdminDto>().Subject;
+        body.PriceModifier.Should().Be(10m);
+        body.IsDefault.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task UpdateComponentOption_OpcionNoExistente_Devuelve404()
+    {
+        // Arrange
+        _adminRepoMock.Setup(r => r.GetComponentOptionByIdAsync(It.IsAny<Guid>())).ReturnsAsync((ProductComponentOption?)null);
+        var dto = new UpsertProductComponentOptionDto { ComponentId = Guid.NewGuid(), OptionGroup = "grip" };
+
+        // Act
+        var result = await _controller.UpdateComponentOption(Guid.NewGuid(), Guid.NewGuid(), dto);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task UpdateComponentOption_OpcionDeOtroProducto_Devuelve404()
+    {
+        // Arrange
+        var option = new ProductComponentOption
+        {
+            Id = Guid.NewGuid(),
+            ProductId = Guid.NewGuid(), // distinto al del route
+            ComponentId = Guid.NewGuid(),
+            OptionGroup = "grip_color"
+        };
+        _adminRepoMock.Setup(r => r.GetComponentOptionByIdAsync(option.Id)).ReturnsAsync(option);
+        var dto = new UpsertProductComponentOptionDto { ComponentId = Guid.NewGuid(), OptionGroup = "grip" };
+
+        // Act — el id del route es diferente al ProductId de la opción
+        var result = await _controller.UpdateComponentOption(Guid.NewGuid(), option.Id, dto);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task UpdateComponentOption_ComponenteNoExistente_Devuelve400()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var option = new ProductComponentOption
+        {
+            Id = Guid.NewGuid(),
+            ProductId = productId,
+            ComponentId = Guid.NewGuid(),
+            OptionGroup = "grip_color"
+        };
+        _adminRepoMock.Setup(r => r.GetComponentOptionByIdAsync(option.Id)).ReturnsAsync(option);
+        _componentAdminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Component?)null);
+        var dto = new UpsertProductComponentOptionDto { ComponentId = Guid.NewGuid(), OptionGroup = "grip" };
+
+        // Act
+        var result = await _controller.UpdateComponentOption(productId, option.Id, dto);
+
+        // Assert
+        result.Should().BeOfType<BadRequestObjectResult>();
+    }
+
+    #endregion
+
+    #region DeleteComponentOption Tests
+
+    [Fact]
+    public async Task DeleteComponentOption_OpcionExistente_Devuelve204()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var option = new ProductComponentOption
+        {
+            Id = Guid.NewGuid(),
+            ProductId = productId,
+            ComponentId = Guid.NewGuid(),
+            OptionGroup = "grip_color"
+        };
+        _adminRepoMock.Setup(r => r.GetComponentOptionByIdAsync(option.Id)).ReturnsAsync(option);
+        _adminRepoMock.Setup(r => r.DeleteComponentOptionAsync(option)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.DeleteComponentOption(productId, option.Id);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task DeleteComponentOption_OpcionNoExistente_Devuelve404()
+    {
+        // Arrange
+        _adminRepoMock.Setup(r => r.GetComponentOptionByIdAsync(It.IsAny<Guid>())).ReturnsAsync((ProductComponentOption?)null);
+
+        // Act
+        var result = await _controller.DeleteComponentOption(Guid.NewGuid(), Guid.NewGuid());
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
     }
 
     #endregion

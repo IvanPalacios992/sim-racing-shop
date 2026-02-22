@@ -12,6 +12,7 @@ namespace SimRacingShop.UnitTests.Services
     {
         private readonly Mock<ICartRepository> _cartRepositoryMock;
         private readonly Mock<IProductRepository> _productRepositoryMock;
+        private readonly Mock<IComponentRepository> _componentRepositoryMock;
         private readonly Mock<ILogger<CartService>> _loggerMock;
         private readonly CartService _service;
 
@@ -22,11 +23,18 @@ namespace SimRacingShop.UnitTests.Services
         {
             _cartRepositoryMock = new Mock<ICartRepository>();
             _productRepositoryMock = new Mock<IProductRepository>();
+            _componentRepositoryMock = new Mock<IComponentRepository>();
             _loggerMock = new Mock<ILogger<CartService>>();
+
+            // Default: no price modifiers stored for any cart key
+            _cartRepositoryMock
+                .Setup(x => x.GetAllPriceModifiersAsync(It.IsAny<string>()))
+                .ReturnsAsync(new Dictionary<string, decimal>());
 
             _service = new CartService(
                 _cartRepositoryMock.Object,
                 _productRepositoryMock.Object,
+                _componentRepositoryMock.Object,
                 _loggerMock.Object);
         }
 
@@ -59,6 +67,52 @@ namespace SimRacingShop.UnitTests.Services
         }
 
         // --- GetCartAsync ---
+
+        [Fact]
+        public async Task GetCartAsync_ItemConCantidadCero_SeOmiteDelCarrito()
+        {
+            // Arrange – la guardia de BuildCartDtoAsync descarta qty <= 0
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 0 } });
+
+            // Act
+            var result = await _service.GetCartAsync(cartKey, "es");
+
+            // Assert
+            result.Items.Should().BeEmpty();
+            result.TotalItems.Should().Be(0);
+            _productRepositoryMock.Verify(
+                x => x.GetProductByIdAsync(It.IsAny<Guid>(), It.IsAny<string>()),
+                Times.Never);
+        }
+
+        [Fact]
+        public async Task GetCartAsync_ProductoSinImagenes_ImageUrlEsNull()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var product = CreateProduct(productId, imageUrl: null);
+            var cartKey = "cart:user:uid";
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 1 } });
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(product);
+
+            // Act
+            var result = await _service.GetCartAsync(cartKey, "es");
+
+            // Assert
+            result.Items.Should().HaveCount(1);
+            result.Items[0].ImageUrl.Should().BeNull();
+        }
 
         [Fact]
         public async Task GetCartAsync_CarritoVacio_DevuelveCarritoConCeroItems()
@@ -293,6 +347,34 @@ namespace SimRacingShop.UnitTests.Services
         }
 
         [Fact]
+        public async Task AddItemAsync_CantidadResultanteExacta99_NoLanzaExcepcion()
+        {
+            // Arrange – 95 existentes + 4 nuevos = 99, exactamente el límite permitido
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+            var dto = new AddToCartDto { ProductId = productId, Quantity = 4 };
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(CreateProduct(productId));
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 95 } });
+
+            _cartRepositoryMock
+                .Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>()))
+                .Returns(Task.CompletedTask);
+
+            // Act & Assert
+            var act = () => _service.AddItemAsync(cartKey, dto, "es");
+            await act.Should().NotThrowAsync();
+
+            _cartRepositoryMock.Verify(x => x.SetItemAsync(
+                cartKey, productId.ToString(), 99, UserCartTtl), Times.Once);
+        }
+
+        [Fact]
         public async Task AddItemAsync_CarritoSesion_UsaTtlDeSieteDias()
         {
             // Arrange
@@ -364,6 +446,33 @@ namespace SimRacingShop.UnitTests.Services
             // Act & Assert
             var act = () => _service.UpdateItemAsync(cartKey, productId, 3, "es");
             await act.Should().ThrowAsync<KeyNotFoundException>();
+        }
+
+        [Fact]
+        public async Task UpdateItemAsync_CarritoSesion_UsaTtlDeSieteDias()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:session:xyz";
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 2 } });
+
+            _cartRepositoryMock
+                .Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>()))
+                .Returns(Task.CompletedTask);
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(CreateProduct(productId, basePrice: 50m));
+
+            // Act
+            await _service.UpdateItemAsync(cartKey, productId, 5, "es");
+
+            // Assert – carrito de sesión → TTL de 7 días
+            _cartRepositoryMock.Verify(x => x.SetItemAsync(
+                cartKey, productId.ToString(), 5, SessionCartTtl), Times.Once);
         }
 
         // --- RemoveItemAsync ---
@@ -473,6 +582,198 @@ namespace SimRacingShop.UnitTests.Services
             result.Subtotal.Should().Be(150m);           // 100 + 50
             result.VatAmount.Should().Be(26m);           // 21 + 5
             result.Total.Should().Be(176m);              // 150 + 26
+        }
+
+        // --- AddItemAsync con componentes seleccionados ---
+
+        [Fact]
+        public async Task AddItemAsync_ConComponentesSeleccionados_LlamaGetPriceModifiersSumYSetPriceModifier()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+            var componentId1 = Guid.NewGuid();
+            var componentId2 = Guid.NewGuid();
+            var dto = new AddToCartDto
+            {
+                ProductId = productId,
+                Quantity = 1,
+                SelectedComponentIds = new List<Guid> { componentId1, componentId2 }
+            };
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(CreateProduct(productId, basePrice: 100m));
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int>());
+
+            _cartRepositoryMock
+                .Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>()))
+                .Returns(Task.CompletedTask);
+
+            _componentRepositoryMock
+                .Setup(x => x.GetPriceModifiersSumAsync(productId, dto.SelectedComponentIds))
+                .ReturnsAsync(15m);
+
+            _cartRepositoryMock
+                .Setup(x => x.SetPriceModifierAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<TimeSpan>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _service.AddItemAsync(cartKey, dto, "es");
+
+            // Assert
+            _componentRepositoryMock.Verify(
+                x => x.GetPriceModifiersSumAsync(productId, dto.SelectedComponentIds), Times.Once);
+            _cartRepositoryMock.Verify(
+                x => x.SetPriceModifierAsync(cartKey, productId.ToString(), 15m, UserCartTtl), Times.Once);
+        }
+
+        [Fact]
+        public async Task AddItemAsync_SinComponentesSeleccionados_NoLlamaSetPriceModifier()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+            var dto = new AddToCartDto { ProductId = productId, Quantity = 1 };
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(CreateProduct(productId));
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int>());
+
+            _cartRepositoryMock
+                .Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _service.AddItemAsync(cartKey, dto, "es");
+
+            // Assert
+            _componentRepositoryMock.Verify(
+                x => x.GetPriceModifiersSumAsync(It.IsAny<Guid>(), It.IsAny<IEnumerable<Guid>>()), Times.Never);
+            _cartRepositoryMock.Verify(
+                x => x.SetPriceModifierAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<TimeSpan>()), Times.Never);
+        }
+
+        // --- RemoveItemAsync también elimina modificador ---
+
+        [Fact]
+        public async Task RemoveItemAsync_TambienEliminaModificadorDePrecio()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+
+            _cartRepositoryMock
+                .Setup(x => x.RemoveItemAsync(cartKey, productId.ToString()))
+                .ReturnsAsync(true);
+            _cartRepositoryMock
+                .Setup(x => x.RemovePriceModifierAsync(cartKey, productId.ToString()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _service.RemoveItemAsync(cartKey, productId);
+
+            // Assert
+            _cartRepositoryMock.Verify(x => x.RemoveItemAsync(cartKey, productId.ToString()), Times.Once);
+            _cartRepositoryMock.Verify(x => x.RemovePriceModifierAsync(cartKey, productId.ToString()), Times.Once);
+        }
+
+        // --- ClearCartAsync también borra modificadores ---
+
+        [Fact]
+        public async Task ClearCartAsync_TambienBorraModificadoresDePrecio()
+        {
+            // Arrange
+            var cartKey = "cart:user:uid";
+
+            _cartRepositoryMock.Setup(x => x.DeleteCartAsync(cartKey)).Returns(Task.CompletedTask);
+            _cartRepositoryMock.Setup(x => x.DeletePriceModifiersAsync(cartKey)).Returns(Task.CompletedTask);
+
+            // Act
+            await _service.ClearCartAsync(cartKey);
+
+            // Assert
+            _cartRepositoryMock.Verify(x => x.DeleteCartAsync(cartKey), Times.Once);
+            _cartRepositoryMock.Verify(x => x.DeletePriceModifiersAsync(cartKey), Times.Once);
+        }
+
+        // --- MergeCartsAsync fusiona modificadores ---
+
+        [Fact]
+        public async Task MergeCartsAsync_FusionaModificadoresDeSesionEnCarritoUsuario()
+        {
+            // Arrange
+            var sessionKey = "cart:session:abc";
+            var userKey = "cart:user:uid";
+            var productId = Guid.NewGuid().ToString();
+
+            _cartRepositoryMock
+                .Setup(x => x.MergeAsync(sessionKey, userKey, UserCartTtl))
+                .Returns(Task.CompletedTask);
+
+            // La sesión tiene un modificador de 15 €
+            _cartRepositoryMock
+                .Setup(x => x.GetAllPriceModifiersAsync(sessionKey))
+                .ReturnsAsync(new Dictionary<string, decimal> { { productId, 15m } });
+
+            _cartRepositoryMock
+                .Setup(x => x.SetPriceModifierAsync(userKey, productId, 15m, UserCartTtl))
+                .Returns(Task.CompletedTask);
+
+            _cartRepositoryMock
+                .Setup(x => x.DeletePriceModifiersAsync(sessionKey))
+                .Returns(Task.CompletedTask);
+
+            // GetCartAsync tras el merge
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(userKey))
+                .ReturnsAsync(new Dictionary<string, int>());
+
+            // Act
+            await _service.MergeCartsAsync(sessionKey, userKey, "es");
+
+            // Assert
+            _cartRepositoryMock.Verify(x => x.SetPriceModifierAsync(userKey, productId, 15m, UserCartTtl), Times.Once);
+            _cartRepositoryMock.Verify(x => x.DeletePriceModifiersAsync(sessionKey), Times.Once);
+        }
+
+        // --- GetCartAsync aplica modificador de precio al precio unitario ---
+
+        [Fact]
+        public async Task GetCartAsync_ConModificadorDePrecio_SumaModificadorAlPrecioBase()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+            var product = CreateProduct(productId, basePrice: 100m, vatRate: 21m);
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 2 } });
+
+            // Modificador de +15 € → unitPrice = 100 + 15 = 115
+            _cartRepositoryMock
+                .Setup(x => x.GetAllPriceModifiersAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, decimal> { { productId.ToString(), 15m } });
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(product);
+
+            // Act
+            var result = await _service.GetCartAsync(cartKey, "es");
+
+            // Assert
+            result.Items[0].UnitPrice.Should().Be(115m);  // 100 + 15
+            result.Items[0].Subtotal.Should().Be(230m);   // 115 * 2
+            result.Subtotal.Should().Be(230m);
         }
     }
 }

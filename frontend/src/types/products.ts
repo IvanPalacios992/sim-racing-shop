@@ -44,6 +44,25 @@ export type ProductSpecification = {
   displayOrder: number;
 };
 
+export type CustomizationOption = {
+  componentId: string;
+  name: string;
+  description: string | null;
+  glbObjectName: string | null;
+  thumbnailUrl: string | null;
+  priceModifier: number;
+  isDefault: boolean;
+  displayOrder: number;
+  inStock: boolean;
+};
+
+export type CustomizationGroup = {
+  /** Valor de OptionGroup, usado como clave de selección */
+  name: string;
+  isRequired: boolean;
+  options: CustomizationOption[];
+};
+
 export type ProductDetail = {
   id: string;
   sku: string;

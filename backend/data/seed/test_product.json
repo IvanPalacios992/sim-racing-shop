@@ -1,0 +1,34 @@
+{
+  "id": "11111111-1111-4000-8000-111111111111",
+  "sku": "VLT-GT-PRO-001",
+  "basePrice": 399.00,
+  "vatRate": 21.00,
+  "isCustomizable": true,
+  "isActive": true,
+  "baseProductionDays": 7,
+  "weightGrams": 1200,
+  "model3dUrl": null,
+  "_note": "Reemplaza model3dUrl con la URL de tu archivo .glb para activar el visor 3D",
+  "translations": [
+    {
+      "id": "22222222-2222-4000-8000-000000000001",
+      "locale": "es",
+      "name": "Volante Formula GT Pro",
+      "slug": "volante-formula-gt-pro",
+      "shortDescription": "Volante de competición totalmente personalizable con empuñaduras intercambiables, placa frontal y levas opcionales.",
+      "longDescription": "El Volante Formula GT Pro es la opción definitiva para los pilotos de sim racing más exigentes. Construido con materiales de primera calidad, permite una personalización total de empuñaduras, placa frontal y levas para adaptarse a tu estilo de pilotaje y preferencias estéticas. Disponible con acabados en alcantara, cuero perforado y fibra de carbono.",
+      "metaTitle": "Volante Formula GT Pro | SimRacing Shop",
+      "metaDescription": "Volante de sim racing personalizable con acabados en alcantara, cuero y fibra de carbono."
+    },
+    {
+      "id": "22222222-2222-4000-8000-000000000002",
+      "locale": "en",
+      "name": "Formula GT Pro Steering Wheel",
+      "slug": "formula-gt-pro-steering-wheel",
+      "shortDescription": "Fully customizable competition steering wheel with interchangeable grips, front plate and optional paddles.",
+      "longDescription": "The Formula GT Pro Steering Wheel is the ultimate choice for the most demanding sim racing drivers. Built with premium materials, it allows full customization of grips, front plate and paddles to suit your driving style and aesthetic preferences. Available with alcantara, perforated leather and carbon fiber finishes.",
+      "metaTitle": "Formula GT Pro Steering Wheel | SimRacing Shop",
+      "metaDescription": "Customizable sim racing steering wheel with alcantara, leather and carbon fiber finishes."
+    }
+  ]
+}

@@ -17,17 +17,20 @@ namespace SimRacingShop.API.Controllers
     public class AdminProductsController : ControllerBase
     {
         private readonly IProductAdminRepository _adminRepository;
+        private readonly IComponentAdminRepository _componentAdminRepository;
         private readonly IFileStorageService _fileStorage;
         private readonly IDistributedCache _cache;
         private readonly ILogger<AdminProductsController> _logger;
 
         public AdminProductsController(
             IProductAdminRepository adminRepository,
+            IComponentAdminRepository componentAdminRepository,
             IFileStorageService fileStorage,
             IDistributedCache cache,
             ILogger<AdminProductsController> logger)
         {
             _adminRepository = adminRepository;
+            _componentAdminRepository = componentAdminRepository;
             _fileStorage = fileStorage;
             _cache = cache;
             _logger = logger;
@@ -254,6 +257,129 @@ namespace SimRacingShop.API.Controllers
             return Ok(result);
         }
 
+        // ── ProductComponentOption endpoints ──────────────────────────────────
+
+        /// <summary>
+        /// Listar todas las vinculaciones componente-producto
+        /// </summary>
+        [HttpGet("{id:guid}/component-options")]
+        [ProducesResponseType(typeof(List<ProductComponentOptionAdminDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetComponentOptions(Guid id)
+        {
+            _logger.LogInformation("Getting component options for product: {ProductId}", id);
+
+            var product = await _adminRepository.GetByIdAsync(id);
+            if (product == null)
+                return NotFound(new { message = "Producto no encontrado" });
+
+            var options = await _adminRepository.GetComponentOptionsAsync(id);
+            var result = options.Select(o => MapToComponentOptionDto(o)).ToList();
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Vincular un componente a un producto
+        /// </summary>
+        [HttpPost("{id:guid}/component-options")]
+        [ProducesResponseType(typeof(ProductComponentOptionAdminDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AddComponentOption(Guid id, [FromBody] UpsertProductComponentOptionDto dto)
+        {
+            _logger.LogInformation(
+                "Adding component option to product: {ProductId}, component: {ComponentId}, group: {Group}",
+                id, dto.ComponentId, dto.OptionGroup);
+
+            var product = await _adminRepository.GetByIdAsync(id);
+            if (product == null)
+                return NotFound(new { message = "Producto no encontrado" });
+
+            var component = await _componentAdminRepository.GetByIdAsync(dto.ComponentId);
+            if (component == null)
+                return BadRequest(new { message = "Componente no encontrado" });
+
+            var option = new ProductComponentOption
+            {
+                Id = Guid.NewGuid(),
+                ProductId = id,
+                ComponentId = dto.ComponentId,
+                OptionGroup = dto.OptionGroup,
+                IsGroupRequired = dto.IsGroupRequired,
+                GlbObjectName = dto.GlbObjectName,
+                ThumbnailUrl = dto.ThumbnailUrl,
+                PriceModifier = dto.PriceModifier,
+                IsDefault = dto.IsDefault,
+                DisplayOrder = dto.DisplayOrder,
+            };
+
+            await _adminRepository.AddComponentOptionAsync(option);
+
+            _logger.LogInformation(
+                "Component option created: {OptionId} (product {ProductId}, component {ComponentId})",
+                option.Id, id, dto.ComponentId);
+
+            return Created(
+                $"/api/admin/products/{id}/component-options/{option.Id}",
+                MapToComponentOptionDto(option, component.Sku));
+        }
+
+        /// <summary>
+        /// Actualizar los parámetros de una vinculación componente-producto
+        /// </summary>
+        [HttpPut("{id:guid}/component-options/{optionId:guid}")]
+        [ProducesResponseType(typeof(ProductComponentOptionAdminDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> UpdateComponentOption(Guid id, Guid optionId, [FromBody] UpsertProductComponentOptionDto dto)
+        {
+            _logger.LogInformation("Updating component option: {OptionId} on product: {ProductId}", optionId, id);
+
+            var option = await _adminRepository.GetComponentOptionByIdAsync(optionId);
+            if (option == null || option.ProductId != id)
+                return NotFound(new { message = "Opción de componente no encontrada" });
+
+            var component = await _componentAdminRepository.GetByIdAsync(dto.ComponentId);
+            if (component == null)
+                return BadRequest(new { message = "Componente no encontrado" });
+
+            option.ComponentId = dto.ComponentId;
+            option.OptionGroup = dto.OptionGroup;
+            option.IsGroupRequired = dto.IsGroupRequired;
+            option.GlbObjectName = dto.GlbObjectName;
+            option.ThumbnailUrl = dto.ThumbnailUrl;
+            option.PriceModifier = dto.PriceModifier;
+            option.IsDefault = dto.IsDefault;
+            option.DisplayOrder = dto.DisplayOrder;
+
+            await _adminRepository.UpdateComponentOptionAsync(option);
+
+            _logger.LogInformation("Component option updated: {OptionId}", optionId);
+
+            return Ok(MapToComponentOptionDto(option, component.Sku));
+        }
+
+        /// <summary>
+        /// Desvincular un componente de un producto
+        /// </summary>
+        [HttpDelete("{id:guid}/component-options/{optionId:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteComponentOption(Guid id, Guid optionId)
+        {
+            _logger.LogInformation("Deleting component option: {OptionId} from product: {ProductId}", optionId, id);
+
+            var option = await _adminRepository.GetComponentOptionByIdAsync(optionId);
+            if (option == null || option.ProductId != id)
+                return NotFound(new { message = "Opción de componente no encontrada" });
+
+            await _adminRepository.DeleteComponentOptionAsync(option);
+
+            _logger.LogInformation("Component option deleted: {OptionId}", optionId);
+
+            return NoContent();
+        }
+
         private async Task InvalidateProductCacheAsync(Product product)
         {
             // Invalidate detail cache by ID for each locale
@@ -267,6 +393,25 @@ namespace SimRacingShop.API.Controllers
             }
 
             // List caches expire naturally by TTL (1 hour)
+        }
+
+        private static ProductComponentOptionAdminDto MapToComponentOptionDto(
+            ProductComponentOption option, string? componentSku = null)
+        {
+            return new ProductComponentOptionAdminDto
+            {
+                Id = option.Id,
+                ProductId = option.ProductId,
+                ComponentId = option.ComponentId,
+                ComponentSku = componentSku ?? option.Component?.Sku ?? string.Empty,
+                OptionGroup = option.OptionGroup,
+                IsGroupRequired = option.IsGroupRequired,
+                GlbObjectName = option.GlbObjectName,
+                ThumbnailUrl = option.ThumbnailUrl,
+                PriceModifier = option.PriceModifier,
+                IsDefault = option.IsDefault,
+                DisplayOrder = option.DisplayOrder,
+            };
         }
 
         private static ProductDetailDto MapToDetailDto(Product product, string locale)

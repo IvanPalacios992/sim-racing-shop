@@ -8,9 +8,10 @@ import type { ProductDetail } from "@/types/products";
 
 type Props = {
   product: ProductDetail;
+  onCustomize?: () => void;
 };
 
-export function ProductInfo({ product }: Props) {
+export function ProductInfo({ product, onCustomize }: Props) {
   const t = useTranslations("productDetail");
 
   const priceWithVat = product.basePrice * (1 + product.vatRate / 100);
@@ -105,6 +106,7 @@ export function ProductInfo({ product }: Props) {
       {product.isCustomizable && (
         <Button
           size="lg"
+          onClick={onCustomize}
           className="w-full bg-racing-red text-base font-semibold uppercase tracking-wider text-white hover:bg-racing-red/80 sm:w-auto"
         >
           {t("customize")}

@@ -1,0 +1,24 @@
+[
+  { "id": "bbbbbbbb-0001-4000-8000-000000000001", "componentId": "aaaaaaaa-0001-4000-8000-000000000001", "locale": "es", "name": "Alcantara Negro",       "description": "Empuñadura en alcantara negro con textura premium anti-deslizante" },
+  { "id": "bbbbbbbb-0001-4000-8000-000000000002", "componentId": "aaaaaaaa-0001-4000-8000-000000000001", "locale": "en", "name": "Black Alcantara",        "description": "Premium anti-slip black alcantara grip" },
+  { "id": "bbbbbbbb-0001-4000-8000-000000000003", "componentId": "aaaaaaaa-0001-4000-8000-000000000002", "locale": "es", "name": "Alcantara Rojo",         "description": "Empuñadura en alcantara rojo con textura premium anti-deslizante" },
+  { "id": "bbbbbbbb-0001-4000-8000-000000000004", "componentId": "aaaaaaaa-0001-4000-8000-000000000002", "locale": "en", "name": "Red Alcantara",           "description": "Premium anti-slip red alcantara grip" },
+  { "id": "bbbbbbbb-0001-4000-8000-000000000005", "componentId": "aaaaaaaa-0001-4000-8000-000000000003", "locale": "es", "name": "Cuero Perforado",         "description": "Empuñadura en cuero genuino perforado para mejor ventilación y agarre" },
+  { "id": "bbbbbbbb-0001-4000-8000-000000000006", "componentId": "aaaaaaaa-0001-4000-8000-000000000003", "locale": "en", "name": "Perforated Leather",      "description": "Perforated genuine leather grip for better ventilation and grip" },
+  { "id": "bbbbbbbb-0001-4000-8000-000000000007", "componentId": "aaaaaaaa-0001-4000-8000-000000000004", "locale": "es", "name": "Fibra de Carbono",        "description": "Empuñadura en fibra de carbono ultraligera con tacto satinado" },
+  { "id": "bbbbbbbb-0001-4000-8000-000000000008", "componentId": "aaaaaaaa-0001-4000-8000-000000000004", "locale": "en", "name": "Carbon Fiber",            "description": "Ultralight carbon fiber grip with satin finish" },
+
+  { "id": "bbbbbbbb-0002-4000-8000-000000000001", "componentId": "aaaaaaaa-0002-4000-8000-000000000001", "locale": "es", "name": "Carbono Gris",            "description": "Placa frontal en fibra de carbono con acabado gris neutro" },
+  { "id": "bbbbbbbb-0002-4000-8000-000000000002", "componentId": "aaaaaaaa-0002-4000-8000-000000000001", "locale": "en", "name": "Gray Carbon",             "description": "Front plate in carbon fiber with neutral gray finish" },
+  { "id": "bbbbbbbb-0002-4000-8000-000000000003", "componentId": "aaaaaaaa-0002-4000-8000-000000000002", "locale": "es", "name": "Carbono Rojo",            "description": "Placa frontal en fibra de carbono con detalles en rojo racing" },
+  { "id": "bbbbbbbb-0002-4000-8000-000000000004", "componentId": "aaaaaaaa-0002-4000-8000-000000000002", "locale": "en", "name": "Red Carbon",              "description": "Front plate in carbon fiber with racing red details" },
+  { "id": "bbbbbbbb-0002-4000-8000-000000000005", "componentId": "aaaaaaaa-0002-4000-8000-000000000003", "locale": "es", "name": "Carbono Azul",            "description": "Placa frontal en fibra de carbono con detalles en azul eléctrico" },
+  { "id": "bbbbbbbb-0002-4000-8000-000000000006", "componentId": "aaaaaaaa-0002-4000-8000-000000000003", "locale": "en", "name": "Blue Carbon",             "description": "Front plate in carbon fiber with electric blue details" },
+
+  { "id": "bbbbbbbb-0003-4000-8000-000000000001", "componentId": "aaaaaaaa-0003-4000-8000-000000000001", "locale": "es", "name": "Levas Aluminio",          "description": "Levas de cambio en aluminio CNC con acabado anodizado negro" },
+  { "id": "bbbbbbbb-0003-4000-8000-000000000002", "componentId": "aaaaaaaa-0003-4000-8000-000000000001", "locale": "en", "name": "Aluminum Paddles",        "description": "CNC aluminum shift paddles with black anodized finish" },
+  { "id": "bbbbbbbb-0003-4000-8000-000000000003", "componentId": "aaaaaaaa-0003-4000-8000-000000000002", "locale": "es", "name": "Levas Carbono",           "description": "Levas de cambio en fibra de carbono, peso mínimo y máxima rigidez" },
+  { "id": "bbbbbbbb-0003-4000-8000-000000000004", "componentId": "aaaaaaaa-0003-4000-8000-000000000002", "locale": "en", "name": "Carbon Paddles",          "description": "Carbon fiber shift paddles, minimum weight and maximum rigidity" },
+  { "id": "bbbbbbbb-0003-4000-8000-000000000005", "componentId": "aaaaaaaa-0003-4000-8000-000000000003", "locale": "es", "name": "Levas Titanio",           "description": "Levas de cambio en titanio grado 5, la opción más exclusiva y ligera" },
+  { "id": "bbbbbbbb-0003-4000-8000-000000000006", "componentId": "aaaaaaaa-0003-4000-8000-000000000003", "locale": "en", "name": "Titanium Paddles",        "description": "Grade 5 titanium shift paddles, the most exclusive and lightweight option" }
+]
