@@ -78,6 +78,22 @@ describe("productsApi", () => {
       ).toBe(true);
     });
 
+    it("includes categorySlug when provided", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: emptyPaginated });
+
+      await productsApi.getProducts({
+        page: 1,
+        pageSize: 12,
+        locale: "en",
+        categorySlug: "volantes",
+      });
+
+      const [, opts] = vi.mocked(apiClient.get).mock.calls[0];
+      expect(
+        (opts as { params: Record<string, unknown> }).params.CategorySlug
+      ).toBe("volantes");
+    });
+
     it("includes sortBy and sortDescending when provided", async () => {
       vi.mocked(apiClient.get).mockResolvedValue({ data: emptyPaginated });
 
@@ -103,6 +119,7 @@ describe("productsApi", () => {
       const [, opts] = vi.mocked(apiClient.get).mock.calls[0];
       const params = (opts as { params: Record<string, unknown> }).params;
       expect(params).not.toHaveProperty("Search");
+      expect(params).not.toHaveProperty("CategorySlug");
       expect(params).not.toHaveProperty("MinPrice");
       expect(params).not.toHaveProperty("MaxPrice");
       expect(params).not.toHaveProperty("IsCustomizable");
