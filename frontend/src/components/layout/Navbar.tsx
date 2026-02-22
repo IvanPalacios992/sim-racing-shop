@@ -3,9 +3,10 @@
 import { useState, useCallback } from "react";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Search, User, ShoppingCart, Menu, X } from "lucide-react";
+import { Search, ShoppingCart, Menu, X } from "lucide-react";
 import { useCartItemCount } from "@/stores/cart-store";
 import { MiniCart } from "@/components/cart/MiniCart";
+import { UserMenu } from "@/components/layout/UserMenu";
 
 type NavLink = {
   key: "products" | "wheels" | "pedals" | "cockpits" | "accessories";
@@ -71,13 +72,7 @@ export function Navbar() {
             <Search className="size-5" />
           </Link>
 
-          <Link
-            href="/login"
-            className="p-2 text-white transition-colors hover:text-electric-blue"
-            aria-label={t("account")}
-          >
-            <User className="size-5" />
-          </Link>
+          <UserMenu />
 
           {/* Cart button + MiniCart dropdown */}
           <div className="relative">

@@ -269,7 +269,13 @@
     "menu": "Menu",
     "products": "Products",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "userMenu": {
+      "profile": "My Profile",
+      "orders": "My Orders",
+      "settings": "Settings",
+      "logout": "Sign Out"
+    }
   },
   "footer": {
     "tagline": "Engineered for Victory",
