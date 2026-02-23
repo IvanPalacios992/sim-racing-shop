@@ -5,6 +5,7 @@ using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Repositories;
 using SimRacingShop.Core.Services;
+using StackExchange.Redis;
 
 namespace SimRacingShop.API.Controllers
 {
@@ -20,17 +21,20 @@ namespace SimRacingShop.API.Controllers
         private readonly ICategoryAdminRepository _adminRepository;
         private readonly IFileStorageService _fileStorage;
         private readonly IDistributedCache _cache;
+        private readonly IConnectionMultiplexer _multiplexer;
         private readonly ILogger<AdminCategoriesController> _logger;
 
         public AdminCategoriesController(
             ICategoryAdminRepository adminRepository,
             IFileStorageService fileStorage,
             IDistributedCache cache,
+            IConnectionMultiplexer multiplexer,
             ILogger<AdminCategoriesController> logger)
         {
             _adminRepository = adminRepository;
             _fileStorage = fileStorage;
             _cache = cache;
+            _multiplexer = multiplexer;
             _logger = logger;
         }
 
@@ -222,7 +226,7 @@ namespace SimRacingShop.API.Controllers
 
         private async Task InvalidateCategoryCacheAsync(Category category)
         {
-            // Invalidate detail cache by ID for each locale
+            // Invalidate detail cache by ID and slug for each locale
             foreach (var translation in category.Translations)
             {
                 var idKey = $"categories:detail:id:{category.Id}:{translation.Locale}";
@@ -232,7 +236,21 @@ namespace SimRacingShop.API.Controllers
                 await _cache.RemoveAsync(slugKey);
             }
 
-            // List caches expire naturally by TTL (1 hour)
+            // Invalidate all list caches (keys are prefixed by InstanceName "SimRacingShop:")
+            try
+            {
+                var server = _multiplexer.GetServer(_multiplexer.GetEndPoints().First());
+                var listKeys = server.Keys(pattern: "SimRacingShop:categories:list:*").ToArray();
+                if (listKeys.Length > 0)
+                {
+                    var db = _multiplexer.GetDatabase();
+                    await db.KeyDeleteAsync(listKeys);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Could not invalidate category list cache");
+            }
         }
 
         private static CategoryDetailDto MapToDetailDto(Category category, string locale)

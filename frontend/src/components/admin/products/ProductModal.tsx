@@ -93,7 +93,7 @@ export default function ProductModal({
     if (editItem) {
       setLoadingTranslations(true);
       adminProductsApi
-        .getProductBothLocales(editItem.slug)
+        .getProductBothLocales(editItem.id)
         .then(({ es: esData, en: enData }) => {
           setBase({
             sku: esData.sku,

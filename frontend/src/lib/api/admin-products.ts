@@ -17,10 +17,10 @@ export const adminProductsApi = {
     return response.data.items;
   },
 
-  async getProductBothLocales(slug: string): Promise<{ es: ProductDetail; en: ProductDetail }> {
+  async getProductBothLocales(id: string): Promise<{ es: ProductDetail; en: ProductDetail }> {
     const [es, en] = await Promise.all([
-      apiClient.get<ProductDetail>(`/products/slug/${slug}`, { params: { Locale: "es" } }),
-      apiClient.get<ProductDetail>(`/products/slug/${slug}`, { params: { Locale: "en" } }),
+      apiClient.get<ProductDetail>(`/products/${id}`, { params: { locale: "es" } }),
+      apiClient.get<ProductDetail>(`/products/${id}`, { params: { locale: "en" } }),
     ]);
     return { es: es.data, en: en.data };
   },
