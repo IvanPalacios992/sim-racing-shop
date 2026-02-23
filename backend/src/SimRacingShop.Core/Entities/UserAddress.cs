@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimRacingShop.Core.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -8,7 +9,8 @@ namespace SimRacingShop.Core.Entities
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }
-        public string AddressType { get; set; } = null!; // billing, shipping
+        public string? Name { get; set; }
+        public AddressType AddressType { get; set; } = AddressType.Billing; // billing, shipping
         public string Street { get; set; } = null!;
         public string City { get; set; } = null!;
         public string? State { get; set; }

@@ -152,6 +152,204 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                     b.ToTable("UserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ProductCategories", b =>
+                {
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("CategoryId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductCategories");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<Guid?>("ParentCategory")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.CategoryImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("AltText")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId")
+                        .IsUnique();
+
+                    b.ToTable("CategoriesImages");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.CategoryTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Locale")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ShortDescription")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId", "Locale")
+                        .IsUnique();
+
+                    b.HasIndex("Locale", "Slug")
+                        .IsUnique();
+
+                    b.ToTable("CategoriesTranslations");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.Component", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ComponentType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<decimal?>("CostPrice")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("LeadTimeDays")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("MinStockThreshold")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(5);
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<int>("StockQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("WeightGrams")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComponentType");
+
+                    b.HasIndex("Sku")
+                        .IsUnique();
+
+                    b.HasIndex("StockQuantity");
+
+                    b.HasIndex("ComponentType", "StockQuantity");
+
+                    b.ToTable("Components");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.ComponentTranslation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComponentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Locale")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComponentId", "Locale")
+                        .IsUnique();
+
+                    b.ToTable("ComponentTranslations");
+                });
+
             modelBuilder.Entity("SimRacingShop.Core.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -434,6 +632,66 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                     b.ToTable("Products");
                 });
 
+            modelBuilder.Entity("SimRacingShop.Core.Entities.ProductComponentOption", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ComponentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DisplayOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("GlbObjectName")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsDefault")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsGroupRequired")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("OptionGroup")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<decimal>("PriceModifier")
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasDefaultValue(0.00m);
+
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ComponentId");
+
+                    b.HasIndex("OptionGroup");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("ProductId", "ComponentId")
+                        .IsUnique();
+
+                    b.ToTable("ProductComponentOptions");
+                });
+
             modelBuilder.Entity("SimRacingShop.Core.Entities.ProductImage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -556,6 +814,98 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                     b.ToTable("ProductTranslations");
                 });
 
+            modelBuilder.Entity("SimRacingShop.Core.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("ReplacedByToken")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "RevokedAt", "ExpiresAt");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.ShippingZone", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal>("BaseCost")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<decimal>("CostPerKg")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<decimal>("FreeShippingThreshold")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PostalCodePrefixes")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_ShippingZone_IsActive");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_ShippingZone_Name");
+
+                    b.HasIndex("IsActive", "Name")
+                        .HasDatabaseName("IX_ShippingZone_IsActive_Name");
+
+                    b.ToTable("ShippingZones", (string)null);
+                });
+
             modelBuilder.Entity("SimRacingShop.Core.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -651,10 +1001,9 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("AddressType")
-                        .IsRequired()
+                    b.Property<int>("AddressType")
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("integer");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -675,6 +1024,9 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
 
                     b.Property<string>("PostalCode")
                         .IsRequired()
@@ -702,6 +1054,44 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                         .HasFilter("\"IsDefault\" = true");
 
                     b.ToTable("UserAddresses");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.UserCommunicationPreferences", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("Newsletter")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("OrderNotifications")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<bool>("SmsPromotions")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("UserCommunicationPreferences");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
@@ -755,6 +1145,54 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ProductCategories", b =>
+                {
+                    b.HasOne("SimRacingShop.Core.Entities.Category", null)
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SimRacingShop.Core.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.CategoryImage", b =>
+                {
+                    b.HasOne("SimRacingShop.Core.Entities.Category", "Category")
+                        .WithOne("Image")
+                        .HasForeignKey("SimRacingShop.Core.Entities.CategoryImage", "CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.CategoryTranslation", b =>
+                {
+                    b.HasOne("SimRacingShop.Core.Entities.Category", "Category")
+                        .WithMany("Translations")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.ComponentTranslation", b =>
+                {
+                    b.HasOne("SimRacingShop.Core.Entities.Component", "Component")
+                        .WithMany("Translations")
+                        .HasForeignKey("ComponentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Component");
+                });
+
             modelBuilder.Entity("SimRacingShop.Core.Entities.Order", b =>
                 {
                     b.HasOne("SimRacingShop.Core.Entities.User", "User")
@@ -800,6 +1238,25 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SimRacingShop.Core.Entities.ProductComponentOption", b =>
+                {
+                    b.HasOne("SimRacingShop.Core.Entities.Component", "Component")
+                        .WithMany("ProductComponentOptions")
+                        .HasForeignKey("ComponentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SimRacingShop.Core.Entities.Product", "Product")
+                        .WithMany("ComponentOptions")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Component");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("SimRacingShop.Core.Entities.ProductImage", b =>
                 {
                     b.HasOne("SimRacingShop.Core.Entities.Product", "Product")
@@ -833,6 +1290,17 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("SimRacingShop.Core.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("SimRacingShop.Core.Entities.User", "User")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SimRacingShop.Core.Entities.UserAddress", b =>
                 {
                     b.HasOne("SimRacingShop.Core.Entities.User", "User")
@@ -844,6 +1312,31 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SimRacingShop.Core.Entities.UserCommunicationPreferences", b =>
+                {
+                    b.HasOne("SimRacingShop.Core.Entities.User", "User")
+                        .WithOne("CommunicationPreferences")
+                        .HasForeignKey("SimRacingShop.Core.Entities.UserCommunicationPreferences", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.Category", b =>
+                {
+                    b.Navigation("Image");
+
+                    b.Navigation("Translations");
+                });
+
+            modelBuilder.Entity("SimRacingShop.Core.Entities.Component", b =>
+                {
+                    b.Navigation("ProductComponentOptions");
+
+                    b.Navigation("Translations");
+                });
+
             modelBuilder.Entity("SimRacingShop.Core.Entities.Order", b =>
                 {
                     b.Navigation("OrderItems");
@@ -853,6 +1346,8 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("SimRacingShop.Core.Entities.Product", b =>
                 {
+                    b.Navigation("ComponentOptions");
+
                     b.Navigation("Images");
 
                     b.Navigation("Specifications");
@@ -864,7 +1359,11 @@ namespace SimRacingShop.Infrastructure.Data.Migrations
                 {
                     b.Navigation("Addresses");
 
+                    b.Navigation("CommunicationPreferences");
+
                     b.Navigation("Orders");
+
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

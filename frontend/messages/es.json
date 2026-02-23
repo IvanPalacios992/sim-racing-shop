@@ -1,0 +1,556 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "retry": "Reintentar",
+    "back": "Volver",
+    "submit": "Enviar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "or": "O"
+  },
+  "auth": {
+    "login": {
+      "title": "Bienvenido de nuevo",
+      "subtitle": "Inicia sesión en tu cuenta",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "Ingresa tu correo electrónico",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Ingresa tu contraseña",
+      "rememberMe": "Recuérdame",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "INICIAR SESIÓN",
+      "noAccount": "¿No tienes una cuenta?",
+      "createAccount": "Crea una",
+      "errors": {
+        "invalidCredentials": "Correo electrónico o contraseña inválidos. Por favor, intenta de nuevo.",
+        "accountLocked": "Cuenta temporalmente bloqueada. Intenta de nuevo en 15 minutos o restablece tu contraseña.",
+        "unverifiedEmail": "Por favor verifica tu correo electrónico antes de iniciar sesión.",
+        "generic": "No se pudo iniciar sesión. Por favor, intenta de nuevo."
+      }
+    },
+    "register": {
+      "title": "Crear cuenta",
+      "subtitle": "¿Ya tienes una cuenta?",
+      "signIn": "Inicia sesión",
+      "firstName": "Nombre",
+      "firstNamePlaceholder": "Tu nombre",
+      "lastName": "Apellido",
+      "lastNamePlaceholder": "Tu apellido",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "Ingresa tu correo electrónico",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Crea una contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu contraseña",
+      "terms": "Acepto los",
+      "termsLink": "Términos de servicio",
+      "and": "y la",
+      "privacyLink": "Política de privacidad",
+      "newsletter": "Suscribirme al newsletter para ofertas exclusivas",
+      "submit": "CREAR CUENTA",
+      "benefits": {
+        "title": "Únete a la élite del racing",
+        "discount": "Descuentos exclusivos para miembros",
+        "tracking": "Seguimiento de pedidos e historial",
+        "wishlist": "Lista de deseos y configuraciones guardadas",
+        "earlyAccess": "Acceso anticipado a nuevos productos"
+      },
+      "errors": {
+        "emailExists": "Este correo ya está registrado. ¿Iniciar sesión en su lugar?",
+        "passwordMismatch": "Las contraseñas no coinciden",
+        "generic": "No se pudo crear la cuenta. Por favor, intenta de nuevo."
+      }
+    },
+    "forgotPassword": {
+      "title": "Restablecer contraseña",
+      "subtitle": "Ingresa tu correo electrónico y te enviaremos instrucciones para restablecer tu contraseña.",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "Ingresa tu correo electrónico",
+      "submit": "ENVIAR ENLACE",
+      "backToLogin": "Volver a iniciar sesión",
+      "success": {
+        "title": "Revisa tu correo",
+        "message": "Hemos enviado instrucciones para restablecer la contraseña a {email}. El enlace expira en 1 hora.",
+        "resend": "Reenviar correo",
+        "resendIn": "Reenviar en {seconds}s",
+        "tryDifferent": "Probar con otro correo",
+        "help": "¿No lo recibiste? Revisa tu carpeta de spam o contacta a soporte."
+      },
+      "errors": {
+        "generic": "No se pudo enviar el correo. Por favor, intenta de nuevo."
+      }
+    },
+    "resetPassword": {
+      "title": "Crear nueva contraseña",
+      "subtitle": "Ingresa tu nueva contraseña a continuación.",
+      "newPassword": "Nueva contraseña",
+      "newPasswordPlaceholder": "Ingresa tu nueva contraseña",
+      "confirmPassword": "Confirmar contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu nueva contraseña",
+      "submit": "RESTABLECER CONTRASEÑA",
+      "success": {
+        "title": "Contraseña restablecida",
+        "message": "Tu contraseña ha sido actualizada exitosamente.",
+        "signIn": "INICIAR SESIÓN"
+      },
+      "errors": {
+        "invalidToken": "Este enlace de restablecimiento es inválido o ha expirado.",
+        "requestNew": "Solicitar nuevo enlace",
+        "generic": "No se pudo restablecer la contraseña. Por favor, intenta de nuevo."
+      }
+    },
+    "password": {
+      "show": "Mostrar",
+      "hide": "Ocultar",
+      "requirements": {
+        "title": "La contraseña debe contener:",
+        "minLength": "Mínimo 8 caracteres",
+        "uppercase": "Al menos una letra mayúscula",
+        "lowercase": "Al menos una letra minúscula",
+        "number": "Al menos un número"
+      }
+    },
+    "validation": {
+      "emailRequired": "El correo electrónico es requerido",
+      "emailInvalid": "Ingresa un correo electrónico válido",
+      "passwordRequired": "La contraseña es requerida",
+      "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+      "passwordUppercase": "La contraseña debe contener al menos una letra mayúscula",
+      "passwordLowercase": "La contraseña debe contener al menos una letra minúscula",
+      "passwordNumber": "La contraseña debe contener al menos un número",
+      "confirmPasswordRequired": "Confirma tu contraseña",
+      "passwordsMustMatch": "Las contraseñas deben coincidir",
+      "termsRequired": "Debes aceptar los términos y condiciones",
+      "firstNameRequired": "El nombre es requerido",
+      "lastNameRequired": "El apellido es requerido"
+    }
+  },
+  "home": {
+    "tagline": "Equipamiento premium de sim racing para quienes exigen perfección",
+    "signIn": "Iniciar Sesión",
+    "createAccount": "Crear Cuenta",
+    "welcome": "Bienvenido, {name}",
+    "logout": "Cerrar Sesión",
+    "hero": {
+      "title": "DISEÑADO PARA LA VICTORIA",
+      "cta": "EXPLORAR PRODUCTOS",
+      "ctaSecondary": "VER VÍDEO"
+    },
+    "categories": {
+      "title": "CATEGORÍAS DESTACADAS",
+      "wheels": "VOLANTES",
+      "bases": "BASES",
+      "pedals": "PEDALES",
+      "cockpits": "COCKPITS",
+      "accessories": "ACCESORIOS",
+      "explore": "Explorar"
+    },
+    "products": {
+      "title": "MÁS VENDIDOS",
+      "new": "NUEVO",
+      "sale": "OFERTA",
+      "addToWishlist": "Añadir a favoritos"
+    },
+    "configurator": {
+      "badge": "FUNCIÓN EXCLUSIVA",
+      "title": "Crea Tu Setup Perfecto",
+      "description": "Experimenta nuestro revolucionario configurador 3D. Visualiza cada detalle, personaliza cada componente y haz realidad tu setup soñado en tiempo real.",
+      "feature1": "Visualización 3D en tiempo real",
+      "feature2": "Colores y materiales personalizados",
+      "feature3": "Guarda y comparte configuraciones",
+      "feature4": "Actualización de precios instantánea",
+      "cta": "EMPEZAR A CONFIGURAR"
+    },
+    "trust": {
+      "shipping": "ENVÍO GRATIS",
+      "shippingDesc": "En pedidos superiores a 100€",
+      "warranty": "2 AÑOS DE GARANTÍA",
+      "warrantyDesc": "Cobertura completa incluida",
+      "payment": "PAGO SEGURO",
+      "paymentDesc": "Encriptación SSL de 256 bits",
+      "support": "SOPORTE EXPERTO",
+      "supportDesc": "Especialistas en racing disponibles"
+    },
+    "newsletter": {
+      "title": "ÚNETE A LA COMUNIDAD DE RACING",
+      "subtitle": "Obtén ofertas exclusivas, acceso anticipado y consejos de racing",
+      "emailPlaceholder": "Ingresa tu correo electrónico",
+      "subscribe": "SUSCRIBIRSE",
+      "subscribing": "SUSCRIBIENDO...",
+      "privacy": "Respetamos tu privacidad. Cancela la suscripción en cualquier momento."
+    }
+  },
+  "products": {
+    "pageTitle": "Productos",
+    "search": "Buscar productos...",
+    "filters": "Filtros",
+    "clearFilters": "Limpiar filtros",
+    "category": "Categoría",
+    "allCategories": "Todas las categorías",
+    "priceRange": "Rango de precio",
+    "minPrice": "Mín",
+    "maxPrice": "Máx",
+    "customizable": "Solo personalizables",
+    "customizableBadge": "Personalizable",
+    "addToWishlist": "Añadir a favoritos",
+    "sortBy": "Ordenar por",
+    "sortOptions": {
+      "featured": "Destacados",
+      "priceLow": "Precio: menor a mayor",
+      "priceHigh": "Precio: mayor a menor",
+      "newest": "Más recientes",
+      "name": "Nombre"
+    },
+    "showing": "Mostrando {from}-{to} de {total} productos",
+    "noResults": "No se encontraron productos",
+    "noResultsDesc": "Intenta ajustar los filtros o el término de búsqueda",
+    "pagination": {
+      "previous": "Anterior",
+      "next": "Siguiente",
+      "page": "Página {current} de {total}"
+    },
+    "error": "Error al cargar productos",
+    "errorDesc": "No se pudieron cargar los productos. Intenta de nuevo.",
+    "retry": "Reintentar"
+  },
+  "productDetail": {
+    "gallery": "Galería",
+    "selectImage": "Seleccionar imagen {index}",
+    "breadcrumb": {
+      "home": "Inicio",
+      "products": "Productos"
+    },
+    "customizable": "Personalizable",
+    "noReviewsYet": "Sin reseñas aún",
+    "priceExVat": "€{price} sin IVA",
+    "vatIncluded": "IVA ({rate}%) incluido",
+    "inStock": "En stock",
+    "outOfStock": "Agotado",
+    "customize": "PERSONALIZAR",
+    "productionTime": "Tiempo de producción: {days} días",
+    "weight": "Peso: {grams}g",
+    "specifications": "Especificaciones técnicas",
+    "description": "Descripción",
+    "trust": {
+      "freeShipping": "Envío gratis en pedidos superiores a 100€",
+      "warranty": "2 años de garantía incluidos",
+      "securePayment": "Pago seguro con encriptación SSL"
+    },
+    "configurator": {
+      "title": "Configurar",
+      "close": "Cerrar configurador",
+      "loading": "Cargando modelo 3D...",
+      "loadingOptions": "Cargando opciones de personalización...",
+      "required": "Requerido",
+      "optional": "Opcional",
+      "none": "Ninguno",
+      "noModel": "Modelo 3D no disponible para este producto",
+      "basePrice": "Precio base",
+      "extras": "Extras",
+      "total": "Total",
+      "addToCart": "AÑADIR AL CARRITO",
+      "missingRequired": "Selecciona todas las opciones requeridas para continuar",
+      "priceModifier": "+€{amount}",
+      "outOfStock": "Sin stock",
+      "noOptions": "Este producto no tiene opciones de personalización configuradas"
+    },
+    "error": "Error al cargar el producto",
+    "errorDesc": "No se pudo cargar el producto. Intenta de nuevo.",
+    "retry": "Reintentar"
+  },
+  "nav": {
+    "home": "Inicio",
+    "wheels": "Volantes",
+    "pedals": "Pedales",
+    "cockpits": "Cockpits",
+    "accessories": "Accesorios",
+    "search": "Buscar",
+    "account": "Cuenta",
+    "cart": "Carrito",
+    "menu": "Menú",
+    "products": "Productos",
+    "about": "Nosotros",
+    "contact": "Contacto",
+    "userMenu": {
+      "profile": "Mi Perfil",
+      "orders": "Mis Pedidos",
+      "settings": "Configuración",
+      "logout": "Cerrar Sesión"
+    }
+  },
+  "footer": {
+    "tagline": "Diseñado para la Victoria",
+    "shop": {
+      "title": "Tienda",
+      "products": "Productos",
+      "categories": "Categorías",
+      "newArrivals": "Novedades",
+      "sale": "Ofertas"
+    },
+    "support": {
+      "title": "Soporte",
+      "contact": "Contacto",
+      "faq": "Preguntas frecuentes",
+      "shipping": "Envíos",
+      "returns": "Devoluciones"
+    },
+    "company": {
+      "title": "Empresa",
+      "about": "Nosotros",
+      "blog": "Blog",
+      "careers": "Carreras",
+      "press": "Prensa"
+    },
+    "copyright": "© {year} SimRacing Shop. Todos los derechos reservados.",
+    "privacy": "Política de privacidad",
+    "terms": "Términos de servicio"
+  },
+  "PrivateArea": {
+    "profile": "Mi Perfil",
+    "orders": "Mis Pedidos",
+    "wishlist": "Lista de Deseos",
+    "settings": "Configuración",
+    "logout": "Cerrar Sesión"
+  },
+  "Profile": {
+    "pageTitle": "Mi Perfil - SimRacing Shop",
+    "pageDescription": "Gestiona tu información personal y preferencias",
+    "title": "Mi Perfil",
+    "subtitle": "Gestiona tu información personal y preferencias",
+    "loading": "Cargando perfil...",
+    "errorLoadingProfile": "Error al cargar el perfil",
+    "noUserData": "No se pudo cargar la información del usuario",
+    "stats": {
+      "totalOrders": "Pedidos Totales",
+      "totalSpent": "Total Gastado",
+      "favoriteProducts": "Productos Favoritos",
+      "memberLevel": "Básico",
+      "level": "Nivel de Miembro"
+    },
+    "personalInfo": {
+      "title": "Información Personal",
+      "fullName": "Nombre Completo",
+      "email": "Correo Electrónico",
+      "language": "Idioma",
+      "emailVerified": "Email Verificado",
+      "verified": "Verificado",
+      "notVerified": "No Verificado",
+      "notProvided": "No proporcionado",
+      "edit": "Editar información personal",
+      "editTitle": "Editar Información Personal",
+      "firstName": "Nombre",
+      "lastName": "Apellidos",
+      "firstNamePlaceholder": "Introduce tu nombre",
+      "lastNamePlaceholder": "Introduce tus apellidos",
+      "emailPlaceholder": "Introduce tu correo electrónico",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "errorUpdating": "Error al actualizar la información del usuario"
+    },
+    "roles": {
+      "title": "Roles"
+    },
+    "addresses": {
+      "billingTitle": "Dirección de Facturación",
+      "billingAddress": "Dirección de facturación",
+      "noBillingAddress": "No tienes ninguna dirección de facturación registrada",
+      "addBillingAddress": "Añadir dirección de facturación",
+      "addBillingAddressTitle": "Nueva Dirección de Facturación",
+      "deliveryTitle": "Direcciones de Envío",
+      "noDeliveryAddresses": "No tienes ninguna dirección de envío registrada",
+      "addDeliveryAddress": "Añadir dirección de envío",
+      "addDeliveryAddressTitle": "Nueva Dirección de Envío",
+      "default": "Por defecto",
+      "addressName": "Nombre de la dirección",
+      "addressNamePlaceholder": "Casa, Trabajo, etc.",
+      "street": "Calle",
+      "streetPlaceholder": "Calle y número",
+      "city": "Ciudad",
+      "cityPlaceholder": "Ciudad",
+      "state": "Provincia/Estado",
+      "statePlaceholder": "Provincia o Estado",
+      "postalCode": "Código Postal",
+      "postalCodePlaceholder": "00000",
+      "country": "País",
+      "countryPlaceholder": "País",
+      "setAsDefault": "Establecer como predeterminada",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "saving": "Guardando...",
+      "errorCreating": "Error al crear la dirección. Inténtalo de nuevo.",
+      "errorUpdating": "Error al actualizar la dirección. Inténtalo de nuevo.",
+      "edit": "Editar",
+      "delete": "Eliminar",
+      "confirmDelete": "¿Eliminar dirección?",
+      "confirmDeleteMessage": "Esta acción no se puede deshacer.",
+      "editBillingAddressTitle": "Editar Dirección de Facturación",
+      "editDeliveryAddressTitle": "Editar Dirección de Envío"
+    },
+    "actions": {
+      "editProfile": "EDITAR PERFIL",
+      "changePassword": "CAMBIAR CONTRASEÑA"
+    }
+  },
+  "Settings": {
+    "pageTitle": "Configuración - SimRacing Shop",
+    "pageDescription": "Gestiona la configuración y preferencias de tu cuenta",
+    "title": "Configuración",
+    "subtitle": "Gestiona la configuración y preferencias de tu cuenta",
+    "communicationPreferences": {
+      "title": "Preferencias de Comunicación",
+      "loadError": "Error al cargar las preferencias. Inténtalo de nuevo.",
+      "saveError": "Error al guardar las preferencias. Inténtalo de nuevo.",
+      "saveSuccess": "Preferencias guardadas correctamente",
+      "newsletter": {
+        "title": "Newsletter",
+        "description": "Recibe ofertas exclusivas y novedades"
+      },
+      "orderNotifications": {
+        "title": "Notificaciones de Pedidos",
+        "description": "Actualizaciones sobre el estado de tus pedidos"
+      },
+      "smsPromotions": {
+        "title": "Promociones SMS",
+        "description": "Recibe ofertas por mensaje de texto"
+      }
+    },
+    "security": {
+      "title": "Seguridad",
+      "description": "Para cambiar tu contraseña, te enviaremos un enlace de recuperación a tu email registrado.",
+      "sendButton": "ENVIAR EMAIL DE CAMBIO DE CONTRASEÑA",
+      "sending": "Enviando...",
+      "emailSent": "Email de recuperación enviado correctamente. Revisa tu bandeja de entrada.",
+      "emailError": "Error al enviar el email. Inténtalo de nuevo."
+    },
+    "dangerZone": {
+      "title": "Zona Peligrosa",
+      "description": "Una vez elimines tu cuenta, no hay vuelta atrás. Por favor, asegúrate.",
+      "deleteButton": "ELIMINAR CUENTA",
+      "emailMismatch": "El email no coincide. Por favor, introduce tu email correctamente.",
+      "deleteError": "Error al eliminar la cuenta. Inténtalo de nuevo.",
+      "modal": {
+        "title": "Eliminar Cuenta",
+        "description": "Esta acción es permanente y no se puede deshacer. Todos tus datos serán eliminados.",
+        "warning": "Al eliminar tu cuenta:",
+        "consequence1": "Toda tu información personal será eliminada permanentemente",
+        "consequence2": "Tu historial de pedidos se perderá",
+        "consequence3": "No podrás recuperar tu cuenta",
+        "emailLabel": "Para confirmar, escribe tu email: {email}",
+        "cancel": "Cancelar",
+        "confirm": "ELIMINAR MI CUENTA",
+        "deleting": "Eliminando..."
+      }
+    }
+  },
+  "Orders": {
+    "pageTitle": "Mis Pedidos",
+    "pageDescription": "Consulta el estado de tus pedidos y compras anteriores",
+    "title": "Mis Pedidos",
+    "subtitle": "Consulta el estado de tus pedidos y compras anteriores",
+    "filterAll": "Todos",
+    "filterPending": "Pendiente",
+    "filterProcessing": "Procesando",
+    "filterShipped": "Enviado",
+    "filterDelivered": "Entregado",
+    "filterCancelled": "Cancelado",
+    "orderedOn": "Realizado el",
+    "total": "Total",
+    "viewDetails": "Ver detalles",
+    "andMore": "y {count} más",
+    "empty": "Aún no tienes pedidos",
+    "emptySubtitle": "Cuando realices tu primer pedido aparecerá aquí",
+    "shopNow": "Explorar productos",
+    "errorLoading": "Error al cargar los pedidos",
+    "retry": "Reintentar",
+    "noOrdersForFilter": "No hay pedidos con este estado",
+    "statusPending": "Pendiente",
+    "statusProcessing": "Procesando",
+    "statusShipped": "Enviado",
+    "statusDelivered": "Entregado",
+    "statusCancelled": "Cancelado",
+    "order": "Pedido",
+    "amount": "Cantidad"
+  },
+  "OrderDetail": {
+    "pageTitle": "Pedido #{id}",
+    "pageDescription": "Detalles del pedido y estado de envío",
+    "backToOrders": "Volver a pedidos",
+    "orderDate": "Fecha del pedido",
+    "status": "Estado",
+    "total": "Total",
+    "estimatedDays": "Producción estimada",
+    "days": "días",
+    "shippingStatus": "Estado del envío",
+    "cancelledDesc": "Este pedido ha sido cancelado",
+    "trackingNumber": "Número de seguimiento",
+    "copyTracking": "Copiar",
+    "copied": "¡Copiado!",
+    "products": "Productos",
+    "item": "artículo",
+    "items": "artículos",
+    "quantity": "Cant.",
+    "notes": "Notas",
+    "shippingAddress": "Dirección de envío",
+    "orderSummary": "Resumen del pedido",
+    "subtotal": "Subtotal",
+    "shipping": "Envío",
+    "freeShipping": "GRATIS",
+    "vat": "IVA",
+    "totalPaid": "Total pagado",
+    "productionNotes": "Notas de producción",
+    "helpTitle": "¿Necesitas ayuda con tu pedido?",
+    "helpSubtitle": "Nuestro equipo de soporte está disponible para ayudarte con cualquier pregunta o problema",
+    "helpEmail": "Enviar email",
+    "helpReturn": "Solicitar devolución",
+    "errorLoading": "Error al cargar el pedido",
+    "retry": "Reintentar",
+    "notFound": "Pedido no encontrado",
+    "timelineConfirmed": "Pedido confirmado",
+    "timelineConfirmedDesc": "Tu pedido ha sido recibido y está siendo procesado",
+    "timelineProcessing": "Preparando envío",
+    "timelineProcessingDesc": "Los productos están siendo empaquetados en nuestro almacén",
+    "timelineShipped": "En tránsito",
+    "timelineShippedDesc": "El paquete ha sido recogido por la empresa de transporte",
+    "timelineDelivered": "Entregado",
+    "timelineDeliveredDesc": "El pedido fue entregado exitosamente"
+  },
+  "Cart": {
+    "pageTitle": "Carrito de Compras | SimRacing Shop",
+    "pageDescription": "Revisa y gestiona tu carrito de compras",
+    "breadcrumbHome": "Inicio",
+    "breadcrumbCart": "Carrito de Compras",
+    "title": "Carrito de Compras",
+    "itemsTitle": "{count} artículos",
+    "articleSingular": "artículo",
+    "articlePlural": "artículos",
+    "clearCart": "Vaciar carrito",
+    "continueShopping": "Continuar comprando",
+    "proceedToCheckout": "Proceder al pago",
+    "orderSummary": "Resumen del pedido",
+    "subtotalLabel": "Subtotal",
+    "subtotalLine": "Subtotal ({count} artículos)",
+    "shipping": "Envío",
+    "shippingFree": "GRATIS",
+    "vatLine": "IVA ({rate}%)",
+    "total": "Total",
+    "securePayment": "Pago seguro con encriptación SSL",
+    "paymentMethods": "Aceptamos",
+    "empty": "Tu carrito está vacío",
+    "emptyMessage": "Explora nuestros productos y encuentra el equipo de sim racing perfecto",
+    "exploreProducts": "Explorar Productos",
+    "miniTitle": "Carrito de Compras",
+    "viewCart": "Ver Carrito",
+    "checkout": "Finalizar Compra",
+    "quantity": "Cantidad",
+    "remove": "Eliminar",
+    "freeShippingTitle": "Envío GRATIS",
+    "freeShippingMessage": "Tu pedido supera los 100 EUR. ¡Envío gratis incluido!",
+    "inStock": "En stock",
+    "addedToCart": "añadido al carrito",
+    "error": "Error al actualizar el carrito",
+    "increase": "Aumentar cantidad",
+    "decrease": "Reducir cantidad"
+  }
+}

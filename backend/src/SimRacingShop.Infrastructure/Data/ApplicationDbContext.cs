@@ -18,12 +18,21 @@ namespace SimRacingShop.Infrastructure.Data
 
         // DbSets (User ya viene de Identity)
         public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<UserCommunicationPreferences> UserCommunicationPreferences { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductTranslation> ProductTranslations { get; set; }
         public DbSet<ProductImage> ProductImages { get; set; }
         public DbSet<ProductSpecification> ProductSpecifications { get; set; }
+        public DbSet<Component> Components { get; set; }
+        public DbSet<ComponentTranslation> ComponentTranslations { get; set; }
+        public DbSet<ProductComponentOption> ProductComponentOptions { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<ShippingZone> ShippingZones { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<CategoryTranslation> CategoriesTranslations { get; set; }
+        public DbSet<CategoryImage> CategoriesImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

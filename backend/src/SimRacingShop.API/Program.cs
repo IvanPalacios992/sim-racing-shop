@@ -1,4 +1,5 @@
 
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -9,8 +10,17 @@ using Serilog.Events;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Settings;
 using SimRacingShop.Infrastructure.Data;
+using SimRacingShop.Core.Repositories;
+using SimRacingShop.Infrastructure.Repositories;
+using SimRacingShop.Core.Services;
 using SimRacingShop.Infrastructure.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using SimRacingShop.Core.Validators;
+using StackExchange.Redis;
 
 // Bootstrap logger (usado antes de leer configuraci�n)
 Log.Logger = new LoggerConfiguration()
@@ -66,6 +76,12 @@ try
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+    // Configurar duración de tokens de Identity (24 horas para reset de contraseña)
+    builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+    {
+        options.TokenLifespan = TimeSpan.FromHours(24);
+    });
+
     // ============================================
     // JWT AUTHENTICATION
     // ============================================
@@ -93,13 +109,97 @@ try
             ),
             ClockSkew = TimeSpan.Zero
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
+            {
+                var authService = context.HttpContext.RequestServices.GetRequiredService<IAuthService>();
+
+                var userIdClaim = context.Principal?.FindFirst(JwtRegisteredClaimNames.Sub)
+                    ?? context.Principal?.FindFirst(ClaimTypes.NameIdentifier);
+                var securityStampClaim = context.Principal?.FindFirst("security_stamp");
+
+                if (userIdClaim == null || securityStampClaim == null)
+                {
+                    context.Fail("Token inválido: faltan claims requeridos");
+                    return;
+                }
+
+                if (!Guid.TryParse(userIdClaim.Value, out var userId))
+                {
+                    context.Fail("Token inválido: userId no válido");
+                    return;
+                }
+
+                var isValid = await authService.ValidateSecurityStampAsync(userId, securityStampClaim.Value);
+                if (!isValid)
+                {
+                    context.Fail("Token revocado");
+                }
+            }
+        };
     });
 
     builder.Services.AddAuthorization();
 
+    // ============================================
+    // EMAIL SERVICE (Resend)
+    // ============================================
+
+    builder.Services.Configure<ResendSettings>(builder.Configuration.GetSection("ResendSettings"));
+    builder.Services.AddOptions();
+    builder.Services.AddHttpClient<Resend.IResend, Resend.ResendClient>();
+    builder.Services.AddScoped<IEmailService, ResendEmailService>();
+
+    // ============================================
+    // REDIS CACHE
+    // ============================================
+
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = builder.Configuration.GetConnectionString("Redis");
+        options.InstanceName = "SimRacingShop:";
+    });
+
+    // IConnectionMultiplexer para operaciones nativas de Redis Hash (carrito)
+    builder.Services.AddSingleton<IConnectionMultiplexer>(
+        _ => ConnectionMultiplexer.Connect(
+            builder.Configuration.GetConnectionString("Redis")!));
 
     // Add services to the container.
     builder.Services.AddScoped<IAuthService, AuthService>();
+    builder.Services.AddScoped<IOrderService, OrderService>();
+    builder.Services.AddScoped<IShippingService, ShippingService>();
+    builder.Services.AddScoped<ProductRepository>();
+    builder.Services.AddScoped<IProductRepository>(sp =>
+        new CachedProductRepository(
+            sp.GetRequiredService<ProductRepository>(),
+            sp.GetRequiredService<IDistributedCache>(),
+            sp.GetRequiredService<ILogger<CachedProductRepository>>()
+        ));
+    builder.Services.AddScoped<CategoryRepository>();
+    builder.Services.AddScoped<ICategoryRepository>(sp =>
+        new CachedCategoryRepository(
+            sp.GetRequiredService<CategoryRepository>(),
+            sp.GetRequiredService<IDistributedCache>(),
+            sp.GetRequiredService<ILogger<CachedCategoryRepository>>()
+        ));
+    builder.Services.AddScoped<IComponentRepository, ComponentRepository>();
+    builder.Services.AddScoped<IProductAdminRepository, ProductAdminRepository>();
+    builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
+    builder.Services.AddScoped<IComponentAdminRepository, ComponentAdminRepository>();
+    builder.Services.AddScoped<ICategoryAdminRepository, CategoryAdminRepository>();
+    builder.Services.AddScoped<IUserAddressRepository, UserAddressRepository>();
+    builder.Services.AddScoped<IUserRepository, UserRepository>();
+    builder.Services.AddScoped<IUserCommunicationPreferencesRepository, UserCommunicationPreferencesRepository>();
+    builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+    builder.Services.AddScoped<IShippingZoneRepository, ShippingZoneRepository>();
+    builder.Services.AddScoped<ICartRepository, CartRepository>();
+    builder.Services.AddScoped<ICartService, CartService>();
+    builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
+    builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryDtoValidator>();
+    builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddControllers();
     builder.Services.AddEndpointsApiExplorer();
 
@@ -137,6 +237,19 @@ try
         {
             [new OpenApiSecuritySchemeReference("bearer", document)] = []
         });
+    });
+
+    //Cors for localhost
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy(name: "Development",
+                          policy =>
+                          {
+                              policy.WithOrigins("http://localhost:3000") // Trusted origins
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod()
+                                    .AllowCredentials(); // Include if using cookies/credentials
+                          });
     });
 
     var app = builder.Build();
@@ -178,10 +291,11 @@ try
                 options.DisplayRequestDuration();
                 options.EnableTryItOutByDefault();
             });
+
         app.UseCors("Development");
     }
 
-    app.UseHttpsRedirection();
+    app.UseStaticFiles();
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
@@ -192,10 +306,12 @@ try
         var services = scope.ServiceProvider;
         var userManager = services.GetRequiredService<UserManager<User>>();
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+        var context = services.GetRequiredService<ApplicationDbContext>();
         var logger = services.GetRequiredService<ILogger<Program>>();
         var adminSettings = builder.Configuration.GetSection("AdminSeed").Get<AdminSeedSettings>() ?? new AdminSeedSettings();
 
         await DbInitializer.SeedAsync(userManager, roleManager, adminSettings, logger);
+        await ShippingZoneSeeder.SeedAsync(context, logger);
     }
 
     // Log startup

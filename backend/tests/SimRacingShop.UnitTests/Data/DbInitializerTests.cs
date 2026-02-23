@@ -29,7 +29,7 @@ public class DbInitializerTests
         // Arrange
         _roleManagerMock.Setup(x => x.RoleExistsAsync("Admin"))
             .ReturnsAsync(false);
-        _roleManagerMock.Setup(x => x.RoleExistsAsync("User"))
+        _roleManagerMock.Setup(x => x.RoleExistsAsync("Customer"))
             .ReturnsAsync(true);
 
         _roleManagerMock.Setup(x => x.CreateAsync(It.Is<IdentityRole<Guid>>(r => r.Name == "Admin")))
@@ -59,10 +59,10 @@ public class DbInitializerTests
         // Arrange
         _roleManagerMock.Setup(x => x.RoleExistsAsync("Admin"))
             .ReturnsAsync(true);
-        _roleManagerMock.Setup(x => x.RoleExistsAsync("User"))
+        _roleManagerMock.Setup(x => x.RoleExistsAsync("Customer"))
             .ReturnsAsync(false);
 
-        _roleManagerMock.Setup(x => x.CreateAsync(It.Is<IdentityRole<Guid>>(r => r.Name == "User")))
+        _roleManagerMock.Setup(x => x.CreateAsync(It.Is<IdentityRole<Guid>>(r => r.Name == "Customer")))
             .ReturnsAsync(IdentityResult.Success);
 
         _userManagerMock.Setup(x => x.GetUsersInRoleAsync("Admin"))
@@ -79,7 +79,7 @@ public class DbInitializerTests
 
         // Assert
         _roleManagerMock.Verify(
-            x => x.CreateAsync(It.Is<IdentityRole<Guid>>(r => r.Name == "User")),
+            x => x.CreateAsync(It.Is<IdentityRole<Guid>>(r => r.Name == "Customer")),
             Times.Once);
     }
 
@@ -89,7 +89,7 @@ public class DbInitializerTests
         // Arrange
         _roleManagerMock.Setup(x => x.RoleExistsAsync("Admin"))
             .ReturnsAsync(true);
-        _roleManagerMock.Setup(x => x.RoleExistsAsync("User"))
+        _roleManagerMock.Setup(x => x.RoleExistsAsync("Customer"))
             .ReturnsAsync(true);
 
         _userManagerMock.Setup(x => x.GetUsersInRoleAsync("Admin"))
@@ -288,7 +288,7 @@ public class DbInitializerTests
         // Arrange
         _roleManagerMock.Setup(x => x.RoleExistsAsync("Admin"))
             .ReturnsAsync(false);
-        _roleManagerMock.Setup(x => x.RoleExistsAsync("User"))
+        _roleManagerMock.Setup(x => x.RoleExistsAsync("Customer"))
             .ReturnsAsync(true);
 
         _roleManagerMock.Setup(x => x.CreateAsync(It.IsAny<IdentityRole<Guid>>()))
@@ -360,7 +360,7 @@ public class DbInitializerTests
     {
         _roleManagerMock.Setup(x => x.RoleExistsAsync("Admin"))
             .ReturnsAsync(true);
-        _roleManagerMock.Setup(x => x.RoleExistsAsync("User"))
+        _roleManagerMock.Setup(x => x.RoleExistsAsync("Customer"))
             .ReturnsAsync(true);
     }
 

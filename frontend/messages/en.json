@@ -1,0 +1,556 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "back": "Back",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "or": "OR"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome Back",
+      "subtitle": "Sign in to your account",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submit": "SIGN IN",
+      "noAccount": "Don't have an account?",
+      "createAccount": "Create one",
+      "errors": {
+        "invalidCredentials": "Invalid email or password. Please try again.",
+        "accountLocked": "Account temporarily locked. Try again in 15 minutes or reset your password.",
+        "unverifiedEmail": "Please verify your email before signing in.",
+        "generic": "Could not sign in. Please try again."
+      }
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Already have an account?",
+      "signIn": "Sign In",
+      "firstName": "First Name",
+      "firstNamePlaceholder": "Your first name",
+      "lastName": "Last Name",
+      "lastNamePlaceholder": "Your last name",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Create a password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "terms": "I agree to the",
+      "termsLink": "Terms of Service",
+      "and": "and",
+      "privacyLink": "Privacy Policy",
+      "newsletter": "Subscribe to newsletter for exclusive offers",
+      "submit": "CREATE ACCOUNT",
+      "benefits": {
+        "title": "Join the Racing Elite",
+        "discount": "Exclusive member discounts",
+        "tracking": "Order tracking & history",
+        "wishlist": "Wishlist & saved configurations",
+        "earlyAccess": "Early access to new products"
+      },
+      "errors": {
+        "emailExists": "This email is already registered. Sign in instead?",
+        "passwordMismatch": "Passwords don't match",
+        "generic": "Could not create account. Please try again."
+      }
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "subtitle": "Enter your email address and we'll send you instructions to reset your password.",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "submit": "SEND RESET LINK",
+      "backToLogin": "Back to Sign In",
+      "success": {
+        "title": "Check Your Email",
+        "message": "We've sent password reset instructions to {email}. The link expires in 1 hour.",
+        "resend": "Resend Email",
+        "resendIn": "Resend in {seconds}s",
+        "tryDifferent": "Try a different email",
+        "help": "Didn't receive it? Check your spam folder or contact support."
+      },
+      "errors": {
+        "generic": "Could not send email. Please try again."
+      }
+    },
+    "resetPassword": {
+      "title": "Create New Password",
+      "subtitle": "Enter your new password below.",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter your new password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "submit": "RESET PASSWORD",
+      "success": {
+        "title": "Password Reset Complete",
+        "message": "Your password has been successfully updated.",
+        "signIn": "SIGN IN NOW"
+      },
+      "errors": {
+        "invalidToken": "This reset link is invalid or has expired.",
+        "requestNew": "Request new link",
+        "generic": "Could not reset password. Please try again."
+      }
+    },
+    "password": {
+      "show": "Show",
+      "hide": "Hide",
+      "requirements": {
+        "title": "Password must contain:",
+        "minLength": "Minimum 8 characters",
+        "uppercase": "At least one uppercase letter",
+        "lowercase": "At least one lowercase letter",
+        "number": "At least one number"
+      }
+    },
+    "validation": {
+      "emailRequired": "Email is required",
+      "emailInvalid": "Enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordUppercase": "Password must contain at least one uppercase letter",
+      "passwordLowercase": "Password must contain at least one lowercase letter",
+      "passwordNumber": "Password must contain at least one number",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsMustMatch": "Passwords must match",
+      "termsRequired": "You must accept the terms and conditions",
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required"
+    }
+  },
+  "home": {
+    "tagline": "Premium sim racing equipment for those who demand perfection",
+    "signIn": "Sign In",
+    "createAccount": "Create Account",
+    "welcome": "Welcome, {name}",
+    "logout": "Log Out",
+    "hero": {
+      "title": "ENGINEERED FOR VICTORY",
+      "cta": "EXPLORE PRODUCTS",
+      "ctaSecondary": "WATCH VIDEO"
+    },
+    "categories": {
+      "title": "FEATURED CATEGORIES",
+      "wheels": "STEERING WHEELS",
+      "bases": "WHEEL BASES",
+      "pedals": "PEDALS",
+      "cockpits": "COCKPITS",
+      "accessories": "ACCESSORIES",
+      "explore": "Explore"
+    },
+    "products": {
+      "title": "BEST SELLERS",
+      "new": "NEW",
+      "sale": "SALE",
+      "addToWishlist": "Add to wishlist"
+    },
+    "configurator": {
+      "badge": "EXCLUSIVE FEATURE",
+      "title": "Build Your Perfect Setup",
+      "description": "Experience our revolutionary 3D configurator. Visualize every detail, customize every component, and see your dream setup come to life in real-time.",
+      "feature1": "Real-time 3D visualization",
+      "feature2": "Custom colors and materials",
+      "feature3": "Save and share configurations",
+      "feature4": "Instant price updates",
+      "cta": "START CONFIGURING"
+    },
+    "trust": {
+      "shipping": "FREE SHIPPING",
+      "shippingDesc": "On orders over 100 EUR",
+      "warranty": "2 YEAR WARRANTY",
+      "warrantyDesc": "Full coverage included",
+      "payment": "SECURE PAYMENT",
+      "paymentDesc": "256-bit SSL encryption",
+      "support": "EXPERT SUPPORT",
+      "supportDesc": "Racing specialists available"
+    },
+    "newsletter": {
+      "title": "JOIN THE RACING COMMUNITY",
+      "subtitle": "Get exclusive offers, early access, and racing tips",
+      "emailPlaceholder": "Enter your email",
+      "subscribe": "SUBSCRIBE",
+      "subscribing": "SUBSCRIBING...",
+      "privacy": "We respect your privacy. Unsubscribe anytime."
+    }
+  },
+  "products": {
+    "pageTitle": "Products",
+    "search": "Search products...",
+    "filters": "Filters",
+    "clearFilters": "Clear filters",
+    "category": "Category",
+    "allCategories": "All categories",
+    "priceRange": "Price range",
+    "minPrice": "Min",
+    "maxPrice": "Max",
+    "customizable": "Customizable only",
+    "customizableBadge": "Customizable",
+    "addToWishlist": "Add to wishlist",
+    "sortBy": "Sort by",
+    "sortOptions": {
+      "featured": "Featured",
+      "priceLow": "Price: low to high",
+      "priceHigh": "Price: high to low",
+      "newest": "Newest",
+      "name": "Name"
+    },
+    "showing": "Showing {from}-{to} of {total} products",
+    "noResults": "No products found",
+    "noResultsDesc": "Try adjusting your filters or search term",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {current} of {total}"
+    },
+    "error": "Error loading products",
+    "errorDesc": "Could not load products. Please try again.",
+    "retry": "Retry"
+  },
+  "productDetail": {
+    "gallery": "Gallery",
+    "selectImage": "Select image {index}",
+    "breadcrumb": {
+      "home": "Home",
+      "products": "Products"
+    },
+    "customizable": "Customizable",
+    "noReviewsYet": "No reviews yet",
+    "priceExVat": "€{price} ex. VAT",
+    "vatIncluded": "VAT ({rate}%) included",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "customize": "CUSTOMIZE",
+    "productionTime": "Production time: {days} days",
+    "weight": "Weight: {grams}g",
+    "specifications": "Technical Specifications",
+    "description": "Description",
+    "trust": {
+      "freeShipping": "Free shipping on orders over €100",
+      "warranty": "2-year warranty included",
+      "securePayment": "Secure payment with SSL encryption"
+    },
+    "configurator": {
+      "title": "Configure",
+      "close": "Close configurator",
+      "loading": "Loading 3D model...",
+      "loadingOptions": "Loading customization options...",
+      "required": "Required",
+      "optional": "Optional",
+      "none": "None",
+      "noModel": "No 3D model available for this product",
+      "basePrice": "Base price",
+      "extras": "Extras",
+      "total": "Total",
+      "addToCart": "ADD TO CART",
+      "missingRequired": "Please select all required options to continue",
+      "priceModifier": "+€{amount}",
+      "outOfStock": "Out of stock",
+      "noOptions": "This product has no customization options configured"
+    },
+    "error": "Error loading product",
+    "errorDesc": "Could not load the product. Please try again.",
+    "retry": "Retry"
+  },
+  "nav": {
+    "home": "Home",
+    "wheels": "Wheels",
+    "pedals": "Pedals",
+    "cockpits": "Cockpits",
+    "accessories": "Accessories",
+    "search": "Search",
+    "account": "Account",
+    "cart": "Cart",
+    "menu": "Menu",
+    "products": "Products",
+    "about": "About",
+    "contact": "Contact",
+    "userMenu": {
+      "profile": "My Profile",
+      "orders": "My Orders",
+      "settings": "Settings",
+      "logout": "Sign Out"
+    }
+  },
+  "footer": {
+    "tagline": "Engineered for Victory",
+    "shop": {
+      "title": "Shop",
+      "products": "Products",
+      "categories": "Categories",
+      "newArrivals": "New Arrivals",
+      "sale": "Sale"
+    },
+    "support": {
+      "title": "Support",
+      "contact": "Contact",
+      "faq": "FAQ",
+      "shipping": "Shipping",
+      "returns": "Returns"
+    },
+    "company": {
+      "title": "Company",
+      "about": "About",
+      "blog": "Blog",
+      "careers": "Careers",
+      "press": "Press"
+    },
+    "copyright": "© {year} SimRacing Shop. All rights reserved.",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "PrivateArea": {
+    "profile": "My Profile",
+    "orders": "My Orders",
+    "wishlist": "Wishlist",
+    "settings": "Settings",
+    "logout": "Sign Out"
+  },
+  "Profile": {
+    "pageTitle": "My Profile - SimRacing Shop",
+    "pageDescription": "Manage your personal information and preferences",
+    "title": "My Profile",
+    "subtitle": "Manage your personal information and preferences",
+    "loading": "Loading profile...",
+    "errorLoadingProfile": "Error loading profile",
+    "noUserData": "Could not load user information",
+    "stats": {
+      "totalOrders": "Total Orders",
+      "totalSpent": "Total Spent",
+      "favoriteProducts": "Favorite Products",
+      "memberLevel": "Basic",
+      "level": "Member Level"
+    },
+    "personalInfo": {
+      "title": "Personal Information",
+      "fullName": "Full Name",
+      "email": "Email",
+      "language": "Language",
+      "emailVerified": "Email Verified",
+      "verified": "Verified",
+      "notVerified": "Not Verified",
+      "notProvided": "Not provided",
+      "edit": "Edit personal information",
+      "editTitle": "Edit Personal Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "firstNamePlaceholder": "Enter your first name",
+      "lastNamePlaceholder": "Enter your last name",
+      "emailPlaceholder": "Enter your email",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "errorUpdating": "Error updating user information"
+    },
+    "roles": {
+      "title": "Roles"
+    },
+    "addresses": {
+      "billingTitle": "Billing Address",
+      "billingAddress": "Billing address",
+      "noBillingAddress": "You don't have a billing address registered",
+      "addBillingAddress": "Add billing address",
+      "addBillingAddressTitle": "New Billing Address",
+      "deliveryTitle": "Delivery Addresses",
+      "noDeliveryAddresses": "You don't have any delivery addresses registered",
+      "addDeliveryAddress": "Add delivery address",
+      "addDeliveryAddressTitle": "New Delivery Address",
+      "default": "Default",
+      "addressName": "Address name",
+      "addressNamePlaceholder": "Home, Work, etc.",
+      "street": "Street",
+      "streetPlaceholder": "Street and number",
+      "city": "City",
+      "cityPlaceholder": "City",
+      "state": "State/Province",
+      "statePlaceholder": "State or Province",
+      "postalCode": "Postal Code",
+      "postalCodePlaceholder": "00000",
+      "country": "Country",
+      "countryPlaceholder": "Country",
+      "setAsDefault": "Set as default",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving...",
+      "errorCreating": "Error creating address. Please try again.",
+      "errorUpdating": "Error updating address. Please try again.",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Delete address?",
+      "confirmDeleteMessage": "This action cannot be undone.",
+      "editBillingAddressTitle": "Edit Billing Address",
+      "editDeliveryAddressTitle": "Edit Delivery Address"
+    },
+    "actions": {
+      "editProfile": "EDIT PROFILE",
+      "changePassword": "CHANGE PASSWORD"
+    }
+  },
+  "Settings": {
+    "pageTitle": "Settings - SimRacing Shop",
+    "pageDescription": "Manage your account settings and preferences",
+    "title": "Settings",
+    "subtitle": "Manage your account settings and preferences",
+    "communicationPreferences": {
+      "title": "Communication Preferences",
+      "loadError": "Error loading preferences. Please try again.",
+      "saveError": "Error saving preferences. Please try again.",
+      "saveSuccess": "Preferences saved successfully",
+      "newsletter": {
+        "title": "Newsletter",
+        "description": "Receive exclusive offers and news"
+      },
+      "orderNotifications": {
+        "title": "Order Notifications",
+        "description": "Updates about your order status"
+      },
+      "smsPromotions": {
+        "title": "SMS Promotions",
+        "description": "Receive offers via text message"
+      }
+    },
+    "security": {
+      "title": "Security",
+      "description": "To change your password, we'll send you a recovery link to your registered email.",
+      "sendButton": "SEND PASSWORD CHANGE EMAIL",
+      "sending": "Sending...",
+      "emailSent": "Password reset email sent successfully. Check your inbox.",
+      "emailError": "Error sending email. Please try again."
+    },
+    "dangerZone": {
+      "title": "Danger Zone",
+      "description": "Once you delete your account, there is no going back. Please be certain.",
+      "deleteButton": "DELETE ACCOUNT",
+      "emailMismatch": "Email does not match. Please enter your email correctly.",
+      "deleteError": "Error deleting account. Please try again.",
+      "modal": {
+        "title": "Delete Account",
+        "description": "This action is permanent and cannot be undone. All your data will be deleted.",
+        "warning": "By deleting your account:",
+        "consequence1": "All your personal information will be permanently deleted",
+        "consequence2": "Your order history will be lost",
+        "consequence3": "You will not be able to recover your account",
+        "emailLabel": "To confirm, type your email: {email}",
+        "cancel": "Cancel",
+        "confirm": "DELETE MY ACCOUNT",
+        "deleting": "Deleting..."
+      }
+    }
+  },
+  "Orders": {
+    "pageTitle": "My Orders",
+    "pageDescription": "Check the status of your orders and previous purchases",
+    "title": "My Orders",
+    "subtitle": "Check the status of your orders and previous purchases",
+    "filterAll": "All",
+    "filterPending": "Pending",
+    "filterProcessing": "Processing",
+    "filterShipped": "Shipped",
+    "filterDelivered": "Delivered",
+    "filterCancelled": "Cancelled",
+    "orderedOn": "Ordered on",
+    "total": "Total",
+    "viewDetails": "View details",
+    "andMore": "and {count} more",
+    "empty": "No orders yet",
+    "emptySubtitle": "When you place your first order it will appear here",
+    "shopNow": "Explore products",
+    "errorLoading": "Error loading orders",
+    "retry": "Retry",
+    "noOrdersForFilter": "No orders with this status",
+    "statusPending": "Pending",
+    "statusProcessing": "Processing",
+    "statusShipped": "Shipped",
+    "statusDelivered": "Delivered",
+    "statusCancelled": "Cancelled",
+    "order": "Order",
+    "amount": "Amount"
+  },
+  "OrderDetail": {
+    "pageTitle": "Order #{id}",
+    "pageDescription": "Order details and shipping status",
+    "backToOrders": "Back to orders",
+    "orderDate": "Order date",
+    "status": "Status",
+    "total": "Total",
+    "estimatedDays": "Est. production",
+    "days": "days",
+    "shippingStatus": "Shipping status",
+    "cancelledDesc": "This order has been cancelled",
+    "trackingNumber": "Tracking number",
+    "copyTracking": "Copy",
+    "copied": "Copied!",
+    "products": "Products",
+    "item": "item",
+    "items": "items",
+    "quantity": "Qty",
+    "notes": "Notes",
+    "shippingAddress": "Shipping address",
+    "orderSummary": "Order summary",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "freeShipping": "FREE",
+    "vat": "VAT",
+    "totalPaid": "Total paid",
+    "productionNotes": "Production notes",
+    "helpTitle": "Need help with your order?",
+    "helpSubtitle": "Our support team is here to help with any question or issue",
+    "helpEmail": "Send email",
+    "helpReturn": "Request return",
+    "errorLoading": "Error loading order",
+    "retry": "Retry",
+    "notFound": "Order not found",
+    "timelineConfirmed": "Order confirmed",
+    "timelineConfirmedDesc": "Your order has been received and is being processed",
+    "timelineProcessing": "Preparing shipment",
+    "timelineProcessingDesc": "Your products are being packed in our warehouse",
+    "timelineShipped": "In transit",
+    "timelineShippedDesc": "The package has been picked up by the carrier",
+    "timelineDelivered": "Delivered",
+    "timelineDeliveredDesc": "Your order was successfully delivered"
+  },
+  "Cart": {
+    "pageTitle": "Shopping Cart | SimRacing Shop",
+    "pageDescription": "Review and manage your shopping cart",
+    "breadcrumbHome": "Home",
+    "breadcrumbCart": "Shopping Cart",
+    "title": "Shopping Cart",
+    "itemsTitle": "{count} items",
+    "articleSingular": "item",
+    "articlePlural": "items",
+    "clearCart": "Clear cart",
+    "continueShopping": "Continue shopping",
+    "proceedToCheckout": "Proceed to checkout",
+    "orderSummary": "Order Summary",
+    "subtotalLabel": "Subtotal",
+    "subtotalLine": "Subtotal ({count} items)",
+    "shipping": "Shipping",
+    "shippingFree": "FREE",
+    "vatLine": "VAT ({rate}%)",
+    "total": "Total",
+    "securePayment": "Secure payment with SSL encryption",
+    "paymentMethods": "We accept",
+    "empty": "Your cart is empty",
+    "emptyMessage": "Explore our products and find the perfect sim racing equipment",
+    "exploreProducts": "Explore Products",
+    "miniTitle": "Shopping Cart",
+    "viewCart": "View Cart",
+    "checkout": "Checkout",
+    "quantity": "Quantity",
+    "remove": "Remove",
+    "freeShippingTitle": "FREE Shipping",
+    "freeShippingMessage": "Your order exceeds 100 EUR. Free shipping included!",
+    "inStock": "In stock",
+    "addedToCart": "added to cart",
+    "error": "Error updating cart",
+    "increase": "Increase quantity",
+    "decrease": "Decrease quantity"
+  }
+}

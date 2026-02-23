@@ -1,0 +1,123 @@
+[
+  {
+    "_note": "productId = ID del producto en test_product.json",
+    "id": "cccccccc-0001-4000-8000-000000000001",
+    "productId":    "11111111-1111-4000-8000-111111111111",
+    "componentId":  "aaaaaaaa-0001-4000-8000-000000000001",
+    "optionGroup":  "Empuñaduras",
+    "isGroupRequired": true,
+    "glbObjectName": "grip_alcantara_black",
+    "thumbnailUrl":  null,
+    "priceModifier": 0.00,
+    "isDefault":     true,
+    "displayOrder":  1
+  },
+  {
+    "id": "cccccccc-0001-4000-8000-000000000002",
+    "productId":    "11111111-1111-4000-8000-111111111111",
+    "componentId":  "aaaaaaaa-0001-4000-8000-000000000002",
+    "optionGroup":  "Empuñaduras",
+    "isGroupRequired": true,
+    "glbObjectName": "grip_alcantara_red",
+    "thumbnailUrl":  null,
+    "priceModifier": 15.00,
+    "isDefault":     false,
+    "displayOrder":  2
+  },
+  {
+    "id": "cccccccc-0001-4000-8000-000000000003",
+    "productId":    "11111111-1111-4000-8000-111111111111",
+    "componentId":  "aaaaaaaa-0001-4000-8000-000000000003",
+    "optionGroup":  "Empuñaduras",
+    "isGroupRequired": true,
+    "glbObjectName": "grip_leather",
+    "thumbnailUrl":  null,
+    "priceModifier": 0.00,
+    "isDefault":     false,
+    "displayOrder":  3
+  },
+  {
+    "id": "cccccccc-0001-4000-8000-000000000004",
+    "productId":    "11111111-1111-4000-8000-111111111111",
+    "componentId":  "aaaaaaaa-0001-4000-8000-000000000004",
+    "optionGroup":  "Empuñaduras",
+    "isGroupRequired": true,
+    "glbObjectName": "grip_carbon",
+    "thumbnailUrl":  null,
+    "priceModifier": 25.00,
+    "isDefault":     false,
+    "displayOrder":  4
+  },
+  {
+    "id": "cccccccc-0002-4000-8000-000000000001",
+    "productId":    "11111111-1111-4000-8000-111111111111",
+    "componentId":  "aaaaaaaa-0002-4000-8000-000000000001",
+    "optionGroup":  "Placa Frontal",
+    "isGroupRequired": true,
+    "glbObjectName": "plate_carbon_gray",
+    "thumbnailUrl":  null,
+    "priceModifier": 0.00,
+    "isDefault":     true,
+    "displayOrder":  1
+  },
+  {
+    "id": "cccccccc-0002-4000-8000-000000000002",
+    "productId":    "11111111-1111-4000-8000-111111111111",
+    "componentId":  "aaaaaaaa-0002-4000-8000-000000000002",
+    "optionGroup":  "Placa Frontal",
+    "isGroupRequired": true,
+    "glbObjectName": "plate_carbon_red",
+    "thumbnailUrl":  null,
+    "priceModifier": 20.00,
+    "isDefault":     false,
+    "displayOrder":  2
+  },
+  {
+    "id": "cccccccc-0002-4000-8000-000000000003",
+    "productId":    "11111111-1111-4000-8000-111111111111",
+    "componentId":  "aaaaaaaa-0002-4000-8000-000000000003",
+    "optionGroup":  "Placa Frontal",
+    "isGroupRequired": true,
+    "glbObjectName": "plate_carbon_blue",
+    "thumbnailUrl":  null,
+    "priceModifier": 20.00,
+    "isDefault":     false,
+    "displayOrder":  3
+  },
+  {
+    "id": "cccccccc-0003-4000-8000-000000000001",
+    "productId":    "11111111-1111-4000-8000-111111111111",
+    "componentId":  "aaaaaaaa-0003-4000-8000-000000000001",
+    "optionGroup":  "Levas",
+    "isGroupRequired": false,
+    "glbObjectName": "paddles_alu",
+    "thumbnailUrl":  null,
+    "priceModifier": 35.00,
+    "isDefault":     true,
+    "displayOrder":  1
+  },
+  {
+    "id": "cccccccc-0003-4000-8000-000000000002",
+    "productId":    "11111111-1111-4000-8000-111111111111",
+    "componentId":  "aaaaaaaa-0003-4000-8000-000000000002",
+    "optionGroup":  "Levas",
+    "isGroupRequired": false,
+    "glbObjectName": "paddles_carbon",
+    "thumbnailUrl":  null,
+    "priceModifier": 65.00,
+    "isDefault":     false,
+    "displayOrder":  2
+  },
+  {
+    "id": "cccccccc-0003-4000-8000-000000000003",
+    "productId":    "11111111-1111-4000-8000-111111111111",
+    "componentId":  "aaaaaaaa-0003-4000-8000-000000000003",
+    "optionGroup":  "Levas",
+    "isGroupRequired": false,
+    "glbObjectName": "paddles_titanium",
+    "thumbnailUrl":  null,
+    "priceModifier": 95.00,
+    "isDefault":     false,
+    "displayOrder":  3
+  }
+]
