@@ -19,8 +19,11 @@ using System.Security.Claims;
 using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using SimRacingShop.API.HealthChecks;
 using SimRacingShop.Core.Validators;
 using StackExchange.Redis;
+using System.Text.Json;
 
 // Bootstrap logger (usado antes de leer configuraci�n)
 Log.Logger = new LoggerConfiguration()
@@ -197,6 +200,14 @@ try
     builder.Services.AddScoped<IShippingZoneRepository, ShippingZoneRepository>();
     builder.Services.AddScoped<ICartRepository, CartRepository>();
     builder.Services.AddScoped<ICartService, CartService>();
+    // ============================================
+    // HEALTH CHECKS
+    // ============================================
+
+    builder.Services.AddHealthChecks()
+        .AddDbContextCheck<ApplicationDbContext>("database")
+        .AddCheck<RedisHealthCheck>("redis");
+
     builder.Services.AddValidatorsFromAssemblyContaining<CreateProductDtoValidator>();
     builder.Services.AddValidatorsFromAssemblyContaining<CreateCategoryDtoValidator>();
     builder.Services.AddFluentValidationAutoValidation();
@@ -299,6 +310,26 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
+
+    app.MapHealthChecks("/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+    {
+        ResponseWriter = async (context, report) =>
+        {
+            context.Response.ContentType = "application/json";
+            var result = JsonSerializer.Serialize(new
+            {
+                status = report.Status.ToString(),
+                checks = report.Entries.Select(e => new
+                {
+                    name = e.Key,
+                    status = e.Value.Status.ToString(),
+                    description = e.Value.Description,
+                    error = e.Value.Exception?.Message
+                })
+            });
+            await context.Response.WriteAsync(result);
+        }
+    });
 
     // Seed database
     using (var scope = app.Services.CreateScope())
