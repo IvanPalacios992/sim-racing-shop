@@ -267,6 +267,10 @@ try
 
     var app = builder.Build();
 
+    // CORS debe ir antes que cualquier otro middleware para que los
+    // preflights OPTIONS y las respuestas de error incluyan las cabeceras
+    app.UseCors("Default");
+
     // Serilog Request Logging (debe ir temprano en el pipeline)
     app.UseSerilogRequestLogging(options =>
     {
@@ -306,8 +310,6 @@ try
             });
 
     }
-
-    app.UseCors("Default");
 
     app.UseStaticFiles();
     app.UseAuthentication();
