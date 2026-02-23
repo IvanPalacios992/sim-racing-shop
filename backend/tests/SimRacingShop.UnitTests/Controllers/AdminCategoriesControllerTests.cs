@@ -9,6 +9,7 @@ using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Repositories;
 using SimRacingShop.Core.Services;
+using StackExchange.Redis;
 using System.Security.Claims;
 
 namespace SimRacingShop.UnitTests.Controllers;
@@ -18,6 +19,7 @@ public class AdminCategoriesControllerTests
     private readonly Mock<ICategoryAdminRepository> _adminRepoMock;
     private readonly Mock<IFileStorageService> _fileStorageMock;
     private readonly Mock<IDistributedCache> _cacheMock;
+    private readonly Mock<IConnectionMultiplexer> _multiplexerMock;
     private readonly Mock<ILogger<AdminCategoriesController>> _loggerMock;
     private readonly AdminCategoriesController _controller;
 
@@ -26,12 +28,14 @@ public class AdminCategoriesControllerTests
         _adminRepoMock = new Mock<ICategoryAdminRepository>();
         _fileStorageMock = new Mock<IFileStorageService>();
         _cacheMock = new Mock<IDistributedCache>();
+        _multiplexerMock = new Mock<IConnectionMultiplexer>();
         _loggerMock = new Mock<ILogger<AdminCategoriesController>>();
 
         _controller = new AdminCategoriesController(
             _adminRepoMock.Object,
             _fileStorageMock.Object,
             _cacheMock.Object,
+            _multiplexerMock.Object,
             _loggerMock.Object);
 
         // Setup admin user context
