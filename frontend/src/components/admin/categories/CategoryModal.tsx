@@ -41,11 +41,15 @@ export default function CategoryModal({ isOpen, onClose, onSuccess, editItem }: 
   const [isActive, setIsActive] = useState(true);
   const [es, setEs] = useState<TranslationForm>(emptyTranslation());
   const [en, setEn] = useState<TranslationForm>(emptyTranslation());
+  const [esSlugTouched, setEsSlugTouched] = useState(false);
+  const [enSlugTouched, setEnSlugTouched] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
     setError(null);
     setActiveTab("base");
+    setEsSlugTouched(false);
+    setEnSlugTouched(false);
 
     if (editItem) {
       setLoadingTranslations(true);
@@ -66,9 +70,14 @@ export default function CategoryModal({ isOpen, onClose, onSuccess, editItem }: 
   }, [isOpen, editItem]);
 
   const handleEsChange = (field: keyof TranslationForm, value: string) => {
+    if (field === "slug") {
+      setEsSlugTouched(true);
+      setEs((prev) => ({ ...prev, slug: value }));
+      return;
+    }
     setEs((prev) => {
       const next = { ...prev, [field]: value };
-      if (field === "name" && !editItem && !prev.slug) {
+      if (field === "name" && !editItem && !esSlugTouched) {
         next.slug = generateSlug(value);
       }
       return next;
@@ -76,9 +85,14 @@ export default function CategoryModal({ isOpen, onClose, onSuccess, editItem }: 
   };
 
   const handleEnChange = (field: keyof TranslationForm, value: string) => {
+    if (field === "slug") {
+      setEnSlugTouched(true);
+      setEn((prev) => ({ ...prev, slug: value }));
+      return;
+    }
     setEn((prev) => {
       const next = { ...prev, [field]: value };
-      if (field === "name" && !editItem && !prev.slug) {
+      if (field === "name" && !editItem && !enSlugTouched) {
         next.slug = generateSlug(value);
       }
       return next;
