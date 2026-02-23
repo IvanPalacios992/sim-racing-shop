@@ -250,17 +250,19 @@ try
         });
     });
 
-    //Cors for localhost
+    var allowedOrigins = builder.Configuration
+        .GetSection("Cors:AllowedOrigins")
+        .Get<string[]>() ?? ["http://localhost:3000"];
+
     builder.Services.AddCors(options =>
     {
-        options.AddPolicy(name: "Development",
-                          policy =>
-                          {
-                              policy.WithOrigins("http://localhost:3000") // Trusted origins
-                                    .AllowAnyHeader()
-                                    .AllowAnyMethod()
-                                    .AllowCredentials(); // Include if using cookies/credentials
-                          });
+        options.AddPolicy(name: "Default", policy =>
+        {
+            policy.WithOrigins(allowedOrigins)
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
     });
 
     var app = builder.Build();
@@ -303,8 +305,9 @@ try
                 options.EnableTryItOutByDefault();
             });
 
-        app.UseCors("Development");
     }
+
+    app.UseCors("Default");
 
     app.UseStaticFiles();
     app.UseAuthentication();
