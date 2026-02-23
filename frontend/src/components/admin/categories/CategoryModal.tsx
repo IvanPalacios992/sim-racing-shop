@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AdminModal from "@/components/admin/AdminModal";
+import AdminTabBar from "@/components/admin/AdminTabBar";
+import AdminFormActions from "@/components/admin/AdminFormActions";
+import { generateSlug, extractApiError } from "@/components/admin/adminUtils";
 import type { CategoryListItem } from "@/types/categories";
 
 type Tab = "base" | "es" | "en";
@@ -18,13 +21,11 @@ interface TranslationForm {
 
 const emptyTranslation = (): TranslationForm => ({ name: "", slug: "", shortDescription: "" });
 
-const generateSlug = (name: string) =>
-  name
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+const TABS: { key: Tab; label: string }[] = [
+  { key: "base", label: "General" },
+  { key: "es", label: "Español" },
+  { key: "en", label: "English" },
+];
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -125,18 +126,11 @@ export default function CategoryModal({ isOpen, onClose, onSuccess, editItem }: 
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      setError(message ?? (editItem ? "Error al actualizar la categoría" : "Error al crear la categoría"));
+      setError(extractApiError(err) ?? (editItem ? "Error al actualizar la categoría" : "Error al crear la categoría"));
     } finally {
       setLoading(false);
     }
   };
-
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "base", label: "General" },
-    { key: "es", label: "Español" },
-    { key: "en", label: "English" },
-  ];
 
   const title = editItem ? "Editar categoría" : "Nueva categoría";
 
@@ -150,25 +144,8 @@ export default function CategoryModal({ isOpen, onClose, onSuccess, editItem }: 
             <div className="p-3 bg-error/10 border border-error rounded-lg text-error text-sm">{error}</div>
           )}
 
-          {/* Tabs */}
-          <div className="flex border-b border-graphite mb-4">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                  activeTab === tab.key
-                    ? "border-racing-red text-pure-white"
-                    : "border-transparent text-silver hover:text-pure-white"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <AdminTabBar tabs={TABS} activeTab={activeTab} onChange={(k) => setActiveTab(k as Tab)} />
 
-          {/* Base tab */}
           {activeTab === "base" && (
             <div className="space-y-4">
               <div className="flex items-center gap-3">
@@ -184,7 +161,6 @@ export default function CategoryModal({ isOpen, onClose, onSuccess, editItem }: 
             </div>
           )}
 
-          {/* ES tab */}
           {activeTab === "es" && (
             <div className="space-y-4">
               <div className="space-y-2">
@@ -218,7 +194,6 @@ export default function CategoryModal({ isOpen, onClose, onSuccess, editItem }: 
             </div>
           )}
 
-          {/* EN tab */}
           {activeTab === "en" && (
             <div className="space-y-4">
               <div className="space-y-2">
@@ -252,15 +227,7 @@ export default function CategoryModal({ isOpen, onClose, onSuccess, editItem }: 
             </div>
           )}
 
-          {/* Actions */}
-          <div className="flex gap-3 pt-4 border-t border-graphite">
-            <Button type="button" variant="secondary" className="flex-1" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={loading} className="flex-1">
-              {loading ? "Guardando..." : "Guardar"}
-            </Button>
-          </div>
+          <AdminFormActions loading={loading} onCancel={onClose} />
         </form>
       )}
     </AdminModal>

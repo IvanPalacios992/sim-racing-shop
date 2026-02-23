@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import AdminModal from "@/components/admin/AdminModal";
+import AdminTabBar from "@/components/admin/AdminTabBar";
+import AdminFormActions from "@/components/admin/AdminFormActions";
+import { generateSlug, extractApiError } from "@/components/admin/adminUtils";
 import ComponentOptionsPanel from "./ComponentOptionsPanel";
 import type { ProductListItem } from "@/types/products";
 import type { AdminComponentListItem } from "@/types/admin";
@@ -62,13 +65,14 @@ const emptyTranslation = (): TranslationForm => ({
   metaDescription: "",
 });
 
-const generateSlug = (name: string) =>
-  name
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "");
+const TRANSLATION_FIELDS: { key: keyof TranslationForm; labelEs: string; labelEn: string }[] = [
+  { key: "name", labelEs: "Nombre *", labelEn: "Name *" },
+  { key: "slug", labelEs: "Slug *", labelEn: "Slug *" },
+  { key: "shortDescription", labelEs: "Descripción corta", labelEn: "Short description" },
+  { key: "longDescription", labelEs: "Descripción larga", labelEn: "Long description" },
+  { key: "metaTitle", labelEs: "Meta título (SEO)", labelEn: "Meta title (SEO)" },
+  { key: "metaDescription", labelEs: "Meta descripción (SEO)", labelEn: "Meta description (SEO)" },
+];
 
 export default function ProductModal({
   isOpen,
@@ -239,8 +243,7 @@ export default function ProductModal({
       onSuccess();
       onClose();
     } catch (err: unknown) {
-      const message = (err as { response?: { data?: { message?: string } } }).response?.data?.message;
-      setError(message ?? (editItem ? "Error al actualizar el producto" : "Error al crear el producto"));
+      setError(extractApiError(err) ?? (editItem ? "Error al actualizar el producto" : "Error al crear el producto"));
     } finally {
       setLoading(false);
     }
@@ -265,27 +268,10 @@ export default function ProductModal({
             <div className="p-3 bg-error/10 border border-error rounded-lg text-error text-sm">{error}</div>
           )}
 
-          {/* Tabs */}
-          <div className="flex flex-wrap border-b border-graphite mb-4">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setActiveTab(tab.key)}
-                className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                  activeTab === tab.key
-                    ? "border-racing-red text-pure-white"
-                    : "border-transparent text-silver hover:text-pure-white"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <AdminTabBar tabs={tabs} activeTab={activeTab} onChange={(k) => setActiveTab(k as Tab)} />
 
           {activeTab !== "components" ? (
             <form onSubmit={handleSubmit} id="product-form" className="space-y-4">
-              {/* Base tab */}
               {activeTab === "base" && (
                 <div className="space-y-4">
                   <div className="space-y-2">
@@ -392,58 +378,32 @@ export default function ProductModal({
                 </div>
               )}
 
-              {/* ES tab */}
-              {activeTab === "es" && (
+              {(activeTab === "es" || activeTab === "en") && (
                 <div className="space-y-4">
-                  {(["name", "slug", "shortDescription", "longDescription", "metaTitle", "metaDescription"] as (keyof TranslationForm)[]).map((field) => (
-                    <div key={field} className="space-y-2">
-                      <Label htmlFor={`es-${field}`}>
-                        {field === "name" ? "Nombre *" : field === "slug" ? "Slug *" : field === "shortDescription" ? "Descripción corta" : field === "longDescription" ? "Descripción larga" : field === "metaTitle" ? "Meta título (SEO)" : "Meta descripción (SEO)"}
-                      </Label>
-                      <Input
-                        id={`es-${field}`}
-                        value={es[field]}
-                        onChange={(e) => handleEsChange(field, e.target.value)}
-                        className={field === "slug" ? "font-mono text-sm" : ""}
-                        placeholder={field === "slug" ? "ej: volante-gt3" : undefined}
-                      />
-                    </div>
-                  ))}
+                  {TRANSLATION_FIELDS.map(({ key, labelEs, labelEn }) => {
+                    const locale = activeTab as "es" | "en";
+                    const value = locale === "es" ? es[key] : en[key];
+                    const handleChange = locale === "es" ? handleEsChange : handleEnChange;
+                    const label = locale === "es" ? labelEs : labelEn;
+                    return (
+                      <div key={key} className="space-y-2">
+                        <Label htmlFor={`${locale}-${key}`}>{label}</Label>
+                        <Input
+                          id={`${locale}-${key}`}
+                          value={value}
+                          onChange={(e) => handleChange(key, e.target.value)}
+                          className={key === "slug" ? "font-mono text-sm" : ""}
+                          placeholder={key === "slug" ? (locale === "es" ? "ej: volante-gt3" : "e.g.: gt3-steering-wheel") : undefined}
+                        />
+                      </div>
+                    );
+                  })}
                 </div>
               )}
 
-              {/* EN tab */}
-              {activeTab === "en" && (
-                <div className="space-y-4">
-                  {(["name", "slug", "shortDescription", "longDescription", "metaTitle", "metaDescription"] as (keyof TranslationForm)[]).map((field) => (
-                    <div key={field} className="space-y-2">
-                      <Label htmlFor={`en-${field}`}>
-                        {field === "name" ? "Name *" : field === "slug" ? "Slug *" : field === "shortDescription" ? "Short description" : field === "longDescription" ? "Long description" : field === "metaTitle" ? "Meta title (SEO)" : "Meta description (SEO)"}
-                      </Label>
-                      <Input
-                        id={`en-${field}`}
-                        value={en[field]}
-                        onChange={(e) => handleEnChange(field, e.target.value)}
-                        className={field === "slug" ? "font-mono text-sm" : ""}
-                        placeholder={field === "slug" ? "e.g.: gt3-steering-wheel" : undefined}
-                      />
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex gap-3 pt-4 border-t border-graphite">
-                <Button type="button" variant="secondary" className="flex-1" onClick={onClose}>
-                  Cancelar
-                </Button>
-                <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? "Guardando..." : "Guardar"}
-                </Button>
-              </div>
+              <AdminFormActions loading={loading} onCancel={onClose} />
             </form>
           ) : (
-            /* Components tab */
             editItem && (
               <ComponentOptionsPanel
                 productId={editItem.id}
