@@ -341,6 +341,7 @@ try
         var logger = services.GetRequiredService<ILogger<Program>>();
         var adminSettings = builder.Configuration.GetSection("AdminSeed").Get<AdminSeedSettings>() ?? new AdminSeedSettings();
 
+        await context.Database.MigrateAsync();
         await DbInitializer.SeedAsync(userManager, roleManager, adminSettings, logger);
         await ShippingZoneSeeder.SeedAsync(context, logger);
     }
