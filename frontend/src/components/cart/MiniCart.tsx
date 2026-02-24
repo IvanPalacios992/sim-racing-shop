@@ -138,14 +138,14 @@ export function MiniCart({ isOpen, onClose }: Props) {
             </div>
             <div className="flex flex-col gap-3">
               <Link
-                href={`/${locale}/carrito`}
+                href={`/carrito`}
                 onClick={onClose}
                 className={`flex w-full items-center justify-center rounded-lg bg-racing-red px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-opacity hover:opacity-90 ${isLoading ? "pointer-events-none opacity-60" : ""}`}
               >
                 {t("viewCart")}
               </Link>
               <Link
-                href={`/${locale}/checkout`}
+                href={`/checkout`}
                 onClick={onClose}
                 className="flex w-full items-center justify-center rounded-lg border border-graphite px-4 py-3 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:border-electric-blue"
               >
