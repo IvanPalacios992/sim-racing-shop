@@ -164,8 +164,8 @@ namespace SimRacingShop.Infrastructure.Services
                 _totalWeightGrams += product.WeightGrams.Value * item.Quantity;
             }
 
-            // Acumular el subtotal calculado
-            _calculatedSubtotal += calculatedLineTotal;
+            // Acumular el subtotal calculado (sin IVA)
+            _calculatedSubtotal += calculatedLineSubtotal;
             return errors;
         }
 

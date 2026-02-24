@@ -189,10 +189,10 @@ public class CreateOrderDtoValidatorTests
             ShippingState = "Madrid",
             ShippingPostalCode = "28001",
             ShippingCountry = "ES",
-            Subtotal = 299.99m,
-            VatAmount = 62.99m,
+            Subtotal = 247.93m,      // Suma de LineSubtotal (sin IVA)
+            VatAmount = 52.07m,      // 21% de 247.93
             ShippingCost = 10m,
-            TotalAmount = 372.98m,
+            TotalAmount = 310.00m,   // 247.93 + 52.07 + 10
             OrderItems = new List<CreateOrderItemDto>
             {
                 new CreateOrderItemDto
@@ -201,10 +201,10 @@ public class CreateOrderDtoValidatorTests
                     ProductName = "Test Product",
                     ProductSku = "TEST-001",
                     Quantity = 1,
-                    UnitPrice = 299.99m,
-                    UnitSubtotal = 247.93m,
-                    LineTotal = 299.99m,
-                    LineSubtotal = 247.93m
+                    UnitPrice = 299.99m,     // Con IVA
+                    UnitSubtotal = 247.93m,  // Sin IVA
+                    LineTotal = 299.99m,     // Con IVA
+                    LineSubtotal = 247.93m   // Sin IVA
                 }
             }
         };
@@ -336,10 +336,10 @@ public class CreateOrderDtoValidatorTests
             ShippingState = "Madrid",
             ShippingPostalCode = "28001",
             ShippingCountry = "ES",
-            Subtotal = 299.99m,
-            VatAmount = 62.99m,
+            Subtotal = 247.93m,      // Suma de LineSubtotal (sin IVA)
+            VatAmount = 52.07m,      // 21% de 247.93
             ShippingCost = 10m,
-            TotalAmount = 372.98m,
+            TotalAmount = 310.00m,   // 247.93 + 52.07 + 10
             OrderItems = new List<CreateOrderItemDto>
             {
                 new CreateOrderItemDto
@@ -348,10 +348,10 @@ public class CreateOrderDtoValidatorTests
                     ProductName = "Test Product",
                     ProductSku = "TEST-001",
                     Quantity = 1,
-                    UnitPrice = 299.99m,
-                    UnitSubtotal = 247.93m,
-                    LineTotal = 299.99m,
-                    LineSubtotal = 247.93m
+                    UnitPrice = 299.99m,     // Con IVA
+                    UnitSubtotal = 247.93m,  // Sin IVA
+                    LineTotal = 299.99m,     // Con IVA
+                    LineSubtotal = 247.93m   // Sin IVA
                 }
             }
         };

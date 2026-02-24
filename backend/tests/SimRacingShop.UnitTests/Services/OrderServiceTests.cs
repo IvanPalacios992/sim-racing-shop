@@ -47,10 +47,10 @@ public class OrderServiceTests
             ShippingCity = "Madrid",
             ShippingPostalCode = "28001",
             ShippingCountry = "ES",
-            Subtotal = 299.99m,
-            VatAmount = 63.00m, // 21% de 299.99
+            Subtotal = 247.93m,      // Suma de LineSubtotal (sin IVA)
+            VatAmount = 52.07m,      // 21% de 247.93
             ShippingCost = 6.25m,
-            TotalAmount = 369.24m, // 299.99 + 63.00 + 6.25
+            TotalAmount = 306.25m,   // 247.93 + 52.07 + 6.25
             OrderItems = new List<CreateOrderItemDto>
             {
                 new CreateOrderItemDto
@@ -59,10 +59,10 @@ public class OrderServiceTests
                     ProductName = "Test Product",
                     ProductSku = "VOL-001",
                     Quantity = 1,
-                    UnitPrice = 299.99m,
-                    UnitSubtotal = 247.93m,
-                    LineTotal = 299.99m,
-                    LineSubtotal = 247.93m
+                    UnitPrice = 299.99m,     // Con IVA (247.93 * 1.21 ≈ 300.00, dentro de tolerancia)
+                    UnitSubtotal = 247.93m,  // Sin IVA
+                    LineTotal = 299.99m,     // Con IVA
+                    LineSubtotal = 247.93m   // Sin IVA
                 }
             }
         };
@@ -91,8 +91,8 @@ public class OrderServiceTests
         result.UserId.Should().Be(userId);
         result.OrderStatus.Should().Be("pending");
         result.OrderItems.Should().HaveCount(1);
-        result.Subtotal.Should().BeApproximately(299.99m, 0.02m); // Allow rounding differences
-        result.TotalAmount.Should().BeApproximately(369.24m, 0.02m);
+        result.Subtotal.Should().BeApproximately(247.93m, 0.02m); // Subtotal sin IVA
+        result.TotalAmount.Should().BeApproximately(306.25m, 0.02m); // 247.93 + 52.07 + 6.25
 
         _orderRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<Order>()), Times.Once);
     }
@@ -151,10 +151,10 @@ public class OrderServiceTests
             ShippingCity = "Madrid",
             ShippingPostalCode = "28001",
             ShippingCountry = "ES",
-            Subtotal = 302.50m,
-            VatAmount = 63.52m,
+            Subtotal = 250.00m,      // 100 + 150 (suma de LineSubtotal sin IVA)
+            VatAmount = 52.50m,      // 21% de 250.00
             ShippingCost = 6.25m,
-            TotalAmount = 372.27m,
+            TotalAmount = 308.75m,   // 250.00 + 52.50 + 6.25
             OrderItems = new List<CreateOrderItemDto>
             {
                 new CreateOrderItemDto
@@ -256,12 +256,16 @@ public class OrderServiceTests
             .Setup(x => x.GetByIdAsync(productId))
             .ReturnsAsync(product);
 
+        _shippingServiceMock
+            .Setup(x => x.CalculateShippingCostAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
+            .ReturnsAsync(6.25m);
+
         // Act
         Func<Task> act = async () => await _service.ValidateOrderProductsAsync(dto);
 
         // Assert
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Precio incorrecto*");
+            .WithMessage("*Precio unitario incorrecto*");
     }
 
     #endregion
@@ -312,10 +316,10 @@ public class OrderServiceTests
             ShippingCity = "Madrid",
             ShippingPostalCode = "28001",
             ShippingCountry = "ES",
-            Subtotal = 299.99m,
-            VatAmount = 63.00m, // 21% de 299.99
+            Subtotal = 247.93m,      // LineSubtotal sin IVA
+            VatAmount = 52.07m,      // 21% de 247.93
             ShippingCost = 6.25m,
-            TotalAmount = 369.24m, // 299.99 + 63.00 + 6.25
+            TotalAmount = 306.25m,   // 247.93 + 52.07 + 6.25
             OrderItems = new List<CreateOrderItemDto>
             {
                 new CreateOrderItemDto

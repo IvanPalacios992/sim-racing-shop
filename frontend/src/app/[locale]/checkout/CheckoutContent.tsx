@@ -79,7 +79,7 @@ export default function CheckoutContent() {
     setShippingLoading(true);
     setShipping(null);
     shippingApi
-      .calculate({ postalCode: addr.postalCode, subtotal: cart.total, weightKg: 0 })
+      .calculate({ postalCode: addr.postalCode, subtotal: cart.subtotal, weightKg: 0 })
       .then(setShipping)
       .catch(() => setShipping(null))
       .finally(() => setShippingLoading(false));
@@ -149,10 +149,10 @@ export default function CheckoutContent() {
       };
     });
 
-    // Order-level totals: backend accumulates sum(lineTotal WITH VAT) as subtotal
-    const subtotal = Math.round(orderItemsList.reduce((sum, i) => sum + i.lineTotal, 0) * 100) / 100;
-    const vatAmount = Math.round(subtotal * 0.21 * 100) / 100;
-    const totalAmount = Math.round((subtotal + vatAmount + shippingCost) * 100) / 100;
+    // Order-level totals: subtotal = sum(lineSubtotal) sin IVA = cart.subtotal
+    const subtotal = cart.subtotal;
+    const vatAmount = cart.vatAmount;
+    const totalAmount = Math.round((cart.total + shippingCost) * 100) / 100;
 
     try {
       const order = await ordersApi.createOrder({

@@ -86,9 +86,9 @@ namespace SimRacingShop.Core.Validators
             RuleForEach(x => x.OrderItems)
                 .SetValidator(new CreateOrderItemDtoValidator());
 
-            // Validar que el Subtotal coincida con la suma de los LineTotal de los items
+            // Validar que el Subtotal coincida con la suma de los LineSubtotal (sin IVA)
             RuleFor(x => x)
-                .Must(x => Math.Abs(x.Subtotal - x.OrderItems.Sum(i => i.LineTotal)) < 0.01m)
+                .Must(x => Math.Abs(x.Subtotal - x.OrderItems.Sum(i => i.LineSubtotal)) < 0.01m)
                 .WithMessage("El subtotal no coincide con la suma de los artículos");
         }
     }
