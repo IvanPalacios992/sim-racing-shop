@@ -57,3 +57,27 @@ export interface OrderDetailDto {
   updatedAt: string;
   orderItems: OrderItemDetailDto[];
 }
+
+export interface CreateOrderItemDto {
+  productId: string;
+  productName: string;
+  productSku: string;
+  configurationJson?: string | null;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+export interface CreateOrderDto {
+  shippingStreet: string;
+  shippingCity: string;
+  shippingState?: string | null;
+  shippingPostalCode: string;
+  shippingCountry: string;
+  subtotal: number;
+  vatAmount: number;
+  shippingCost: number;
+  totalAmount: number;
+  notes?: string | null;
+  orderItems: CreateOrderItemDto[];
+}
