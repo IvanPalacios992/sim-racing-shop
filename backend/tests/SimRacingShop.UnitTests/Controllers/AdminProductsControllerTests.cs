@@ -9,6 +9,7 @@ using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Repositories;
 using SimRacingShop.Core.Services;
+using StackExchange.Redis;
 using System.Security.Claims;
 
 namespace SimRacingShop.UnitTests.Controllers;
@@ -19,6 +20,7 @@ public class AdminProductsControllerTests
     private readonly Mock<IComponentAdminRepository> _componentAdminRepoMock;
     private readonly Mock<IFileStorageService> _fileStorageMock;
     private readonly Mock<IDistributedCache> _cacheMock;
+    private readonly Mock<IConnectionMultiplexer> _multiplexerMock;
     private readonly Mock<ILogger<AdminProductsController>> _loggerMock;
     private readonly AdminProductsController _controller;
 
@@ -28,13 +30,22 @@ public class AdminProductsControllerTests
         _componentAdminRepoMock = new Mock<IComponentAdminRepository>();
         _fileStorageMock = new Mock<IFileStorageService>();
         _cacheMock = new Mock<IDistributedCache>();
+        _multiplexerMock = new Mock<IConnectionMultiplexer>();
         _loggerMock = new Mock<ILogger<AdminProductsController>>();
+
+        _multiplexerMock.Setup(m => m.GetEndPoints(It.IsAny<bool>()))
+            .Returns([new System.Net.DnsEndPoint("localhost", 6379)]);
+        _multiplexerMock.Setup(m => m.GetServer(It.IsAny<System.Net.EndPoint>(), It.IsAny<object>()))
+            .Returns(Mock.Of<IServer>(s => s.Keys(It.IsAny<int>(), It.IsAny<RedisValue>(), It.IsAny<int>(), It.IsAny<long>(), It.IsAny<int>(), It.IsAny<CommandFlags>()) == Enumerable.Empty<RedisKey>()));
+        _multiplexerMock.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>()))
+            .Returns(Mock.Of<IDatabase>());
 
         _controller = new AdminProductsController(
             _adminRepoMock.Object,
             _componentAdminRepoMock.Object,
             _fileStorageMock.Object,
             _cacheMock.Object,
+            _multiplexerMock.Object,
             _loggerMock.Object);
 
         // Setup admin user context
@@ -968,6 +979,128 @@ public class AdminProductsControllerTests
 
         // Assert
         result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    #endregion
+
+    #region Cache Invalidation Tests
+
+    [Fact]
+    public async Task CreateProduct_InvalidatesListCache_WhenKeysExist()
+    {
+        // Arrange
+        var dto = BuildCreateDto();
+        var serverMock = new Mock<IServer>();
+        var dbMock = new Mock<IDatabase>();
+
+        var existingKeys = new RedisKey[] { "SimRacingShop:products:list:es:1:12", "SimRacingShop:products:list:en:1:12" };
+
+        _multiplexerMock.Setup(m => m.GetEndPoints(It.IsAny<bool>()))
+            .Returns(new System.Net.EndPoint[] { new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 6379) });
+
+        _multiplexerMock.Setup(m => m.GetServer(It.IsAny<System.Net.EndPoint>(), It.IsAny<object>()))
+            .Returns(serverMock.Object);
+
+        serverMock.Setup(s => s.Keys(
+                It.IsAny<int>(),
+                It.Is<RedisValue>(p => p.ToString().Contains("products:list")),
+                It.IsAny<int>(),
+                It.IsAny<long>(),
+                It.IsAny<int>(),
+                It.IsAny<CommandFlags>()))
+            .Returns(existingKeys.Select(k => (RedisKey)k));
+
+        _multiplexerMock.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>()))
+            .Returns(dbMock.Object);
+
+        dbMock.Setup(d => d.KeyDeleteAsync(It.IsAny<RedisKey[]>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(existingKeys.Length);
+
+        _adminRepoMock.Setup(r => r.CreateAsync(It.IsAny<Product>()))
+            .ReturnsAsync((Product p) => p);
+
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.CreateProduct(dto);
+
+        // Assert
+        dbMock.Verify(d => d.KeyDeleteAsync(
+            It.Is<RedisKey[]>(keys => keys.Length == 2),
+            It.IsAny<CommandFlags>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateProduct_SkipsKeyDelete_WhenNoListKeysExist()
+    {
+        // Arrange
+        var dto = BuildCreateDto();
+        var serverMock = new Mock<IServer>();
+        var dbMock = new Mock<IDatabase>();
+
+        _multiplexerMock.Setup(m => m.GetEndPoints(It.IsAny<bool>()))
+            .Returns(new System.Net.EndPoint[] { new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 6379) });
+
+        _multiplexerMock.Setup(m => m.GetServer(It.IsAny<System.Net.EndPoint>(), It.IsAny<object>()))
+            .Returns(serverMock.Object);
+
+        // Devuelve colección vacía: el bloque "if (listKeys.Length > 0)" no debe ejecutar KeyDeleteAsync
+        serverMock.Setup(s => s.Keys(
+                It.IsAny<int>(),
+                It.IsAny<RedisValue>(),
+                It.IsAny<int>(),
+                It.IsAny<long>(),
+                It.IsAny<int>(),
+                It.IsAny<CommandFlags>()))
+            .Returns(Enumerable.Empty<RedisKey>());
+
+        _multiplexerMock.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>()))
+            .Returns(dbMock.Object);
+
+        _adminRepoMock.Setup(r => r.CreateAsync(It.IsAny<Product>()))
+            .ReturnsAsync((Product p) => p);
+
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.CreateProduct(dto);
+
+        // Assert
+        dbMock.Verify(d => d.KeyDeleteAsync(
+            It.IsAny<RedisKey[]>(),
+            It.IsAny<CommandFlags>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateProduct_LogsWarning_WhenRedisCacheInvalidationFails()
+    {
+        // Arrange
+        var dto = BuildCreateDto();
+
+        _multiplexerMock.Setup(m => m.GetEndPoints(It.IsAny<bool>()))
+            .Throws(new RedisConnectionException(ConnectionFailureType.UnableToConnect, "Redis down"));
+
+        _adminRepoMock.Setup(r => r.CreateAsync(It.IsAny<Product>()))
+            .ReturnsAsync((Product p) => p);
+
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        // El catch interno no debe propagar la excepción: el controlador debe responder igualmente
+        var result = await _controller.CreateProduct(dto);
+
+        // Assert
+        result.Should().BeOfType<CreatedAtActionResult>();
+
+        _loggerMock.Verify(l => l.Log(
+            LogLevel.Warning,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("Could not invalidate product list cache")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     #endregion
