@@ -10,11 +10,11 @@ import type {
 } from "@/types/admin";
 
 export const adminProductsApi = {
-  async list(locale = "es"): Promise<ProductListItem[]> {
+  async list(locale = "es", page = 1, pageSize = 10): Promise<PaginatedResult<ProductListItem>> {
     const response = await apiClient.get<PaginatedResult<ProductListItem>>("/products", {
-      params: { Locale: locale, PageSize: 100, Page: 1 },
+      params: { Locale: locale, PageSize: pageSize, Page: page },
     });
-    return response.data.items;
+    return response.data;
   },
 
   async getProductBothLocales(id: string): Promise<{ es: ProductDetail; en: ProductDetail }> {

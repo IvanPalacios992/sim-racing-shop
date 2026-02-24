@@ -64,6 +64,15 @@ const mockEnComponents: AdminComponentListItem[] = [
   },
 ];
 
+const emptyPaginated = { items: [] as AdminComponentListItem[], totalCount: 0, page: 1, pageSize: 10, totalPages: 0 };
+const paginated = (items: AdminComponentListItem[]) => ({
+  items,
+  totalCount: items.length,
+  page: 1,
+  pageSize: 10,
+  totalPages: items.length > 0 ? 1 : 0,
+});
+
 describe("ComponentsContent", () => {
   beforeEach(() => {
     resetAuthStore();
@@ -91,14 +100,14 @@ describe("ComponentsContent", () => {
     });
 
     it("llama a list dos veces (es y en)", async () => {
-      vi.mocked(adminComponentsApi.list).mockResolvedValue([]);
+      vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyPaginated);
 
       render(<ComponentsContent />);
 
       await waitFor(() => {
         expect(adminComponentsApi.list).toHaveBeenCalledTimes(2);
-        expect(adminComponentsApi.list).toHaveBeenCalledWith("es");
-        expect(adminComponentsApi.list).toHaveBeenCalledWith("en");
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 1, 10);
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("en", 1, 10);
       });
     });
   });
@@ -129,7 +138,7 @@ describe("ComponentsContent", () => {
       vi.mocked(adminComponentsApi.list)
         .mockRejectedValueOnce(new Error("error"))
         .mockRejectedValueOnce(new Error("error"))
-        .mockResolvedValue([]);
+        .mockResolvedValue(emptyPaginated);
 
       render(<ComponentsContent />);
 
@@ -144,7 +153,7 @@ describe("ComponentsContent", () => {
 
   describe("empty state", () => {
     it("muestra mensaje cuando no hay componentes", async () => {
-      vi.mocked(adminComponentsApi.list).mockResolvedValue([]);
+      vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyPaginated);
 
       render(<ComponentsContent />);
 
@@ -157,8 +166,8 @@ describe("ComponentsContent", () => {
   describe("tabla", () => {
     it("renderiza el título de la página", async () => {
       vi.mocked(adminComponentsApi.list)
-        .mockResolvedValueOnce(mockEsComponents)
-        .mockResolvedValueOnce(mockEnComponents);
+        .mockResolvedValueOnce(paginated(mockEsComponents))
+        .mockResolvedValueOnce(paginated(mockEnComponents));
 
       render(<ComponentsContent />);
 
@@ -169,8 +178,8 @@ describe("ComponentsContent", () => {
 
     it("renderiza las cabeceras de columna", async () => {
       vi.mocked(adminComponentsApi.list)
-        .mockResolvedValueOnce(mockEsComponents)
-        .mockResolvedValueOnce(mockEnComponents);
+        .mockResolvedValueOnce(paginated(mockEsComponents))
+        .mockResolvedValueOnce(paginated(mockEnComponents));
 
       render(<ComponentsContent />);
 
@@ -185,8 +194,8 @@ describe("ComponentsContent", () => {
 
     it("renderiza los nombres en español de los componentes", async () => {
       vi.mocked(adminComponentsApi.list)
-        .mockResolvedValueOnce(mockEsComponents)
-        .mockResolvedValueOnce(mockEnComponents);
+        .mockResolvedValueOnce(paginated(mockEsComponents))
+        .mockResolvedValueOnce(paginated(mockEnComponents));
 
       render(<ComponentsContent />);
 
@@ -198,8 +207,8 @@ describe("ComponentsContent", () => {
 
     it("muestra 'En stock' para componentes con stock", async () => {
       vi.mocked(adminComponentsApi.list)
-        .mockResolvedValueOnce(mockEsComponents)
-        .mockResolvedValueOnce(mockEnComponents);
+        .mockResolvedValueOnce(paginated(mockEsComponents))
+        .mockResolvedValueOnce(paginated(mockEnComponents));
 
       render(<ComponentsContent />);
 
@@ -210,8 +219,8 @@ describe("ComponentsContent", () => {
 
     it("muestra 'Agotado' para componentes sin stock", async () => {
       vi.mocked(adminComponentsApi.list)
-        .mockResolvedValueOnce(mockEsComponents)
-        .mockResolvedValueOnce(mockEnComponents);
+        .mockResolvedValueOnce(paginated(mockEsComponents))
+        .mockResolvedValueOnce(paginated(mockEnComponents));
 
       render(<ComponentsContent />);
 
@@ -225,8 +234,8 @@ describe("ComponentsContent", () => {
     it("al hacer clic en eliminar muestra confirmación inline", async () => {
       const user = userEvent.setup();
       vi.mocked(adminComponentsApi.list)
-        .mockResolvedValueOnce(mockEsComponents)
-        .mockResolvedValueOnce(mockEnComponents);
+        .mockResolvedValueOnce(paginated(mockEsComponents))
+        .mockResolvedValueOnce(paginated(mockEnComponents));
 
       render(<ComponentsContent />);
 
@@ -238,11 +247,28 @@ describe("ComponentsContent", () => {
       expect(screen.getByText("¿Eliminar?")).toBeInTheDocument();
     });
 
+    it("al hacer clic en No oculta la confirmación", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminComponentsApi.list)
+        .mockResolvedValueOnce(paginated(mockEsComponents))
+        .mockResolvedValueOnce(paginated(mockEnComponents));
+
+      render(<ComponentsContent />);
+
+      await waitFor(() => expect(screen.getByText("Base de volante DD Pro")).toBeInTheDocument());
+
+      const deleteButtons = screen.getAllByTitle("Eliminar");
+      await user.click(deleteButtons[0]);
+      await user.click(screen.getByRole("button", { name: "No" }));
+
+      expect(screen.queryByText("¿Eliminar?")).not.toBeInTheDocument();
+    });
+
     it("al confirmar llama a delete con el id correcto", async () => {
       const user = userEvent.setup();
       vi.mocked(adminComponentsApi.list)
-        .mockResolvedValueOnce(mockEsComponents)
-        .mockResolvedValueOnce(mockEnComponents);
+        .mockResolvedValueOnce(paginated(mockEsComponents))
+        .mockResolvedValueOnce(paginated(mockEnComponents));
       vi.mocked(adminComponentsApi.delete).mockResolvedValue(undefined);
 
       render(<ComponentsContent />);
@@ -259,10 +285,81 @@ describe("ComponentsContent", () => {
     });
   });
 
+  describe("paginación", () => {
+    it("no muestra paginación cuando hay una sola página", async () => {
+      vi.mocked(adminComponentsApi.list)
+        .mockResolvedValueOnce(paginated(mockEsComponents))
+        .mockResolvedValueOnce(paginated(mockEnComponents));
+
+      render(<ComponentsContent />);
+
+      await waitFor(() => expect(screen.getByText("Base de volante DD Pro")).toBeInTheDocument());
+
+      expect(screen.queryByText(/Página/)).not.toBeInTheDocument();
+    });
+
+    it("muestra paginación cuando hay múltiples páginas", async () => {
+      const multiPage = (items: AdminComponentListItem[]) => ({ ...paginated(items), totalPages: 3 });
+      vi.mocked(adminComponentsApi.list)
+        .mockResolvedValueOnce(multiPage(mockEsComponents))
+        .mockResolvedValueOnce(multiPage(mockEnComponents));
+
+      render(<ComponentsContent />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Página 1 de 3")).toBeInTheDocument();
+      });
+    });
+
+    it("al hacer clic en 'Siguiente' carga la página 2", async () => {
+      const user = userEvent.setup();
+      const page2 = { items: [] as AdminComponentListItem[], totalCount: 2, page: 2, pageSize: 10, totalPages: 2 };
+      vi.mocked(adminComponentsApi.list)
+        .mockResolvedValueOnce({ ...paginated(mockEsComponents), totalPages: 2 })
+        .mockResolvedValueOnce({ ...paginated(mockEnComponents), totalPages: 2 })
+        .mockResolvedValueOnce(page2)
+        .mockResolvedValueOnce(page2);
+
+      render(<ComponentsContent />);
+
+      await waitFor(() => expect(screen.getByRole("button", { name: /Siguiente/ })).toBeInTheDocument());
+      await user.click(screen.getByRole("button", { name: /Siguiente/ }));
+
+      await waitFor(() => {
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 2, 10);
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("en", 2, 10);
+      });
+    });
+
+    it("al hacer clic en 'Anterior' carga la página anterior", async () => {
+      const user = userEvent.setup();
+      const page2 = { items: [] as AdminComponentListItem[], totalCount: 2, page: 2, pageSize: 10, totalPages: 2 };
+      vi.mocked(adminComponentsApi.list)
+        .mockResolvedValueOnce({ ...paginated(mockEsComponents), totalPages: 2 })
+        .mockResolvedValueOnce({ ...paginated(mockEnComponents), totalPages: 2 })
+        .mockResolvedValueOnce(page2)
+        .mockResolvedValueOnce(page2)
+        .mockResolvedValue({ ...paginated(mockEsComponents), totalPages: 2 });
+
+      render(<ComponentsContent />);
+
+      await waitFor(() => expect(screen.getByRole("button", { name: /Siguiente/ })).toBeInTheDocument());
+      await user.click(screen.getByRole("button", { name: /Siguiente/ }));
+      await waitFor(() => expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 2, 10));
+
+      await user.click(screen.getByRole("button", { name: /Anterior/ }));
+
+      await waitFor(() => {
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 1, 10);
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("en", 1, 10);
+      });
+    });
+  });
+
   describe("modal creación", () => {
     it("al hacer clic en 'Nuevo componente' abre el modal", async () => {
       const user = userEvent.setup();
-      vi.mocked(adminComponentsApi.list).mockResolvedValue([]);
+      vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyPaginated);
 
       render(<ComponentsContent />);
 
