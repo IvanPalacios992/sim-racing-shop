@@ -28,10 +28,11 @@ export const ensureSessionId = (): string => {
   return newId;
 };
 
-// Returns X-Cart-Session header if a session exists (ignored by backend when user is authenticated)
+// Ensures an anonymous session ID exists and returns it as header.
+// Ignored by the backend when the user is authenticated.
 const sessionHeaders = () => {
-  const sessionId = getSessionId();
-  return sessionId ? { "X-Cart-Session": sessionId } : {};
+  const sessionId = ensureSessionId();
+  return { "X-Cart-Session": sessionId };
 };
 
 export const cartApi = {
