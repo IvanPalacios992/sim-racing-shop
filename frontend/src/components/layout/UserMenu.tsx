@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { User, UserCircle, Package, Settings, LogOut } from "lucide-react";
+import { User, UserCircle, Package, Settings, LogOut, LayoutDashboard } from "lucide-react";
 import { useIsAuthenticated, useUser, useAuthStore } from "@/stores/auth-store";
 import { authApi } from "@/lib/api/auth";
 
@@ -122,6 +122,21 @@ export function UserMenu() {
               <Settings className="size-5 text-silver transition-colors" />
               <span className="text-sm">{t("userMenu.settings")}</span>
             </Link>
+
+            {user?.roles.includes("Admin") && (
+              <>
+                <div className="my-2 h-px bg-graphite" />
+                <Link
+                  href="/admin/categorias"
+                  onClick={close}
+                  role="menuitem"
+                  className="flex items-center gap-4 px-6 py-3.5 text-white transition-colors hover:bg-graphite hover:text-electric-blue [&:hover_svg]:text-electric-blue"
+                >
+                  <LayoutDashboard className="size-5 text-silver transition-colors" />
+                  <span className="text-sm">Administración</span>
+                </Link>
+              </>
+            )}
 
             <div className="my-2 h-px bg-graphite" />
 

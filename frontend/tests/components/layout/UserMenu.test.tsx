@@ -251,6 +251,66 @@ describe("UserMenu", () => {
         expect(screen.queryByRole("menu")).not.toBeInTheDocument();
       });
     });
+
+    describe("enlace de administración", () => {
+      it("no muestra el enlace de administración para usuario sin rol Admin", async () => {
+        const user = userEvent.setup();
+        render(<UserMenu />);
+
+        await user.click(screen.getByRole("button"));
+
+        expect(
+          screen.queryByRole("menuitem", { name: /administración/i }),
+        ).not.toBeInTheDocument();
+      });
+
+      it("muestra el enlace de administración para usuario con rol Admin", async () => {
+        useAuthStore.getState().setAuth(
+          createMockAuthResponse({
+            user: {
+              id: "admin-1",
+              email: "admin@example.com",
+              firstName: "Admin",
+              lastName: "User",
+              language: "en",
+              emailVerified: true,
+              roles: ["Admin"],
+            },
+          }),
+        );
+        const user = userEvent.setup();
+        render(<UserMenu />);
+
+        await user.click(screen.getByRole("button"));
+
+        expect(
+          screen.getByRole("menuitem", { name: /administración/i }),
+        ).toHaveAttribute("href", "/admin/categorias");
+      });
+
+      it("el enlace de administración cierra el menú al hacer clic", async () => {
+        useAuthStore.getState().setAuth(
+          createMockAuthResponse({
+            user: {
+              id: "admin-1",
+              email: "admin@example.com",
+              firstName: "Admin",
+              lastName: "User",
+              language: "en",
+              emailVerified: true,
+              roles: ["Admin"],
+            },
+          }),
+        );
+        const user = userEvent.setup();
+        render(<UserMenu />);
+
+        await user.click(screen.getByRole("button"));
+        await user.click(screen.getByRole("menuitem", { name: /administración/i }));
+
+        expect(screen.queryByRole("menu")).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe("nombre de usuario mostrado", () => {
