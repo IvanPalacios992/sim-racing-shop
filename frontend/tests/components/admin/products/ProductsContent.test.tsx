@@ -66,13 +66,23 @@ const mockProducts: ProductListItem[] = [
   },
 ];
 
+const emptyProductsPaginated = { items: [] as ProductListItem[], totalCount: 0, page: 1, pageSize: 10, totalPages: 0 };
+const emptyComponentsPaginated = { items: [], totalCount: 0, page: 1, pageSize: 200, totalPages: 0 };
+const paginatedProducts = (items: ProductListItem[]) => ({
+  items,
+  totalCount: items.length,
+  page: 1,
+  pageSize: 10,
+  totalPages: items.length > 0 ? 1 : 0,
+});
+
 describe("ProductsContent", () => {
   beforeEach(() => {
     resetAuthStore();
     vi.clearAllMocks();
     useAuthStore.getState().setAuth(createMockAuthResponse());
     useAuthStore.setState({ _hasHydrated: true });
-    vi.mocked(adminComponentsApi.list).mockResolvedValue([]);
+    vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyComponentsPaginated);
   });
 
   describe("loading", () => {
@@ -94,12 +104,12 @@ describe("ProductsContent", () => {
     });
 
     it("llama a adminProductsApi.list con locale 'es'", async () => {
-      vi.mocked(adminProductsApi.list).mockResolvedValue([]);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
 
       render(<ProductsContent />);
 
       await waitFor(() => {
-        expect(adminProductsApi.list).toHaveBeenCalledWith("es");
+        expect(adminProductsApi.list).toHaveBeenCalledWith("es", 1, 10);
       });
     });
   });
@@ -129,7 +139,7 @@ describe("ProductsContent", () => {
       const user = userEvent.setup();
       vi.mocked(adminProductsApi.list)
         .mockRejectedValueOnce(new Error("error"))
-        .mockResolvedValueOnce([]);
+        .mockResolvedValueOnce(emptyProductsPaginated);
 
       render(<ProductsContent />);
 
@@ -144,7 +154,7 @@ describe("ProductsContent", () => {
 
   describe("empty state", () => {
     it("muestra mensaje cuando no hay productos", async () => {
-      vi.mocked(adminProductsApi.list).mockResolvedValue([]);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
 
       render(<ProductsContent />);
 
@@ -156,7 +166,7 @@ describe("ProductsContent", () => {
 
   describe("tabla", () => {
     it("renderiza el título de la página", async () => {
-      vi.mocked(adminProductsApi.list).mockResolvedValue(mockProducts);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
 
       render(<ProductsContent />);
 
@@ -166,7 +176,7 @@ describe("ProductsContent", () => {
     });
 
     it("renderiza las cabeceras de columna", async () => {
-      vi.mocked(adminProductsApi.list).mockResolvedValue(mockProducts);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
 
       render(<ProductsContent />);
 
@@ -181,7 +191,7 @@ describe("ProductsContent", () => {
     });
 
     it("renderiza los nombres de los productos", async () => {
-      vi.mocked(adminProductsApi.list).mockResolvedValue(mockProducts);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
 
       render(<ProductsContent />);
 
@@ -192,7 +202,7 @@ describe("ProductsContent", () => {
     });
 
     it("renderiza el precio con formato correcto", async () => {
-      vi.mocked(adminProductsApi.list).mockResolvedValue(mockProducts);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
 
       render(<ProductsContent />);
 
@@ -202,7 +212,7 @@ describe("ProductsContent", () => {
     });
 
     it("muestra badge 'Activo' para productos activos", async () => {
-      vi.mocked(adminProductsApi.list).mockResolvedValue(mockProducts);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
 
       render(<ProductsContent />);
 
@@ -212,7 +222,7 @@ describe("ProductsContent", () => {
     });
 
     it("muestra badge 'Inactivo' para productos inactivos", async () => {
-      vi.mocked(adminProductsApi.list).mockResolvedValue(mockProducts);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
 
       render(<ProductsContent />);
 
@@ -222,7 +232,7 @@ describe("ProductsContent", () => {
     });
 
     it("muestra 'Sí' para productos personalizables", async () => {
-      vi.mocked(adminProductsApi.list).mockResolvedValue(mockProducts);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
 
       render(<ProductsContent />);
 
@@ -232,7 +242,7 @@ describe("ProductsContent", () => {
     });
 
     it("muestra 'No' para productos no personalizables", async () => {
-      vi.mocked(adminProductsApi.list).mockResolvedValue(mockProducts);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
 
       render(<ProductsContent />);
 
@@ -245,7 +255,7 @@ describe("ProductsContent", () => {
   describe("eliminar", () => {
     it("al hacer clic en eliminar muestra confirmación inline", async () => {
       const user = userEvent.setup();
-      vi.mocked(adminProductsApi.list).mockResolvedValue(mockProducts);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
 
       render(<ProductsContent />);
 
@@ -259,7 +269,7 @@ describe("ProductsContent", () => {
 
     it("al confirmar llama a delete con el id correcto", async () => {
       const user = userEvent.setup();
-      vi.mocked(adminProductsApi.list).mockResolvedValue(mockProducts);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
       vi.mocked(adminProductsApi.delete).mockResolvedValue(undefined);
 
       render(<ProductsContent />);
@@ -279,7 +289,7 @@ describe("ProductsContent", () => {
   describe("modal creación", () => {
     it("al hacer clic en 'Nuevo producto' abre el modal", async () => {
       const user = userEvent.setup();
-      vi.mocked(adminProductsApi.list).mockResolvedValue([]);
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
 
       render(<ProductsContent />);
 

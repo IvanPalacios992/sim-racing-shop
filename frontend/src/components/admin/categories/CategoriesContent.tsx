@@ -6,13 +6,18 @@ import { useAuthStore } from "@/stores/auth-store";
 import { adminCategoriesApi } from "@/lib/api/admin-categories";
 import { Button } from "@/components/ui/button";
 import AdminContentShell from "@/components/admin/AdminContentShell";
+import AdminPagination from "@/components/admin/AdminPagination";
 import CategoryModal from "./CategoryModal";
 import type { CategoryListItem } from "@/types/categories";
 import type { FetchStatus } from "@/components/admin/adminUtils";
 
+const PAGE_SIZE = 10;
+
 export default function CategoriesContent() {
   const { _hasHydrated } = useAuthStore();
   const [items, setItems] = useState<CategoryListItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>("loading");
   const [retryCount, setRetryCount] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -26,28 +31,36 @@ export default function CategoriesContent() {
     return () => { isMountedRef.current = false; };
   }, []);
 
+  const loadPage = async (p: number) => {
+    setFetchStatus("loading");
+    try {
+      const data = await adminCategoriesApi.list("es", p, PAGE_SIZE);
+      if (isMountedRef.current) {
+        setItems(data.items);
+        setTotalPages(data.totalPages);
+        setFetchStatus("success");
+      }
+    } catch {
+      if (isMountedRef.current) setFetchStatus("error");
+    }
+  };
+
   useEffect(() => {
     if (!_hasHydrated) return;
-    const load = async () => {
-      setFetchStatus("loading");
-      try {
-        const data = await adminCategoriesApi.list("es");
-        if (isMountedRef.current) {
-          setItems(data);
-          setFetchStatus("success");
-        }
-      } catch {
-        if (isMountedRef.current) setFetchStatus("error");
-      }
-    };
-    load();
-  }, [_hasHydrated, retryCount]);
+    loadPage(page);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [_hasHydrated, page, retryCount]);
 
   const handleDelete = async (id: string) => {
     setDeleting(true);
     try {
       await adminCategoriesApi.delete(id);
-      setItems((prev) => prev.filter((i) => i.id !== id));
+      const newPage = items.length === 1 && page > 1 ? page - 1 : page;
+      if (newPage !== page) {
+        setPage(newPage);
+      } else {
+        setRetryCount((c) => c + 1);
+      }
     } catch {
       // silent — user sees no change in list
     } finally {
@@ -56,9 +69,9 @@ export default function CategoriesContent() {
     }
   };
 
-  const handleSuccess = async () => {
-    const data = await adminCategoriesApi.list("es");
-    if (isMountedRef.current) setItems(data);
+  const handleSuccess = () => {
+    setPage(1);
+    setRetryCount((c) => c + 1);
   };
 
   const openCreate = () => {
@@ -156,6 +169,9 @@ export default function CategoriesContent() {
         </tbody>
       </table>
     </AdminContentShell>
+    {fetchStatus === "success" && (
+      <AdminPagination page={page} totalPages={totalPages} onPageChange={setPage} />
+    )}
       <CategoryModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

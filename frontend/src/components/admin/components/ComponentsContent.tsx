@@ -6,9 +6,12 @@ import { useAuthStore } from "@/stores/auth-store";
 import { adminComponentsApi } from "@/lib/api/admin-components";
 import { Button } from "@/components/ui/button";
 import AdminContentShell from "@/components/admin/AdminContentShell";
+import AdminPagination from "@/components/admin/AdminPagination";
 import ComponentModal from "./ComponentModal";
 import type { AdminComponentListItem } from "@/types/admin";
 import type { FetchStatus } from "@/components/admin/adminUtils";
+
+const PAGE_SIZE = 10;
 
 interface ComponentsWithLocales {
   es: AdminComponentListItem;
@@ -18,6 +21,8 @@ interface ComponentsWithLocales {
 export default function ComponentsContent() {
   const { _hasHydrated } = useAuthStore();
   const [items, setItems] = useState<ComponentsWithLocales[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>("loading");
   const [retryCount, setRetryCount] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -31,20 +36,21 @@ export default function ComponentsContent() {
     return () => { isMountedRef.current = false; };
   }, []);
 
-  const loadData = async () => {
+  const loadPage = async (p: number) => {
     setFetchStatus("loading");
     try {
-      const [esData, enData] = await Promise.all([
-        adminComponentsApi.list("es"),
-        adminComponentsApi.list("en"),
+      const [esResult, enResult] = await Promise.all([
+        adminComponentsApi.list("es", p, PAGE_SIZE),
+        adminComponentsApi.list("en", p, PAGE_SIZE),
       ]);
-      const enMap = new Map(enData.map((c) => [c.id, c]));
-      const merged: ComponentsWithLocales[] = esData.map((c) => ({
+      const enMap = new Map(enResult.items.map((c) => [c.id, c]));
+      const merged: ComponentsWithLocales[] = esResult.items.map((c) => ({
         es: c,
         en: enMap.get(c.id),
       }));
       if (isMountedRef.current) {
         setItems(merged);
+        setTotalPages(esResult.totalPages);
         setFetchStatus("success");
       }
     } catch {
@@ -54,15 +60,20 @@ export default function ComponentsContent() {
 
   useEffect(() => {
     if (!_hasHydrated) return;
-    loadData();
+    loadPage(page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_hasHydrated, retryCount]);
+  }, [_hasHydrated, page, retryCount]);
 
   const handleDelete = async (id: string) => {
     setDeleting(true);
     try {
       await adminComponentsApi.delete(id);
-      setItems((prev) => prev.filter((i) => i.es.id !== id));
+      const newPage = items.length === 1 && page > 1 ? page - 1 : page;
+      if (newPage !== page) {
+        setPage(newPage);
+      } else {
+        setRetryCount((c) => c + 1);
+      }
     } catch {
       // silent
     } finally {
@@ -71,7 +82,10 @@ export default function ComponentsContent() {
     }
   };
 
-  const handleSuccess = () => loadData();
+  const handleSuccess = () => {
+    setPage(1);
+    setRetryCount((c) => c + 1);
+  };
 
   const openCreate = () => {
     setEditItem(undefined);
@@ -170,6 +184,9 @@ export default function ComponentsContent() {
           </tbody>
         </table>
       </AdminContentShell>
+      {fetchStatus === "success" && (
+        <AdminPagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      )}
       <ComponentModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}

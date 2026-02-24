@@ -5,7 +5,7 @@ vi.mock("@/lib/api-client", () => ({
   apiClient: { get: vi.fn(), post: vi.fn(), put: vi.fn(), delete: vi.fn() },
 }));
 
-const emptyPaginated = { items: [], totalCount: 0, page: 1, pageSize: 100, totalPages: 0 };
+const emptyPaginated = { items: [], totalCount: 0, page: 1, pageSize: 10, totalPages: 0 };
 
 const mockComponent = {
   id: "comp-1",
@@ -29,7 +29,7 @@ describe("adminComponentsApi", () => {
       await adminComponentsApi.list("es");
 
       expect(apiClient.get).toHaveBeenCalledWith("/components", {
-        params: { Locale: "es", PageSize: 100, Page: 1 },
+        params: { Locale: "es", PageSize: 10, Page: 1 },
       });
     });
 
@@ -42,14 +42,13 @@ describe("adminComponentsApi", () => {
       expect((opts as { params: Record<string, unknown> }).params.Locale).toBe("es");
     });
 
-    it("returns the items array from paginated response", async () => {
-      vi.mocked(apiClient.get).mockResolvedValue({
-        data: { ...emptyPaginated, items: [mockComponent], totalCount: 1 },
-      });
+    it("returns the paginated result object", async () => {
+      const paginated = { ...emptyPaginated, items: [mockComponent], totalCount: 1, totalPages: 1 };
+      vi.mocked(apiClient.get).mockResolvedValue({ data: paginated });
 
       const result = await adminComponentsApi.list("es");
 
-      expect(result).toEqual([mockComponent]);
+      expect(result).toEqual(paginated);
     });
   });
 

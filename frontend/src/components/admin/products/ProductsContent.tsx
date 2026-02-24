@@ -7,15 +7,20 @@ import { adminProductsApi } from "@/lib/api/admin-products";
 import { adminComponentsApi } from "@/lib/api/admin-components";
 import { Button } from "@/components/ui/button";
 import AdminContentShell from "@/components/admin/AdminContentShell";
+import AdminPagination from "@/components/admin/AdminPagination";
 import ProductModal from "./ProductModal";
 import type { ProductListItem } from "@/types/products";
 import type { AdminComponentListItem } from "@/types/admin";
 import type { FetchStatus } from "@/components/admin/adminUtils";
 
+const PAGE_SIZE = 10;
+
 export default function ProductsContent() {
   const { _hasHydrated } = useAuthStore();
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [components, setComponents] = useState<AdminComponentListItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [fetchStatus, setFetchStatus] = useState<FetchStatus>("loading");
   const [retryCount, setRetryCount] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
@@ -29,16 +34,17 @@ export default function ProductsContent() {
     return () => { isMountedRef.current = false; };
   }, []);
 
-  const loadData = async () => {
+  const loadPage = async (p: number) => {
     setFetchStatus("loading");
     try {
-      const [productsData, componentsData] = await Promise.all([
-        adminProductsApi.list("es"),
-        adminComponentsApi.list("es"),
+      const [productsResult, componentsResult] = await Promise.all([
+        adminProductsApi.list("es", p, PAGE_SIZE),
+        adminComponentsApi.list("es", 1, 200),
       ]);
       if (isMountedRef.current) {
-        setProducts(productsData);
-        setComponents(componentsData);
+        setProducts(productsResult.items);
+        setTotalPages(productsResult.totalPages);
+        setComponents(componentsResult.items);
         setFetchStatus("success");
       }
     } catch {
@@ -48,15 +54,20 @@ export default function ProductsContent() {
 
   useEffect(() => {
     if (!_hasHydrated) return;
-    loadData();
+    loadPage(page);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_hasHydrated, retryCount]);
+  }, [_hasHydrated, page, retryCount]);
 
   const handleDelete = async (id: string) => {
     setDeleting(true);
     try {
       await adminProductsApi.delete(id);
-      setProducts((prev) => prev.filter((p) => p.id !== id));
+      const newPage = products.length === 1 && page > 1 ? page - 1 : page;
+      if (newPage !== page) {
+        setPage(newPage);
+      } else {
+        setRetryCount((c) => c + 1);
+      }
     } catch {
       // silent
     } finally {
@@ -65,7 +76,10 @@ export default function ProductsContent() {
     }
   };
 
-  const handleSuccess = () => loadData();
+  const handleSuccess = () => {
+    setPage(1);
+    setRetryCount((c) => c + 1);
+  };
 
   const openCreate = () => {
     setEditItem(undefined);
@@ -176,6 +190,9 @@ export default function ProductsContent() {
           </tbody>
         </table>
       </AdminContentShell>
+      {fetchStatus === "success" && (
+        <AdminPagination page={page} totalPages={totalPages} onPageChange={setPage} />
+      )}
       <ProductModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
