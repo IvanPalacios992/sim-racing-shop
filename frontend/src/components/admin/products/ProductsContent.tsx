@@ -1,95 +1,37 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Pencil, Trash2 } from "lucide-react";
-import { useAuthStore } from "@/stores/auth-store";
+import { useState } from "react";
 import { adminProductsApi } from "@/lib/api/admin-products";
 import { adminComponentsApi } from "@/lib/api/admin-components";
-import { Button } from "@/components/ui/button";
 import AdminContentShell from "@/components/admin/AdminContentShell";
 import AdminPagination from "@/components/admin/AdminPagination";
+import AdminRowActions from "@/components/admin/AdminRowActions";
+import { useAdminList } from "@/components/admin/useAdminList";
 import ProductModal from "./ProductModal";
 import type { ProductListItem } from "@/types/products";
 import type { AdminComponentListItem } from "@/types/admin";
-import type { FetchStatus } from "@/components/admin/adminUtils";
 
 const PAGE_SIZE = 10;
 
 export default function ProductsContent() {
-  const { _hasHydrated } = useAuthStore();
-  const [products, setProducts] = useState<ProductListItem[]>([]);
   const [components, setComponents] = useState<AdminComponentListItem[]>([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [fetchStatus, setFetchStatus] = useState<FetchStatus>("loading");
-  const [retryCount, setRetryCount] = useState(0);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editItem, setEditItem] = useState<ProductListItem | undefined>(undefined);
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-  const [deleting, setDeleting] = useState(false);
 
-  const isMountedRef = useRef(true);
-  useEffect(() => {
-    isMountedRef.current = true;
-    return () => { isMountedRef.current = false; };
-  }, []);
-
-  const loadPage = async (p: number) => {
-    setFetchStatus("loading");
-    try {
+  const {
+    items: products, page, totalPages, fetchStatus,
+    modalOpen, editItem, confirmDeleteId, deleting,
+    setPage, setConfirmDeleteId, handleDelete, handleSuccess,
+    openCreate, openEdit, retry,
+  } = useAdminList<ProductListItem>(
+    async (p) => {
       const [productsResult, componentsResult] = await Promise.all([
         adminProductsApi.list("es", p, PAGE_SIZE),
         adminComponentsApi.list("es", 1, 200),
       ]);
-      if (isMountedRef.current) {
-        setProducts(productsResult.items);
-        setTotalPages(productsResult.totalPages);
-        setComponents(componentsResult.items);
-        setFetchStatus("success");
-      }
-    } catch {
-      if (isMountedRef.current) setFetchStatus("error");
-    }
-  };
-
-  useEffect(() => {
-    if (!_hasHydrated) return;
-    loadPage(page);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_hasHydrated, page, retryCount]);
-
-  const handleDelete = async (id: string) => {
-    setDeleting(true);
-    try {
-      await adminProductsApi.delete(id);
-      const newPage = products.length === 1 && page > 1 ? page - 1 : page;
-      if (newPage !== page) {
-        setPage(newPage);
-      } else {
-        setRetryCount((c) => c + 1);
-      }
-    } catch {
-      // silent
-    } finally {
-      setDeleting(false);
-      setConfirmDeleteId(null);
-    }
-  };
-
-  const handleSuccess = () => {
-    setPage(1);
-    setRetryCount((c) => c + 1);
-  };
-
-  const openCreate = () => {
-    setEditItem(undefined);
-    setModalOpen(true);
-  };
-
-  const openEdit = (item: ProductListItem) => {
-    setEditItem(item);
-    setModalOpen(true);
-  };
+      setComponents(componentsResult.items);
+      return { items: productsResult.items, totalPages: productsResult.totalPages };
+    },
+    (id) => adminProductsApi.delete(id),
+  );
 
   return (
     <>
@@ -102,7 +44,7 @@ export default function ProductsContent() {
         errorText="Error al cargar productos"
         emptyText="No hay productos creados"
         isEmpty={products.length === 0}
-        onRetry={() => setRetryCount((c) => c + 1)}
+        onRetry={retry}
       >
         <table className="w-full text-sm">
           <thead>
@@ -147,43 +89,14 @@ export default function ProductsContent() {
                   </span>
                 </td>
                 <td className="py-3">
-                  {confirmDeleteId === product.id ? (
-                    <div className="flex items-center gap-2">
-                      <span className="text-silver text-xs">¿Eliminar?</span>
-                      <Button
-                        size="xs"
-                        variant="destructive"
-                        disabled={deleting}
-                        onClick={() => handleDelete(product.id)}
-                      >
-                        Sí
-                      </Button>
-                      <Button
-                        size="xs"
-                        variant="secondary"
-                        onClick={() => setConfirmDeleteId(null)}
-                      >
-                        No
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => openEdit(product)}
-                        className="p-1.5 text-silver hover:text-electric-blue transition-colors rounded"
-                        title="Editar"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => setConfirmDeleteId(product.id)}
-                        className="p-1.5 text-silver hover:text-racing-red transition-colors rounded"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
+                  <AdminRowActions
+                    isConfirming={confirmDeleteId === product.id}
+                    deleting={deleting}
+                    onEdit={() => openEdit(product)}
+                    onRequestDelete={() => setConfirmDeleteId(product.id)}
+                    onConfirmDelete={() => handleDelete(product.id)}
+                    onCancelDelete={() => setConfirmDeleteId(null)}
+                  />
                 </td>
               </tr>
             ))}

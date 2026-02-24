@@ -267,6 +267,21 @@ describe("ProductsContent", () => {
       expect(screen.getByText("¿Eliminar?")).toBeInTheDocument();
     });
 
+    it("al hacer clic en No oculta la confirmación", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
+
+      render(<ProductsContent />);
+
+      await waitFor(() => expect(screen.getByText("Volante GT3")).toBeInTheDocument());
+
+      const deleteButtons = screen.getAllByTitle("Eliminar");
+      await user.click(deleteButtons[0]);
+      await user.click(screen.getByRole("button", { name: "No" }));
+
+      expect(screen.queryByText("¿Eliminar?")).not.toBeInTheDocument();
+    });
+
     it("al confirmar llama a delete con el id correcto", async () => {
       const user = userEvent.setup();
       vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
@@ -282,6 +297,66 @@ describe("ProductsContent", () => {
 
       await waitFor(() => {
         expect(adminProductsApi.delete).toHaveBeenCalledWith("prod-1");
+      });
+    });
+  });
+
+  describe("paginación", () => {
+    it("no muestra paginación cuando hay una sola página", async () => {
+      vi.mocked(adminProductsApi.list).mockResolvedValue(paginatedProducts(mockProducts));
+
+      render(<ProductsContent />);
+
+      await waitFor(() => expect(screen.getByText("Volante GT3")).toBeInTheDocument());
+
+      expect(screen.queryByText(/Página/)).not.toBeInTheDocument();
+    });
+
+    it("muestra paginación cuando hay múltiples páginas", async () => {
+      vi.mocked(adminProductsApi.list).mockResolvedValue({ ...paginatedProducts(mockProducts), totalPages: 4 });
+
+      render(<ProductsContent />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Página 1 de 4")).toBeInTheDocument();
+      });
+    });
+
+    it("al hacer clic en 'Siguiente' carga la página 2", async () => {
+      const user = userEvent.setup();
+      const page2 = { items: [] as ProductListItem[], totalCount: 2, page: 2, pageSize: 10, totalPages: 2 };
+      vi.mocked(adminProductsApi.list)
+        .mockResolvedValueOnce({ ...paginatedProducts(mockProducts), totalPages: 2 })
+        .mockResolvedValueOnce(page2);
+
+      render(<ProductsContent />);
+
+      await waitFor(() => expect(screen.getByRole("button", { name: /Siguiente/ })).toBeInTheDocument());
+      await user.click(screen.getByRole("button", { name: /Siguiente/ }));
+
+      await waitFor(() => {
+        expect(adminProductsApi.list).toHaveBeenCalledWith("es", 2, 10);
+      });
+    });
+
+    it("al hacer clic en 'Anterior' carga la página anterior", async () => {
+      const user = userEvent.setup();
+      const page2 = { items: [] as ProductListItem[], totalCount: 2, page: 2, pageSize: 10, totalPages: 2 };
+      vi.mocked(adminProductsApi.list)
+        .mockResolvedValueOnce({ ...paginatedProducts(mockProducts), totalPages: 2 })
+        .mockResolvedValueOnce(page2)
+        .mockResolvedValue({ ...paginatedProducts(mockProducts), totalPages: 2 });
+
+      render(<ProductsContent />);
+
+      await waitFor(() => expect(screen.getByRole("button", { name: /Siguiente/ })).toBeInTheDocument());
+      await user.click(screen.getByRole("button", { name: /Siguiente/ }));
+      await waitFor(() => expect(adminProductsApi.list).toHaveBeenCalledWith("es", 2, 10));
+
+      await user.click(screen.getByRole("button", { name: /Anterior/ }));
+
+      await waitFor(() => {
+        expect(adminProductsApi.list).toHaveBeenCalledWith("es", 1, 10);
       });
     });
   });
