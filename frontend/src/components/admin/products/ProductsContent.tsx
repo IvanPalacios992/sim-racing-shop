@@ -20,7 +20,7 @@ export default function ProductsContent() {
     items: products, page, totalPages, fetchStatus,
     modalOpen, editItem, confirmDeleteId, deleting,
     setPage, setConfirmDeleteId, handleDelete, handleSuccess,
-    openCreate, openEdit, retry,
+    openCreate, openEdit, closeModal, retry,
   } = useAdminList<ProductListItem>(
     async (p) => {
       const [productsResult, componentsResult] = await Promise.all([
@@ -108,7 +108,7 @@ export default function ProductsContent() {
       )}
       <ProductModal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={closeModal}
         onSuccess={handleSuccess}
         editItem={editItem}
         availableComponents={components}

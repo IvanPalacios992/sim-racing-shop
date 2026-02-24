@@ -20,7 +20,7 @@ export default function ComponentsContent() {
     items, page, totalPages, fetchStatus,
     modalOpen, editItem, confirmDeleteId, deleting,
     setPage, setConfirmDeleteId, handleDelete, handleSuccess,
-    openCreate, openEdit, retry,
+    openCreate, openEdit, closeModal, retry,
   } = useAdminList<ComponentsWithLocales>(
     async (p) => {
       const [esResult, enResult] = await Promise.all([
@@ -100,7 +100,7 @@ export default function ComponentsContent() {
       )}
       <ComponentModal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={closeModal}
         onSuccess={handleSuccess}
         editItem={editItem}
       />

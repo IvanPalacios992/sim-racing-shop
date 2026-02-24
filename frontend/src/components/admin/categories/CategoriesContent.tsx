@@ -15,7 +15,7 @@ export default function CategoriesContent() {
     items, page, totalPages, fetchStatus,
     modalOpen, editItem, confirmDeleteId, deleting,
     setPage, setConfirmDeleteId, handleDelete, handleSuccess,
-    openCreate, openEdit, retry,
+    openCreate, openEdit, closeModal, retry,
   } = useAdminList<CategoryListItem>(
     (p) => adminCategoriesApi.list("es", p, PAGE_SIZE),
     (id) => adminCategoriesApi.delete(id),
@@ -82,7 +82,7 @@ export default function CategoriesContent() {
       )}
       <CategoryModal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={closeModal}
         onSuccess={handleSuccess}
         editItem={editItem}
       />

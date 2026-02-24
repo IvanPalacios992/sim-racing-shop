@@ -22,6 +22,7 @@ interface UseAdminListReturn<T> {
   handleSuccess: () => void;
   openCreate: () => void;
   openEdit: (item: T) => void;
+  closeModal: () => void;
   retry: () => void;
 }
 
@@ -117,6 +118,7 @@ export function useAdminList<T>(
     handleSuccess,
     openCreate,
     openEdit,
+    closeModal: () => setModalOpen(false),
     retry: () => setRetryCount((c) => c + 1),
   };
 }
