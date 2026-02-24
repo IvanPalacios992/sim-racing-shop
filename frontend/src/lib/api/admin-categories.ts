@@ -7,11 +7,11 @@ import type {
 } from "@/types/admin";
 
 export const adminCategoriesApi = {
-  async list(locale = "es"): Promise<CategoryListItem[]> {
+  async list(locale = "es", page = 1, pageSize = 10): Promise<PaginatedResult<CategoryListItem>> {
     const response = await apiClient.get<PaginatedResult<CategoryListItem>>("/categories", {
-      params: { Locale: locale, PageSize: 100, Page: 1 },
+      params: { Locale: locale, PageSize: pageSize, Page: page },
     });
-    return response.data.items;
+    return response.data;
   },
 
   async getCategoryBothLocales(id: string): Promise<{ es: CategoryDetail; en: CategoryDetail }> {

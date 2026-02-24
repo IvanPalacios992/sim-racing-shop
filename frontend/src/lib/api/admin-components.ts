@@ -9,11 +9,11 @@ import type {
 } from "@/types/admin";
 
 export const adminComponentsApi = {
-  async list(locale = "es"): Promise<AdminComponentListItem[]> {
+  async list(locale = "es", page = 1, pageSize = 10): Promise<PaginatedResult<AdminComponentListItem>> {
     const response = await apiClient.get<PaginatedResult<AdminComponentListItem>>("/components", {
-      params: { Locale: locale, PageSize: 100, Page: 1 },
+      params: { Locale: locale, PageSize: pageSize, Page: page },
     });
-    return response.data.items;
+    return response.data;
   },
 
   async create(dto: AdminCreateComponentDto): Promise<AdminComponentDetail> {

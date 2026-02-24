@@ -94,15 +94,16 @@ describe("cartApi", () => {
       );
     });
 
-    it("omits X-Cart-Session header when no session ID", async () => {
+    it("crea y envía X-Cart-Session cuando no hay sesión previa", async () => {
       vi.mocked(apiClient.get).mockResolvedValue({ data: emptyMockCart() });
 
       await cartApi.getCart();
 
-      expect(apiClient.get).toHaveBeenCalledWith(
-        "/cart",
-        expect.objectContaining({ headers: {} })
-      );
+      const [, opts] = vi.mocked(apiClient.get).mock.calls[0];
+      const header = (opts as { headers: Record<string, string> }).headers["X-Cart-Session"];
+      expect(header).toBeTruthy();
+      // El ID generado debe haberse guardado en localStorage
+      expect(localStorage.getItem(SESSION_KEY)).toBe(header);
     });
 
     it("defaults locale to es", async () => {
