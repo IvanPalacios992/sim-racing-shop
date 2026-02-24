@@ -9,6 +9,7 @@ using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Repositories;
 using SimRacingShop.Core.Services;
+using StackExchange.Redis;
 using System.Security.Claims;
 
 namespace SimRacingShop.UnitTests.Controllers;
@@ -18,6 +19,7 @@ public class AdminCategoriesControllerTests
     private readonly Mock<ICategoryAdminRepository> _adminRepoMock;
     private readonly Mock<IFileStorageService> _fileStorageMock;
     private readonly Mock<IDistributedCache> _cacheMock;
+    private readonly Mock<IConnectionMultiplexer> _multiplexerMock;
     private readonly Mock<ILogger<AdminCategoriesController>> _loggerMock;
     private readonly AdminCategoriesController _controller;
 
@@ -26,12 +28,14 @@ public class AdminCategoriesControllerTests
         _adminRepoMock = new Mock<ICategoryAdminRepository>();
         _fileStorageMock = new Mock<IFileStorageService>();
         _cacheMock = new Mock<IDistributedCache>();
+        _multiplexerMock = new Mock<IConnectionMultiplexer>();
         _loggerMock = new Mock<ILogger<AdminCategoriesController>>();
 
         _controller = new AdminCategoriesController(
             _adminRepoMock.Object,
             _fileStorageMock.Object,
             _cacheMock.Object,
+            _multiplexerMock.Object,
             _loggerMock.Object);
 
         // Setup admin user context
@@ -590,6 +594,128 @@ public class AdminCategoriesControllerTests
         // Assert
         _adminRepoMock.Verify(r => r.ReplaceTranslationsAsync(category.Id,
             It.Is<List<CategoryTranslation>>(t => t.Count == 2)), Times.Once);
+    }
+
+    #endregion
+
+    #region Cache Invalidation Tests
+
+    [Fact]
+    public async Task CreateCategory_InvalidatesListCache_WhenKeysExist()
+    {
+        // Arrange
+        var dto = BuildCreateDto();
+        var serverMock = new Mock<IServer>();
+        var dbMock = new Mock<IDatabase>();
+
+        var existingKeys = new RedisKey[] { "SimRacingShop:categories:list:es", "SimRacingShop:categories:list:en" };
+
+        _multiplexerMock.Setup(m => m.GetEndPoints(It.IsAny<bool>()))
+            .Returns(new System.Net.EndPoint[] { new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 6379) });
+
+        _multiplexerMock.Setup(m => m.GetServer(It.IsAny<System.Net.EndPoint>(), It.IsAny<object>()))
+            .Returns(serverMock.Object);
+
+        serverMock.Setup(s => s.Keys(
+                It.IsAny<int>(),
+                It.Is<RedisValue>(p => p.ToString().Contains("categories:list")),
+                It.IsAny<int>(),
+                It.IsAny<long>(),
+                It.IsAny<int>(),
+                It.IsAny<CommandFlags>()))
+            .Returns(existingKeys.Select(k => (RedisKey)k));
+
+        _multiplexerMock.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>()))
+            .Returns(dbMock.Object);
+
+        dbMock.Setup(d => d.KeyDeleteAsync(It.IsAny<RedisKey[]>(), It.IsAny<CommandFlags>()))
+            .ReturnsAsync(existingKeys.Length);
+
+        _adminRepoMock.Setup(r => r.CreateAsync(It.IsAny<Category>()))
+            .ReturnsAsync((Category c) => c);
+
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.CreateCategory(dto);
+
+        // Assert
+        dbMock.Verify(d => d.KeyDeleteAsync(
+            It.Is<RedisKey[]>(keys => keys.Length == 2),
+            It.IsAny<CommandFlags>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateCategory_SkipsKeyDelete_WhenNoListKeysExist()
+    {
+        // Arrange
+        var dto = BuildCreateDto();
+        var serverMock = new Mock<IServer>();
+        var dbMock = new Mock<IDatabase>();
+
+        _multiplexerMock.Setup(m => m.GetEndPoints(It.IsAny<bool>()))
+            .Returns(new System.Net.EndPoint[] { new System.Net.IPEndPoint(System.Net.IPAddress.Loopback, 6379) });
+
+        _multiplexerMock.Setup(m => m.GetServer(It.IsAny<System.Net.EndPoint>(), It.IsAny<object>()))
+            .Returns(serverMock.Object);
+
+        // Devuelve colección vacía: el bloque "if (listKeys.Length > 0)" no debe ejecutar KeyDeleteAsync
+        serverMock.Setup(s => s.Keys(
+                It.IsAny<int>(),
+                It.IsAny<RedisValue>(),
+                It.IsAny<int>(),
+                It.IsAny<long>(),
+                It.IsAny<int>(),
+                It.IsAny<CommandFlags>()))
+            .Returns(Enumerable.Empty<RedisKey>());
+
+        _multiplexerMock.Setup(m => m.GetDatabase(It.IsAny<int>(), It.IsAny<object>()))
+            .Returns(dbMock.Object);
+
+        _adminRepoMock.Setup(r => r.CreateAsync(It.IsAny<Category>()))
+            .ReturnsAsync((Category c) => c);
+
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.CreateCategory(dto);
+
+        // Assert
+        dbMock.Verify(d => d.KeyDeleteAsync(
+            It.IsAny<RedisKey[]>(),
+            It.IsAny<CommandFlags>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task CreateCategory_LogsWarning_WhenRedisCacheInvalidationFails()
+    {
+        // Arrange
+        var dto = BuildCreateDto();
+
+        _multiplexerMock.Setup(m => m.GetEndPoints(It.IsAny<bool>()))
+            .Throws(new RedisConnectionException(ConnectionFailureType.UnableToConnect, "Redis down"));
+
+        _adminRepoMock.Setup(r => r.CreateAsync(It.IsAny<Category>()))
+            .ReturnsAsync((Category c) => c);
+
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        // El catch interno no debe propagar la excepción: el controlador debe responder igualmente
+        var result = await _controller.CreateCategory(dto);
+
+        // Assert
+        result.Should().BeOfType<CreatedAtActionResult>();
+
+        _loggerMock.Verify(l => l.Log(
+            LogLevel.Warning,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("Could not invalidate category list cache")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()), Times.Once);
     }
 
     #endregion
