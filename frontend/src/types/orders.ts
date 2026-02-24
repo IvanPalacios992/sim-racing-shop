@@ -64,8 +64,14 @@ export interface CreateOrderItemDto {
   productSku: string;
   configurationJson?: string | null;
   quantity: number;
+  /** Precio unitario con IVA */
   unitPrice: number;
+  /** Precio unitario sin IVA */
+  unitSubtotal: number;
+  /** Total de línea con IVA */
   lineTotal: number;
+  /** Total de línea sin IVA */
+  lineSubtotal: number;
 }
 
 export interface CreateOrderDto {

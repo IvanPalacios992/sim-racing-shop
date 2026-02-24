@@ -23,13 +23,24 @@ namespace SimRacingShop.Core.Validators
             RuleFor(x => x.UnitPrice)
                 .GreaterThan(0).WithMessage("El precio unitario debe ser mayor a 0");
 
+            RuleFor(x => x.UnitSubtotal)
+                .GreaterThan(0).WithMessage("El precio unitario sin IVA debe ser mayor a 0");
+
             RuleFor(x => x.LineTotal)
                 .GreaterThan(0).WithMessage("El total de línea debe ser mayor a 0");
+
+            RuleFor(x => x.LineSubtotal)
+                .GreaterThan(0).WithMessage("El total de línea sin IVA debe ser mayor a 0");
 
             // Validar que LineTotal = Quantity * UnitPrice
             RuleFor(x => x)
                 .Must(x => Math.Abs(x.LineTotal - (x.Quantity * x.UnitPrice)) < 0.01m)
                 .WithMessage("El total de línea no coincide con cantidad × precio unitario");
+
+            // Validar que LineSubtotal = Quantity * UnitSubtotal
+            RuleFor(x => x)
+                .Must(x => Math.Abs(x.LineSubtotal - (x.Quantity * x.UnitSubtotal)) < 0.01m)
+                .WithMessage("El total de línea sin IVA no coincide con cantidad × precio unitario sin IVA");
         }
     }
 

@@ -79,7 +79,7 @@ export default function CheckoutContent() {
     setShippingLoading(true);
     setShipping(null);
     shippingApi
-      .calculate({ postalCode: addr.postalCode, subtotal: cart.subtotal, weightKg: 0 })
+      .calculate({ postalCode: addr.postalCode, subtotal: cart.total, weightKg: 0 })
       .then(setShipping)
       .catch(() => setShipping(null))
       .finally(() => setShippingLoading(false));
@@ -130,6 +130,30 @@ export default function CheckoutContent() {
         : shipping.totalCost
       : 0;
 
+    // Build order items with correct prices matching backend's validation model:
+    // backend calculates unitPrice = BasePrice * (1 + VatRate/100) (WITH VAT)
+    // cart stores unitPrice = BasePrice (WITHOUT VAT) and subtotal = BasePrice * qty
+    const orderItemsList = cart.items.map((item) => {
+      const vatMultiplier = 1 + item.vatRate / 100;
+      const unitPrice = Math.round(item.unitPrice * vatMultiplier * 100) / 100;
+      const lineTotal = Math.round(item.subtotal * vatMultiplier * 100) / 100;
+      return {
+        productId: item.productId,
+        productName: item.name,
+        productSku: item.sku,
+        quantity: item.quantity,
+        unitPrice,                    // WITH VAT (= BasePrice * 1.21)
+        unitSubtotal: item.unitPrice, // WITHOUT VAT (= BasePrice)
+        lineTotal,                    // WITH VAT (= unitPrice * qty)
+        lineSubtotal: item.subtotal,  // WITHOUT VAT (= BasePrice * qty)
+      };
+    });
+
+    // Order-level totals: backend accumulates sum(lineTotal WITH VAT) as subtotal
+    const subtotal = Math.round(orderItemsList.reduce((sum, i) => sum + i.lineTotal, 0) * 100) / 100;
+    const vatAmount = Math.round(subtotal * 0.21 * 100) / 100;
+    const totalAmount = Math.round((subtotal + vatAmount + shippingCost) * 100) / 100;
+
     try {
       const order = await ordersApi.createOrder({
         shippingStreet: addr.street,
@@ -137,18 +161,11 @@ export default function CheckoutContent() {
         shippingState: addr.state || null,
         shippingPostalCode: addr.postalCode,
         shippingCountry: addr.country,
-        subtotal: cart.subtotal,
-        vatAmount: cart.vatAmount,
+        subtotal,
+        vatAmount,
         shippingCost,
-        totalAmount: cart.total + shippingCost,
-        orderItems: cart.items.map((item) => ({
-          productId: item.productId,
-          productName: item.name,
-          productSku: item.sku,
-          quantity: item.quantity,
-          unitPrice: item.unitPrice,
-          lineTotal: item.subtotal,
-        })),
+        totalAmount,
+        orderItems: orderItemsList,
       });
 
       await clearCart();

@@ -12,7 +12,9 @@ namespace SimRacingShop.Core.DTOs
         public string? ConfigurationJson { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
+        public decimal UnitSubtotal { get; set; }
         public decimal LineTotal { get; set; }
+        public decimal LineSubtotal { get; set; }
     }
 
     // DTO para crear un pedido

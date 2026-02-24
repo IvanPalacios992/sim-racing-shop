@@ -129,21 +129,34 @@ namespace SimRacingShop.Infrastructure.Services
             // SEGURIDAD: Calcular el precio real en el backend
             // NO CONFIAR en los precios enviados por el frontend
             var calculatedPrice = CalculateProductPrice(product, item.ConfigurationJson);
+            var calculatedUnitSubtotal = Math.Round(product.BasePrice, 2);
             var calculatedLineTotal = calculatedPrice * item.Quantity;
-
-            // Validar que el precio enviado coincida con el calculado
-            var priceDifference = Math.Abs(calculatedPrice - item.UnitPrice);
-            var lineTotalDifference = Math.Abs(calculatedLineTotal - item.LineTotal);
+            var calculatedLineSubtotal = calculatedUnitSubtotal * item.Quantity;
 
             // Tolerancia de 0.01€ por redondeos
+            var priceDifference = Math.Abs(calculatedPrice - item.UnitPrice);
+            var unitSubtotalDifference = Math.Abs(calculatedUnitSubtotal - item.UnitSubtotal);
+            var lineTotalDifference = Math.Abs(calculatedLineTotal - item.LineTotal);
+            var lineSubtotalDifference = Math.Abs(calculatedLineSubtotal - item.LineSubtotal);
+
             if (priceDifference > 0.01m)
             {
-                errors.Add($"Precio incorrecto para '{product.Sku}': esperado {calculatedPrice:F2}€, recibido {item.UnitPrice:F2}€");
+                errors.Add($"Precio unitario incorrecto para '{product.Sku}': esperado {calculatedPrice:F2}€ (con IVA), recibido {item.UnitPrice:F2}€");
+            }
+
+            if (unitSubtotalDifference > 0.01m)
+            {
+                errors.Add($"Precio unitario sin IVA incorrecto para '{product.Sku}': esperado {calculatedUnitSubtotal:F2}€, recibido {item.UnitSubtotal:F2}€");
             }
 
             if (lineTotalDifference > 0.01m)
             {
-                errors.Add($"Total de línea incorrecto para '{product.Sku}': esperado {calculatedLineTotal:F2}€, recibido {item.LineTotal:F2}€");
+                errors.Add($"Total de línea incorrecto para '{product.Sku}': esperado {calculatedLineTotal:F2}€ (con IVA), recibido {item.LineTotal:F2}€");
+            }
+
+            if (lineSubtotalDifference > 0.01m)
+            {
+                errors.Add($"Total de línea sin IVA incorrecto para '{product.Sku}': esperado {calculatedLineSubtotal:F2}€, recibido {item.LineSubtotal:F2}€");
             }
 
             if (product?.WeightGrams.HasValue == true)

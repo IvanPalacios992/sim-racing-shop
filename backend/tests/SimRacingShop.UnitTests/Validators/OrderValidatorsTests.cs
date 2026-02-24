@@ -26,7 +26,9 @@ public class CreateOrderItemDtoValidatorTests
             ConfigurationJson = "{\"color\":\"negro\"}",
             Quantity = 2,
             UnitPrice = 299.99m,
-            LineTotal = 599.98m
+            UnitSubtotal = 247.93m,
+            LineTotal = 599.98m,
+            LineSubtotal = 495.86m
         };
 
         // Act
@@ -200,7 +202,9 @@ public class CreateOrderDtoValidatorTests
                     ProductSku = "TEST-001",
                     Quantity = 1,
                     UnitPrice = 299.99m,
-                    LineTotal = 299.99m
+                    UnitSubtotal = 247.93m,
+                    LineTotal = 299.99m,
+                    LineSubtotal = 247.93m
                 }
             }
         };
@@ -345,7 +349,9 @@ public class CreateOrderDtoValidatorTests
                     ProductSku = "TEST-001",
                     Quantity = 1,
                     UnitPrice = 299.99m,
-                    LineTotal = 299.99m
+                    UnitSubtotal = 247.93m,
+                    LineTotal = 299.99m,
+                    LineSubtotal = 247.93m
                 }
             }
         };

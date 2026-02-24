@@ -60,7 +60,9 @@ public class OrderServiceTests
                     ProductSku = "VOL-001",
                     Quantity = 1,
                     UnitPrice = 299.99m,
-                    LineTotal = 299.99m
+                    UnitSubtotal = 247.93m,
+                    LineTotal = 299.99m,
+                    LineSubtotal = 247.93m
                 }
             }
         };
@@ -161,8 +163,10 @@ public class OrderServiceTests
                     ProductName = "Product 1",
                     ProductSku = "VOL-001",
                     Quantity = 1,
-                    UnitPrice = 121m,
-                    LineTotal = 121m
+                    UnitPrice = 121m,        // 100 * 1.21
+                    UnitSubtotal = 100m,
+                    LineTotal = 121m,
+                    LineSubtotal = 100m
                 },
                 new CreateOrderItemDto
                 {
@@ -170,8 +174,10 @@ public class OrderServiceTests
                     ProductName = "Product 2",
                     ProductSku = "VOL-002",
                     Quantity = 1,
-                    UnitPrice = 181.50m,
-                    LineTotal = 181.50m
+                    UnitPrice = 181.50m,     // 150 * 1.21
+                    UnitSubtotal = 150m,
+                    LineTotal = 181.50m,
+                    LineSubtotal = 150m
                 }
             }
         };
@@ -318,8 +324,10 @@ public class OrderServiceTests
                     ProductName = "Test Product",
                     ProductSku = "VOL-001",
                     Quantity = 1,
-                    UnitPrice = 299.99m,
-                    LineTotal = 299.99m
+                    UnitPrice = 299.99m,     // precio con IVA (247.93 * 1.21)
+                    UnitSubtotal = 247.93m,  // precio sin IVA
+                    LineTotal = 299.99m,     // total línea con IVA
+                    LineSubtotal = 247.93m   // total línea sin IVA
                 }
             }
         };
