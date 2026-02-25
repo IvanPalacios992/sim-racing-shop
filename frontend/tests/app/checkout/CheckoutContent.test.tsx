@@ -671,4 +671,140 @@ describe("CheckoutContent", () => {
       });
     });
   });
+
+  // ── Address interactions ─────────────────────────────────────────────────
+
+  describe("address interactions", () => {
+    it("recalculates shipping when a different delivery address is selected", async () => {
+      setupAuthenticatedUser();
+      setupHydratedCart();
+      const user = userEvent.setup();
+
+      const addr1 = createMockDeliveryAddress({
+        id: "d-1",
+        name: "Home",
+        postalCode: "28001",
+        isDefault: true,
+      });
+      const addr2 = createMockDeliveryAddress({
+        id: "d-2",
+        name: "Office",
+        postalCode: "08001",
+        isDefault: false,
+      });
+      vi.mocked(addressesApi.getDeliveryAddresses).mockResolvedValue([
+        addr1,
+        addr2,
+      ]);
+
+      render(<CheckoutContent />);
+
+      // Wait for addresses to load
+      await waitFor(() =>
+        expect(screen.getByText("Office")).toBeInTheDocument()
+      );
+
+      // Click the second address
+      await user.click(screen.getByText("Office"));
+
+      await waitFor(() => {
+        expect(shippingApi.calculate).toHaveBeenCalledWith(
+          expect.objectContaining({ postalCode: "08001" })
+        );
+      });
+    });
+
+    it("calls createDeliveryAddress and adds address to list when saved", async () => {
+      setupAuthenticatedUser();
+      setupHydratedCart();
+      const user = userEvent.setup();
+
+      const newAddr = createMockDeliveryAddress({
+        id: "d-new",
+        name: "New Place",
+        isDefault: false,
+      });
+      vi.mocked(addressesApi.createDeliveryAddress).mockResolvedValue(newAddr);
+
+      render(<CheckoutContent />);
+
+      // Wait for addresses to load
+      await waitFor(() =>
+        expect(
+          screen.getByRole("button", { name: /Add new address/i })
+        ).toBeInTheDocument()
+      );
+
+      // Open the add address modal
+      await user.click(
+        screen.getByRole("button", { name: /Add new address/i })
+      );
+
+      // Fill in the modal form
+      await user.type(
+        screen.getByPlaceholderText("Ej: Casa, Oficina..."),
+        "New Place"
+      );
+      await user.type(
+        screen.getByPlaceholderText("Calle Mayor 1, 2ºA"),
+        "Gran Via 20"
+      );
+      // Both city and state share placeholder "Madrid" — target city (first occurrence)
+      await user.type(screen.getAllByPlaceholderText("Madrid")[0], "Madrid");
+      await user.type(screen.getByPlaceholderText("28001"), "28002");
+
+      await user.click(screen.getByRole("button", { name: "Save address" }));
+
+      await waitFor(() => {
+        expect(addressesApi.createDeliveryAddress).toHaveBeenCalledTimes(1);
+      });
+
+      // New address is added to the list via local state update
+      await waitFor(() => {
+        expect(screen.getByText("New Place")).toBeInTheDocument();
+      });
+    });
+
+    it("calls deleteDeliveryAddress and removes address from list when confirmed", async () => {
+      setupAuthenticatedUser();
+      setupHydratedCart();
+      const user = userEvent.setup();
+
+      vi.mocked(addressesApi.deleteDeliveryAddress).mockResolvedValue(
+        undefined
+      );
+
+      render(<CheckoutContent />);
+
+      // Wait for the address and delete button to appear
+      await waitFor(() =>
+        expect(screen.getByText("Home")).toBeInTheDocument()
+      );
+      await waitFor(() =>
+        expect(
+          screen.getByRole("button", { name: "Delete" })
+        ).toBeInTheDocument()
+      );
+
+      // First click triggers the confirmation prompt ("¿Eliminar? Sí / No")
+      await user.click(screen.getByRole("button", { name: "Delete" }));
+
+      // Confirm deletion
+      await waitFor(() =>
+        expect(screen.getByRole("button", { name: "Sí" })).toBeInTheDocument()
+      );
+      await user.click(screen.getByRole("button", { name: "Sí" }));
+
+      await waitFor(() => {
+        expect(addressesApi.deleteDeliveryAddress).toHaveBeenCalledWith(
+          "delivery-1"
+        );
+      });
+
+      // Address is removed from the list via local state update
+      await waitFor(() => {
+        expect(screen.queryByText("Home")).not.toBeInTheDocument();
+      });
+    });
+  });
 });
