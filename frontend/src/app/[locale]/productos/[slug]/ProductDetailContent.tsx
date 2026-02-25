@@ -116,13 +116,13 @@ export function ProductDetailContent({ slug }: Props) {
           product={product}
           onClose={() => setConfiguratorOpen(false)}
           isAddingToCart={isAddingToCart}
-          onAddToCart={async (selections, _totalPrice) => {
+          onAddToCart={async (selections, _totalPrice, selectedOptions) => {
             const selectedComponentIds = Object.values(selections).filter(
               (id): id is string => id !== null
             );
             setIsAddingToCart(true);
             try {
-              await addItem(product.id, 1, locale, selectedComponentIds);
+              await addItem(product.id, 1, locale, selectedComponentIds, selectedOptions);
             } finally {
               setIsAddingToCart(false);
             }

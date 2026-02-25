@@ -40,6 +40,15 @@ export function CartItemRow({ item, onUpdate, onRemove, isLoading }: Props) {
         <div>
           <p className="text-sm text-silver">{item.sku}</p>
           <h3 className="text-lg font-semibold text-white">{item.name}</h3>
+          {item.selectedOptions && item.selectedOptions.length > 0 && (
+            <ul className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+              {item.selectedOptions.map((opt) => (
+                <li key={opt.groupName} className="text-xs text-silver">
+                  <span className="text-graphite">{opt.groupName}:</span> {opt.componentName}
+                </li>
+              ))}
+            </ul>
+          )}
           <div className="mt-1 text-sm">
             <span className="text-success">● {t("inStock")}</span>
           </div>

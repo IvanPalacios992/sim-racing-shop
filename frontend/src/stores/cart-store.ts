@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { CartDto, CartItemDto } from "@/types/cart";
+import type { CartDto, CartItemDto, SelectedOption } from "@/types/cart";
 import {
   cartApi,
   ensureSessionId,
@@ -21,7 +21,7 @@ interface CartActions {
   /** Ensures a session ID exists for anonymous carts. Call on app mount. */
   initSession: () => string;
   fetchCart: (locale?: string) => Promise<void>;
-  addItem: (productId: string, quantity?: number, locale?: string, selectedComponentIds?: string[]) => Promise<void>;
+  addItem: (productId: string, quantity?: number, locale?: string, selectedComponentIds?: string[], selectedOptions?: SelectedOption[]) => Promise<void>;
   updateItem: (productId: string, quantity: number, locale?: string) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -75,11 +75,11 @@ export const useCartStore = create<CartStore>()(
         }
       },
 
-      addItem: async (productId, quantity = 1, locale = "es", selectedComponentIds) => {
+      addItem: async (productId, quantity = 1, locale = "es", selectedComponentIds, selectedOptions) => {
         set({ isLoading: true, error: null });
         try {
           const cart = await cartApi.addItem(
-            { productId, quantity, selectedComponentIds },
+            { productId, quantity, selectedComponentIds, selectedOptions },
             locale,
           );
           const addedName = cart.items.find((i) => i.productId === productId)?.name ?? null;

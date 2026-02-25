@@ -13,6 +13,7 @@ public class OrderServiceTests
 {
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
     private readonly Mock<IProductAdminRepository> _productRepositoryMock;
+    private readonly Mock<IComponentRepository> _componentRepositoryMock;
     private readonly Mock<IShippingService> _shippingServiceMock;
     private readonly Mock<ILogger<OrderService>> _loggerMock;
     private readonly OrderService _service;
@@ -21,11 +22,13 @@ public class OrderServiceTests
     {
         _orderRepositoryMock = new Mock<IOrderRepository>();
         _productRepositoryMock = new Mock<IProductAdminRepository>();
+        _componentRepositoryMock = new Mock<IComponentRepository>();
         _shippingServiceMock = new Mock<IShippingService>();
         _loggerMock = new Mock<ILogger<OrderService>>();
         _service = new OrderService(
             _orderRepositoryMock.Object,
             _productRepositoryMock.Object,
+            _componentRepositoryMock.Object,
             _shippingServiceMock.Object,
             _loggerMock.Object
         );
@@ -47,10 +50,10 @@ public class OrderServiceTests
             ShippingCity = "Madrid",
             ShippingPostalCode = "28001",
             ShippingCountry = "ES",
-            Subtotal = 299.99m,
-            VatAmount = 63.00m, // 21% de 299.99
+            Subtotal = 247.93m,      // Suma de LineSubtotal (sin IVA)
+            VatAmount = 52.07m,      // 21% de 247.93
             ShippingCost = 6.25m,
-            TotalAmount = 369.24m, // 299.99 + 63.00 + 6.25
+            TotalAmount = 306.25m,   // 247.93 + 52.07 + 6.25
             OrderItems = new List<CreateOrderItemDto>
             {
                 new CreateOrderItemDto
@@ -59,8 +62,10 @@ public class OrderServiceTests
                     ProductName = "Test Product",
                     ProductSku = "VOL-001",
                     Quantity = 1,
-                    UnitPrice = 299.99m,
-                    LineTotal = 299.99m
+                    UnitPrice = 299.99m,     // Con IVA (247.93 * 1.21 ≈ 300.00, dentro de tolerancia)
+                    UnitSubtotal = 247.93m,  // Sin IVA
+                    LineTotal = 299.99m,     // Con IVA
+                    LineSubtotal = 247.93m   // Sin IVA
                 }
             }
         };
@@ -89,8 +94,8 @@ public class OrderServiceTests
         result.UserId.Should().Be(userId);
         result.OrderStatus.Should().Be("pending");
         result.OrderItems.Should().HaveCount(1);
-        result.Subtotal.Should().BeApproximately(299.99m, 0.02m); // Allow rounding differences
-        result.TotalAmount.Should().BeApproximately(369.24m, 0.02m);
+        result.Subtotal.Should().BeApproximately(247.93m, 0.02m); // Subtotal sin IVA
+        result.TotalAmount.Should().BeApproximately(306.25m, 0.02m); // 247.93 + 52.07 + 6.25
 
         _orderRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<Order>()), Times.Once);
     }
@@ -149,10 +154,10 @@ public class OrderServiceTests
             ShippingCity = "Madrid",
             ShippingPostalCode = "28001",
             ShippingCountry = "ES",
-            Subtotal = 302.50m,
-            VatAmount = 63.52m,
+            Subtotal = 250.00m,      // 100 + 150 (suma de LineSubtotal sin IVA)
+            VatAmount = 52.50m,      // 21% de 250.00
             ShippingCost = 6.25m,
-            TotalAmount = 372.27m,
+            TotalAmount = 308.75m,   // 250.00 + 52.50 + 6.25
             OrderItems = new List<CreateOrderItemDto>
             {
                 new CreateOrderItemDto
@@ -161,8 +166,10 @@ public class OrderServiceTests
                     ProductName = "Product 1",
                     ProductSku = "VOL-001",
                     Quantity = 1,
-                    UnitPrice = 121m,
-                    LineTotal = 121m
+                    UnitPrice = 121m,        // 100 * 1.21
+                    UnitSubtotal = 100m,
+                    LineTotal = 121m,
+                    LineSubtotal = 100m
                 },
                 new CreateOrderItemDto
                 {
@@ -170,8 +177,10 @@ public class OrderServiceTests
                     ProductName = "Product 2",
                     ProductSku = "VOL-002",
                     Quantity = 1,
-                    UnitPrice = 181.50m,
-                    LineTotal = 181.50m
+                    UnitPrice = 181.50m,     // 150 * 1.21
+                    UnitSubtotal = 150m,
+                    LineTotal = 181.50m,
+                    LineSubtotal = 150m
                 }
             }
         };
@@ -250,12 +259,16 @@ public class OrderServiceTests
             .Setup(x => x.GetByIdAsync(productId))
             .ReturnsAsync(product);
 
+        _shippingServiceMock
+            .Setup(x => x.CalculateShippingCostAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
+            .ReturnsAsync(6.25m);
+
         // Act
         Func<Task> act = async () => await _service.ValidateOrderProductsAsync(dto);
 
         // Assert
         await act.Should().ThrowAsync<InvalidOperationException>()
-            .WithMessage("*Precio incorrecto*");
+            .WithMessage("*Precio unitario incorrecto*");
     }
 
     #endregion
@@ -276,6 +289,291 @@ public class OrderServiceTests
         // Assert
         result.Should().MatchRegex(@"ORD-\d{8}-0043"); // 42 + 1 = 43
         result.Should().Contain(DateTime.UtcNow.ToString("yyyyMMdd"));
+    }
+
+    #endregion
+
+    #region ValidateOrderProductsAsync — SKU y totales
+
+    [Fact]
+    public async Task ValidateOrderProductsAsync_SkuNoConcuerda_LanzaExcepcion()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var product = CreateTestProduct(productId, "VOL-001", 247.93m);
+
+        var dto = CreateValidOrderDto(productId);
+        dto.OrderItems.First().ProductSku = "SKU-ERRONEO"; // SKU manipulado
+
+        _productRepositoryMock
+            .Setup(x => x.GetByIdAsync(productId))
+            .ReturnsAsync(product);
+
+        _shippingServiceMock
+            .Setup(x => x.CalculateShippingCostAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
+            .ReturnsAsync(6.25m);
+
+        // Act
+        Func<Task> act = async () => await _service.ValidateOrderProductsAsync(dto);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*SKU*");
+    }
+
+    [Fact]
+    public async Task ValidateOrderProductsAsync_SubtotalIncorrecto_LanzaExcepcion()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var product = CreateTestProduct(productId, "VOL-001", 247.93m);
+
+        var dto = CreateValidOrderDto(productId);
+        dto.Subtotal = 999m; // subtotal manipulado
+
+        _productRepositoryMock
+            .Setup(x => x.GetByIdAsync(productId))
+            .ReturnsAsync(product);
+
+        _shippingServiceMock
+            .Setup(x => x.CalculateShippingCostAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
+            .ReturnsAsync(6.25m);
+
+        // Act
+        Func<Task> act = async () => await _service.ValidateOrderProductsAsync(dto);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Subtotal incorrecto*");
+    }
+
+    [Fact]
+    public async Task ValidateOrderProductsAsync_IvaIncorrecto_LanzaExcepcion()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var product = CreateTestProduct(productId, "VOL-001", 247.93m);
+
+        var dto = CreateValidOrderDto(productId);
+        dto.VatAmount = 1m; // IVA manipulado
+
+        _productRepositoryMock
+            .Setup(x => x.GetByIdAsync(productId))
+            .ReturnsAsync(product);
+
+        _shippingServiceMock
+            .Setup(x => x.CalculateShippingCostAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
+            .ReturnsAsync(6.25m);
+
+        // Act
+        Func<Task> act = async () => await _service.ValidateOrderProductsAsync(dto);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*IVA incorrecto*");
+    }
+
+    [Fact]
+    public async Task ValidateOrderProductsAsync_EnvioIncorrecto_LanzaExcepcion()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var product = CreateTestProduct(productId, "VOL-001", 247.93m);
+
+        var dto = CreateValidOrderDto(productId);
+        dto.ShippingCost = 99m; // envío manipulado
+
+        _productRepositoryMock
+            .Setup(x => x.GetByIdAsync(productId))
+            .ReturnsAsync(product);
+
+        _shippingServiceMock
+            .Setup(x => x.CalculateShippingCostAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
+            .ReturnsAsync(6.25m); // backend calcula 6.25, frontend envió 99
+
+        // Act
+        Func<Task> act = async () => await _service.ValidateOrderProductsAsync(dto);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Coste de envío incorrecto*");
+    }
+
+    [Fact]
+    public async Task ValidateOrderProductsAsync_TotalIncorrecto_LanzaExcepcion()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var product = CreateTestProduct(productId, "VOL-001", 247.93m);
+
+        var dto = CreateValidOrderDto(productId);
+        dto.TotalAmount = 1m; // total manipulado
+
+        _productRepositoryMock
+            .Setup(x => x.GetByIdAsync(productId))
+            .ReturnsAsync(product);
+
+        _shippingServiceMock
+            .Setup(x => x.CalculateShippingCostAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
+            .ReturnsAsync(6.25m);
+
+        // Act
+        Func<Task> act = async () => await _service.ValidateOrderProductsAsync(dto);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Total incorrecto*");
+    }
+
+    [Fact]
+    public async Task ValidateOrderProductsAsync_TotalLineaIncorrecto_LanzaExcepcion()
+    {
+        // Arrange
+        var productId = Guid.NewGuid();
+        var product = CreateTestProduct(productId, "VOL-001", 247.93m);
+
+        var dto = CreateValidOrderDto(productId);
+        dto.OrderItems.First().LineTotal = 999m; // total línea manipulado
+
+        _productRepositoryMock
+            .Setup(x => x.GetByIdAsync(productId))
+            .ReturnsAsync(product);
+
+        _shippingServiceMock
+            .Setup(x => x.CalculateShippingCostAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
+            .ReturnsAsync(6.25m);
+
+        // Act
+        Func<Task> act = async () => await _service.ValidateOrderProductsAsync(dto);
+
+        // Assert
+        await act.Should().ThrowAsync<InvalidOperationException>()
+            .WithMessage("*Total de línea incorrecto*");
+    }
+
+    #endregion
+
+    #region CreateOrderAsync con componentes seleccionados
+
+    [Fact]
+    public async Task CreateOrderAsync_ConComponentesSeleccionados_CalculaPrecioConModificador()
+    {
+        // Arrange – producto base 100€ + IVA 21%; componente seleccionado suma 20€ al precio base
+        var userId = Guid.NewGuid();
+        var productId = Guid.NewGuid();
+        var componentId = Guid.NewGuid();
+        var product = CreateTestProduct(productId, "VOL-001", 100m); // BasePrice=100, VatRate=21
+
+        // Con modificador +20 → unitSubtotal=120, unitPrice=120*1.21=145.20
+        var dto = new CreateOrderDto
+        {
+            ShippingStreet = "Calle Mayor 1",
+            ShippingCity = "Madrid",
+            ShippingPostalCode = "28001",
+            ShippingCountry = "ES",
+            Subtotal = 120m,          // lineSubtotal sin IVA
+            VatAmount = 25.20m,       // 21% de 120
+            ShippingCost = 6.25m,
+            TotalAmount = 151.45m,    // 120 + 25.20 + 6.25
+            OrderItems = new List<CreateOrderItemDto>
+            {
+                new CreateOrderItemDto
+                {
+                    ProductId = productId,
+                    ProductName = "Volante Test",
+                    ProductSku = "VOL-001",
+                    Quantity = 1,
+                    UnitPrice = 145.20m,         // 120 * 1.21
+                    UnitSubtotal = 120m,          // 100 + 20 (modificador)
+                    LineTotal = 145.20m,
+                    LineSubtotal = 120m,
+                    SelectedComponentIds = new List<Guid> { componentId }
+                }
+            }
+        };
+
+        _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);
+
+        // El componente seleccionado añade 20€ al precio
+        _componentRepositoryMock
+            .Setup(x => x.GetPriceModifiersSumAsync(productId, It.IsAny<List<Guid>>()))
+            .ReturnsAsync(20m);
+
+        _shippingServiceMock
+            .Setup(x => x.CalculateShippingCostAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
+            .ReturnsAsync(6.25m);
+
+        _orderRepositoryMock
+            .Setup(x => x.CountByOrderNumberPrefixAsync(It.IsAny<string>()))
+            .ReturnsAsync(0);
+
+        _orderRepositoryMock
+            .Setup(x => x.CreateAsync(It.IsAny<Order>()))
+            .ReturnsAsync((Order o) => o);
+
+        // Act
+        var result = await _service.CreateOrderAsync(dto, userId);
+
+        // Assert – el precio del item debe incluir el modificador del componente
+        result.Should().NotBeNull();
+        result.OrderItems.Should().HaveCount(1);
+        // CalculateProductPriceAsync: (100 + 20) * 1.21 = 145.20
+        result.OrderItems.First().UnitPrice.Should().BeApproximately(145.20m, 0.02m);
+
+        _componentRepositoryMock.Verify(
+            x => x.GetPriceModifiersSumAsync(productId, It.IsAny<List<Guid>>()), Times.AtLeastOnce);
+    }
+
+    [Fact]
+    public async Task ValidateOrderProductsAsync_ConComponentesSeleccionados_ValidaPrecioConModificador()
+    {
+        // Arrange – producto 100€ base + componente +25€ → unitSubtotal=125, price=125*1.21=151.25
+        var productId = Guid.NewGuid();
+        var componentId = Guid.NewGuid();
+        var product = CreateTestProduct(productId, "VOL-001", 100m);
+
+        _componentRepositoryMock
+            .Setup(x => x.GetPriceModifiersSumAsync(productId, It.IsAny<List<Guid>>()))
+            .ReturnsAsync(25m);
+
+        _shippingServiceMock
+            .Setup(x => x.CalculateShippingCostAsync(It.IsAny<string>(), It.IsAny<decimal>(), It.IsAny<decimal>()))
+            .ReturnsAsync(6.25m);
+
+        _productRepositoryMock.Setup(x => x.GetByIdAsync(productId)).ReturnsAsync(product);
+
+        var dto = new CreateOrderDto
+        {
+            ShippingStreet = "Calle Mayor 1",
+            ShippingCity = "Madrid",
+            ShippingPostalCode = "28001",
+            ShippingCountry = "ES",
+            Subtotal = 125m,
+            VatAmount = 26.25m,   // 21% de 125
+            ShippingCost = 6.25m,
+            TotalAmount = 157.50m,
+            OrderItems = new List<CreateOrderItemDto>
+            {
+                new CreateOrderItemDto
+                {
+                    ProductId = productId,
+                    ProductName = "Volante Test",
+                    ProductSku = "VOL-001",
+                    Quantity = 1,
+                    UnitPrice = 151.25m,         // 125 * 1.21
+                    UnitSubtotal = 125m,
+                    LineTotal = 151.25m,
+                    LineSubtotal = 125m,
+                    SelectedComponentIds = new List<Guid> { componentId }
+                }
+            }
+        };
+
+        // Act – no debe lanzar excepción porque los precios son correctos
+        Func<Task> act = async () => await _service.ValidateOrderProductsAsync(dto);
+
+        // Assert
+        await act.Should().NotThrowAsync();
     }
 
     #endregion
@@ -306,10 +604,10 @@ public class OrderServiceTests
             ShippingCity = "Madrid",
             ShippingPostalCode = "28001",
             ShippingCountry = "ES",
-            Subtotal = 299.99m,
-            VatAmount = 63.00m, // 21% de 299.99
+            Subtotal = 247.93m,      // LineSubtotal sin IVA
+            VatAmount = 52.07m,      // 21% de 247.93
             ShippingCost = 6.25m,
-            TotalAmount = 369.24m, // 299.99 + 63.00 + 6.25
+            TotalAmount = 306.25m,   // 247.93 + 52.07 + 6.25
             OrderItems = new List<CreateOrderItemDto>
             {
                 new CreateOrderItemDto
@@ -318,8 +616,10 @@ public class OrderServiceTests
                     ProductName = "Test Product",
                     ProductSku = "VOL-001",
                     Quantity = 1,
-                    UnitPrice = 299.99m,
-                    LineTotal = 299.99m
+                    UnitPrice = 299.99m,     // precio con IVA (247.93 * 1.21)
+                    UnitSubtotal = 247.93m,  // precio sin IVA
+                    LineTotal = 299.99m,     // total línea con IVA
+                    LineSubtotal = 247.93m   // total línea sin IVA
                 }
             }
         };
