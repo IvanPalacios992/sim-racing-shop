@@ -66,7 +66,7 @@ export function ProductFilters({ filters, onFiltersChange, categories }: Readonl
   const filtersContent = (
     <div className="space-y-6">
       {/* Search */}
-      <div>
+      <div className="border-b pb-6">
         <div className="relative">
           <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-silver" />
           <Input
@@ -81,7 +81,7 @@ export function ProductFilters({ filters, onFiltersChange, categories }: Readonl
 
       {/* Category */}
       {categories.length > 0 && (
-        <div>
+        <div className="border-b pb-6">
           <h3 className="mb-3 text-sm font-semibold text-white">{t("category")}</h3>
           <div className="flex flex-wrap gap-2">
             {[{ id: "", slug: "", name: t("allCategories") }, ...categories].map((cat) => {
@@ -106,7 +106,7 @@ export function ProductFilters({ filters, onFiltersChange, categories }: Readonl
       )}
 
       {/* Sort */}
-      <div>
+      <div className="border-b pb-6">
         <h3 className="mb-3 text-sm font-semibold text-white">{t("sortBy")}</h3>
         <select
           value={`${currentSortKey}`}
@@ -130,7 +130,7 @@ export function ProductFilters({ filters, onFiltersChange, categories }: Readonl
       </div>
 
       {/* Price Range */}
-      <div>
+      <div className="border-b pb-6">
         <h3 className="mb-3 text-sm font-semibold text-white">{t("priceRange")}</h3>
         <div className="grid grid-cols-2 gap-3">
           <Input
