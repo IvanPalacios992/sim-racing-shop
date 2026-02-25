@@ -307,7 +307,8 @@ describe("ProductDetailContent", () => {
           "prod-1",
           1,
           "en",
-          ["opt-black"]
+          ["opt-black"],
+          [{ groupName: "Color", componentId: "opt-black", componentName: "Black" }]
         );
       });
     });
@@ -351,7 +352,13 @@ describe("ProductDetailContent", () => {
 
       await waitFor(() => {
         // Only the non-null selection (Color) should be passed — Grip stays null
-        expect(mockAddItem).toHaveBeenCalledWith("prod-1", 1, "en", ["opt-black"]);
+        expect(mockAddItem).toHaveBeenCalledWith(
+          "prod-1",
+          1,
+          "en",
+          ["opt-black"],
+          [{ groupName: "Color", componentId: "opt-black", componentName: "Black" }]
+        );
       });
     });
   });

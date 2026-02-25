@@ -134,7 +134,8 @@ namespace SimRacingShop.Infrastructure.Services
             await _cartRepository.DeletePriceModifiersAsync(sessionKey);
 
             // Fusionar opciones seleccionadas: copiar las de sesión al carrito de usuario
-            var sessionOptions = await _cartRepository.GetAllSelectedOptionsAsync(sessionKey);
+            var sessionOptions = await _cartRepository.GetAllSelectedOptionsAsync(sessionKey)
+                                ?? new Dictionary<string, string>();
             foreach (var (productId, optionsJson) in sessionOptions)
                 await _cartRepository.SetSelectedOptionsAsync(userKey, productId, optionsJson, UserCartTtl);
 
@@ -157,7 +158,8 @@ namespace SimRacingShop.Infrastructure.Services
                 return new CartDto();
 
             var modifiers = await _cartRepository.GetAllPriceModifiersAsync(cartKey);
-            var allSelectedOptions = await _cartRepository.GetAllSelectedOptionsAsync(cartKey);
+            var allSelectedOptions = await _cartRepository.GetAllSelectedOptionsAsync(cartKey)
+                                    ?? new Dictionary<string, string>();
             var cartItems = new List<CartItemDto>(items.Count);
 
             foreach (var (productIdStr, quantity) in items)
