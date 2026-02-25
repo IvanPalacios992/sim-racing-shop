@@ -151,5 +151,44 @@ namespace SimRacingShop.Infrastructure.Repositories
             var db = _redis.GetDatabase();
             await db.KeyDeleteAsync(ModifiersKey(cartKey));
         }
+
+        // ── Opciones seleccionadas ───────────────────────────────────────────
+        // Clave paralela: SimRacingShop:{cartKey}:selectedoptions → Hash { productId: JSON }
+
+        private static string SelectedOptionsKey(string cartKey) => $"SimRacingShop:{cartKey}:selectedoptions";
+
+        public async Task SetSelectedOptionsAsync(string cartKey, string productId, string optionsJson, TimeSpan ttl)
+        {
+            var db = _redis.GetDatabase();
+            var key = SelectedOptionsKey(cartKey);
+            await db.HashSetAsync(key, productId, optionsJson);
+            await db.KeyExpireAsync(key, ttl);
+        }
+
+        public async Task<Dictionary<string, string>> GetAllSelectedOptionsAsync(string cartKey)
+        {
+            var db = _redis.GetDatabase();
+            var entries = await db.HashGetAllAsync(SelectedOptionsKey(cartKey));
+            var result = new Dictionary<string, string>(entries.Length);
+            foreach (var entry in entries)
+            {
+                var value = (string?)entry.Value;
+                if (value != null)
+                    result[entry.Name.ToString()] = value;
+            }
+            return result;
+        }
+
+        public async Task RemoveSelectedOptionsAsync(string cartKey, string productId)
+        {
+            var db = _redis.GetDatabase();
+            await db.HashDeleteAsync(SelectedOptionsKey(cartKey), productId);
+        }
+
+        public async Task DeleteAllSelectedOptionsAsync(string cartKey)
+        {
+            var db = _redis.GetDatabase();
+            await db.KeyDeleteAsync(SelectedOptionsKey(cartKey));
+        }
     }
 }

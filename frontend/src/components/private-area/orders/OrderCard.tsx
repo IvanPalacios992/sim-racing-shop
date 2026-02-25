@@ -42,17 +42,35 @@ export default function OrderCard({ order }: OrderCardProps) {
 
       <CardContent>
         <ul className="space-y-1">
-          {visibleItems.map((item) => (
-            <li key={item.id} className="flex justify-between">
-              <div>
-                <p className="text-pure-white font-semibold">{item.productName}</p>
-                <p className="text-sm text-silver mt-1 mb-4">{t("amount")}: {item.quantity}</p>
-              </div>
-              <div>
-                €{item.lineTotal}
-              </div>
-            </li>
-          ))}
+          {visibleItems.map((item) => {
+            const config = item.configurationJson
+              ? (() => {
+                  try {
+                    return JSON.parse(item.configurationJson) as Record<string, string>;
+                  } catch {
+                    return null;
+                  }
+                })()
+              : null;
+            return (
+              <li key={item.id} className="flex justify-between">
+                <div>
+                  <p className="text-pure-white font-semibold">{item.productName}</p>
+                  {config && Object.keys(config).length > 0 && (
+                    <p className="text-xs text-silver mt-0.5">
+                      {Object.entries(config)
+                        .map(([k, v]) => `${k}: ${v}`)
+                        .join(" · ")}
+                    </p>
+                  )}
+                  <p className="text-sm text-silver mt-1 mb-4">{t("amount")}: {item.quantity}</p>
+                </div>
+                <div>
+                  €{item.lineTotal}
+                </div>
+              </li>
+            );
+          })}
           {remainingCount > 0 && (
             <li className="text-sm text-zinc-500">
               {t("andMore", { count: remainingCount })}

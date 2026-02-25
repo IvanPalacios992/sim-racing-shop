@@ -182,6 +182,7 @@ namespace SimRacingShop.API.Controllers
                     Id = item.Id,
                     ProductName = item.ProductName,
                     ProductSku = item.ProductSku,
+                    ConfigurationJson = item.ConfigurationJson,
                     Quantity = item.Quantity,
                     LineTotal = item.LineTotal
                 });
