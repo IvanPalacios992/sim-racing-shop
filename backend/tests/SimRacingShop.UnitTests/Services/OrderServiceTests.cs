@@ -518,7 +518,7 @@ public class OrderServiceTests
         result.Should().NotBeNull();
         result.OrderItems.Should().HaveCount(1);
         // CalculateProductPriceAsync: (100 + 20) * 1.21 = 145.20
-        result.OrderItems[0].UnitPrice.Should().BeApproximately(145.20m, 0.02m);
+        result.OrderItems.First().UnitPrice.Should().BeApproximately(145.20m, 0.02m);
 
         _componentRepositoryMock.Verify(
             x => x.GetPriceModifiersSumAsync(productId, It.IsAny<List<Guid>>()), Times.AtLeastOnce);
