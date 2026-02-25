@@ -775,5 +775,244 @@ namespace SimRacingShop.UnitTests.Services
             result.Items[0].Subtotal.Should().Be(230m);   // 115 * 2
             result.Subtotal.Should().Be(230m);
         }
+
+        // --- AddItemAsync con opciones seleccionadas ---
+
+        [Fact]
+        public async Task AddItemAsync_ConOpcionesSeleccionadas_GuardaOpcionesEnRedis()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+            var selectedOptions = new List<SelectedOptionDto>
+            {
+                new() { GroupName = "Color", ComponentId = "opt-black", ComponentName = "Black" }
+            };
+            var dto = new AddToCartDto
+            {
+                ProductId = productId,
+                Quantity = 1,
+                SelectedOptions = selectedOptions
+            };
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(CreateProduct(productId));
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int>());
+
+            _cartRepositoryMock
+                .Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>()))
+                .Returns(Task.CompletedTask);
+
+            _cartRepositoryMock
+                .Setup(x => x.SetSelectedOptionsAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TimeSpan>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _service.AddItemAsync(cartKey, dto, "es");
+
+            // Assert – debe llamar SetSelectedOptionsAsync con el JSON serializado
+            _cartRepositoryMock.Verify(x => x.SetSelectedOptionsAsync(
+                cartKey, productId.ToString(), It.IsAny<string>(), UserCartTtl), Times.Once);
+        }
+
+        [Fact]
+        public async Task AddItemAsync_SinOpcionesSeleccionadas_NoLlamaSetSelectedOptions()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+            var dto = new AddToCartDto { ProductId = productId, Quantity = 1 };
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(CreateProduct(productId));
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int>());
+
+            _cartRepositoryMock
+                .Setup(x => x.SetItemAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<TimeSpan>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _service.AddItemAsync(cartKey, dto, "es");
+
+            // Assert
+            _cartRepositoryMock.Verify(x => x.SetSelectedOptionsAsync(
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<TimeSpan>()), Times.Never);
+        }
+
+        // --- RemoveItemAsync también elimina opciones seleccionadas ---
+
+        [Fact]
+        public async Task RemoveItemAsync_TambienEliminaOpcionesSeleccionadas()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+
+            _cartRepositoryMock
+                .Setup(x => x.RemoveItemAsync(cartKey, productId.ToString()))
+                .ReturnsAsync(true);
+            _cartRepositoryMock
+                .Setup(x => x.RemovePriceModifierAsync(cartKey, productId.ToString()))
+                .Returns(Task.CompletedTask);
+            _cartRepositoryMock
+                .Setup(x => x.RemoveSelectedOptionsAsync(cartKey, productId.ToString()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _service.RemoveItemAsync(cartKey, productId);
+
+            // Assert
+            _cartRepositoryMock.Verify(x => x.RemoveSelectedOptionsAsync(cartKey, productId.ToString()), Times.Once);
+        }
+
+        // --- ClearCartAsync también borra opciones seleccionadas ---
+
+        [Fact]
+        public async Task ClearCartAsync_TambienBorraOpcionesSeleccionadas()
+        {
+            // Arrange
+            var cartKey = "cart:user:uid";
+
+            _cartRepositoryMock.Setup(x => x.DeleteCartAsync(cartKey)).Returns(Task.CompletedTask);
+            _cartRepositoryMock.Setup(x => x.DeletePriceModifiersAsync(cartKey)).Returns(Task.CompletedTask);
+            _cartRepositoryMock.Setup(x => x.DeleteAllSelectedOptionsAsync(cartKey)).Returns(Task.CompletedTask);
+
+            // Act
+            await _service.ClearCartAsync(cartKey);
+
+            // Assert
+            _cartRepositoryMock.Verify(x => x.DeleteAllSelectedOptionsAsync(cartKey), Times.Once);
+        }
+
+        // --- MergeCartsAsync fusiona opciones seleccionadas ---
+
+        [Fact]
+        public async Task MergeCartsAsync_FusionaOpcionesSeleccionadasDeSesionEnCarritoUsuario()
+        {
+            // Arrange
+            var sessionKey = "cart:session:abc";
+            var userKey = "cart:user:uid";
+            var productId = Guid.NewGuid().ToString();
+            var optionsJson = "[{\"groupName\":\"Color\",\"componentId\":\"opt-1\",\"componentName\":\"Black\"}]";
+
+            _cartRepositoryMock.Setup(x => x.MergeAsync(sessionKey, userKey, UserCartTtl)).Returns(Task.CompletedTask);
+            _cartRepositoryMock.Setup(x => x.GetAllPriceModifiersAsync(sessionKey)).ReturnsAsync(new Dictionary<string, decimal>());
+            _cartRepositoryMock.Setup(x => x.DeletePriceModifiersAsync(sessionKey)).Returns(Task.CompletedTask);
+
+            // La sesión tiene opciones seleccionadas para un producto
+            _cartRepositoryMock
+                .Setup(x => x.GetAllSelectedOptionsAsync(sessionKey))
+                .ReturnsAsync(new Dictionary<string, string> { { productId, optionsJson } });
+
+            _cartRepositoryMock
+                .Setup(x => x.SetSelectedOptionsAsync(userKey, productId, optionsJson, UserCartTtl))
+                .Returns(Task.CompletedTask);
+
+            _cartRepositoryMock
+                .Setup(x => x.DeleteAllSelectedOptionsAsync(sessionKey))
+                .Returns(Task.CompletedTask);
+
+            _cartRepositoryMock.Setup(x => x.GetAllItemsAsync(userKey)).ReturnsAsync(new Dictionary<string, int>());
+
+            // Act
+            await _service.MergeCartsAsync(sessionKey, userKey, "es");
+
+            // Assert
+            _cartRepositoryMock.Verify(x => x.SetSelectedOptionsAsync(userKey, productId, optionsJson, UserCartTtl), Times.Once);
+            _cartRepositoryMock.Verify(x => x.DeleteAllSelectedOptionsAsync(sessionKey), Times.Once);
+        }
+
+        // --- GetCartAsync devuelve opciones seleccionadas del item ---
+
+        [Fact]
+        public async Task GetCartAsync_ConOpcionesSeleccionadas_DevuelveOpcionesDeserializadasEnItem()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+            var product = CreateProduct(productId, basePrice: 100m, vatRate: 21m);
+            var optionsJson = "[{\"groupName\":\"Color\",\"componentId\":\"opt-black\",\"componentName\":\"Black\"}]";
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 1 } });
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllSelectedOptionsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, string> { { productId.ToString(), optionsJson } });
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(product);
+
+            // Act
+            var result = await _service.GetCartAsync(cartKey, "es");
+
+            // Assert
+            result.Items.Should().HaveCount(1);
+            result.Items[0].SelectedOptions.Should().HaveCount(1);
+            result.Items[0].SelectedOptions![0].GroupName.Should().Be("Color");
+            result.Items[0].SelectedOptions![0].ComponentId.Should().Be("opt-black");
+            result.Items[0].SelectedOptions![0].ComponentName.Should().Be("Black");
+        }
+
+        [Fact]
+        public async Task GetCartAsync_ConJsonDeOpcionesInvalido_NoLanzaExcepcionYDevuelveItemSinOpciones()
+        {
+            // Arrange
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 1 } });
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllSelectedOptionsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, string> { { productId.ToString(), "invalid-json" } });
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(CreateProduct(productId));
+
+            // Act – no debe lanzar excepción aunque el JSON sea inválido
+            var result = await _service.GetCartAsync(cartKey, "es");
+
+            // Assert
+            result.Items.Should().HaveCount(1);
+            result.Items[0].SelectedOptions.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task GetCartAsync_GetAllSelectedOptionsDevuelveNull_NoLanzaExcepcion()
+        {
+            // Arrange – simula un mock que devuelve null (caso límite de robustez)
+            var productId = Guid.NewGuid();
+            var cartKey = "cart:user:uid";
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllItemsAsync(cartKey))
+                .ReturnsAsync(new Dictionary<string, int> { { productId.ToString(), 1 } });
+
+            _cartRepositoryMock
+                .Setup(x => x.GetAllSelectedOptionsAsync(cartKey))
+                .ReturnsAsync((Dictionary<string, string>?)null!);
+
+            _productRepositoryMock
+                .Setup(x => x.GetProductByIdAsync(productId, "es"))
+                .ReturnsAsync(CreateProduct(productId));
+
+            // Act & Assert – no debe lanzar NullReferenceException
+            var act = () => _service.GetCartAsync(cartKey, "es");
+            await act.Should().NotThrowAsync();
+        }
     }
 }

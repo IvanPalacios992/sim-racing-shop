@@ -572,5 +572,149 @@ namespace SimRacingShop.UnitTests.Repositories
             _databaseMock.Verify(x => x.KeyExpireAsync(
                 $"{KeyPrefix}{cartKey}", ttl, It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()), Times.Once);
         }
+
+        // --- SetSelectedOptionsAsync ---
+
+        [Fact]
+        public async Task SetSelectedOptionsAsync_EjecutaHashSetYExpire_EnClaveSelectedOptions()
+        {
+            // Arrange
+            var cartKey = "cart:user:abc";
+            var productId = Guid.NewGuid().ToString();
+            var optionsJson = "[{\"groupName\":\"Color\",\"componentId\":\"opt-1\",\"componentName\":\"Black\"}]";
+            var ttl = TimeSpan.FromDays(30);
+            var expectedKey = $"SimRacingShop:{cartKey}:selectedoptions";
+
+            _databaseMock
+                .Setup(x => x.HashSetAsync(
+                    It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<RedisValue>(),
+                    It.IsAny<When>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            _databaseMock
+                .Setup(x => x.KeyExpireAsync(It.IsAny<RedisKey>(), It.IsAny<TimeSpan?>(), It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            // Act
+            await _repository.SetSelectedOptionsAsync(cartKey, productId, optionsJson, ttl);
+
+            // Assert
+            _databaseMock.Verify(x => x.HashSetAsync(
+                expectedKey, (RedisValue)productId, (RedisValue)optionsJson,
+                It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Once);
+
+            _databaseMock.Verify(x => x.KeyExpireAsync(
+                expectedKey, ttl, It.IsAny<ExpireWhen>(), It.IsAny<CommandFlags>()), Times.Once);
+        }
+
+        // --- GetAllSelectedOptionsAsync ---
+
+        [Fact]
+        public async Task GetAllSelectedOptionsAsync_HashVacio_DevuelveDiccionarioVacio()
+        {
+            // Arrange
+            var cartKey = "cart:user:abc";
+            var expectedKey = $"SimRacingShop:{cartKey}:selectedoptions";
+
+            _databaseMock
+                .Setup(x => x.HashGetAllAsync(expectedKey, It.IsAny<CommandFlags>()))
+                .ReturnsAsync(Array.Empty<HashEntry>());
+
+            // Act
+            var result = await _repository.GetAllSelectedOptionsAsync(cartKey);
+
+            // Assert
+            result.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task GetAllSelectedOptionsAsync_ConEntradas_DevuelveJsonPorProducto()
+        {
+            // Arrange
+            var cartKey = "cart:user:abc";
+            var productId = Guid.NewGuid().ToString();
+            var optionsJson = "[{\"groupName\":\"Color\",\"componentId\":\"opt-1\",\"componentName\":\"Black\"}]";
+            var expectedKey = $"SimRacingShop:{cartKey}:selectedoptions";
+
+            _databaseMock
+                .Setup(x => x.HashGetAllAsync(expectedKey, It.IsAny<CommandFlags>()))
+                .ReturnsAsync(new HashEntry[] { new(productId, optionsJson) });
+
+            // Act
+            var result = await _repository.GetAllSelectedOptionsAsync(cartKey);
+
+            // Assert
+            result.Should().HaveCount(1);
+            result[productId].Should().Be(optionsJson);
+        }
+
+        [Fact]
+        public async Task GetAllSelectedOptionsAsync_EntradaConValorNull_SeOmite()
+        {
+            // Arrange
+            var cartKey = "cart:user:abc";
+            var validId = Guid.NewGuid().ToString();
+            var nullId = Guid.NewGuid().ToString();
+            var expectedKey = $"SimRacingShop:{cartKey}:selectedoptions";
+
+            _databaseMock
+                .Setup(x => x.HashGetAllAsync(expectedKey, It.IsAny<CommandFlags>()))
+                .ReturnsAsync(new HashEntry[]
+                {
+                    new(validId, "[{\"groupName\":\"Color\"}]"),
+                    new(nullId, RedisValue.Null),
+                });
+
+            // Act
+            var result = await _repository.GetAllSelectedOptionsAsync(cartKey);
+
+            // Assert
+            result.Should().HaveCount(1);
+            result.Should().ContainKey(validId);
+            result.Should().NotContainKey(nullId);
+        }
+
+        // --- RemoveSelectedOptionsAsync ---
+
+        [Fact]
+        public async Task RemoveSelectedOptionsAsync_EjecutaHashDeleteEnClaveSelectedOptions()
+        {
+            // Arrange
+            var cartKey = "cart:user:abc";
+            var productId = Guid.NewGuid().ToString();
+            var expectedKey = $"SimRacingShop:{cartKey}:selectedoptions";
+
+            _databaseMock
+                .Setup(x => x.HashDeleteAsync(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            // Act
+            await _repository.RemoveSelectedOptionsAsync(cartKey, productId);
+
+            // Assert
+            _databaseMock.Verify(x => x.HashDeleteAsync(
+                expectedKey, (RedisValue)productId, It.IsAny<CommandFlags>()), Times.Once);
+        }
+
+        // --- DeleteAllSelectedOptionsAsync ---
+
+        [Fact]
+        public async Task DeleteAllSelectedOptionsAsync_EjecutaKeyDeleteEnClaveSelectedOptions()
+        {
+            // Arrange
+            var cartKey = "cart:session:abc";
+            var expectedKey = $"SimRacingShop:{cartKey}:selectedoptions";
+
+            _databaseMock
+                .Setup(x => x.KeyDeleteAsync(It.IsAny<RedisKey>(), It.IsAny<CommandFlags>()))
+                .ReturnsAsync(true);
+
+            // Act
+            await _repository.DeleteAllSelectedOptionsAsync(cartKey);
+
+            // Assert
+            _databaseMock.Verify(x => x.KeyDeleteAsync(
+                expectedKey, It.IsAny<CommandFlags>()), Times.Once);
+        }
     }
 }
