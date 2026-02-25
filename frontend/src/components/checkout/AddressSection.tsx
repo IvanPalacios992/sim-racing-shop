@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import AddressFormModal from "./AddressFormModal";
 import type { BillingAddressDetailDto, DeliveryAddressDetailDto, CreateDeliveryAddressDto, UpdateDeliveryAddressDto } from "@/types/addresses";
 
-type  Props {
+type  Props = {
   billingAddress: BillingAddressDetailDto | null;
   deliveryAddresses: DeliveryAddressDetailDto[];
   selectedDeliveryId: string | null;
