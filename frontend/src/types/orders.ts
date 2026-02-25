@@ -11,6 +11,7 @@ export interface OrderItemSummaryDto {
   productSku: string;
   quantity: number;
   lineTotal: number;
+  configurationJson?: string | null;
 }
 
 export interface OrderSummaryDto {
@@ -63,6 +64,7 @@ export interface CreateOrderItemDto {
   productName: string;
   productSku: string;
   configurationJson?: string | null;
+  selectedComponentIds?: string[];
   quantity: number;
   /** Precio unitario con IVA */
   unitPrice: number;

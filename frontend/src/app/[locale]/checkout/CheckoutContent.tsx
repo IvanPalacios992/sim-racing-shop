@@ -137,6 +137,13 @@ export default function CheckoutContent() {
       const vatMultiplier = 1 + item.vatRate / 100;
       const unitPrice = Math.round(item.unitPrice * vatMultiplier * 100) / 100;
       const lineTotal = Math.round(item.subtotal * vatMultiplier * 100) / 100;
+      const configurationJson =
+        item.selectedOptions?.length
+          ? JSON.stringify(
+              Object.fromEntries(item.selectedOptions.map((o) => [o.groupName, o.componentName]))
+            )
+          : null;
+      const selectedComponentIds = item.selectedOptions?.map((o) => o.componentId);
       return {
         productId: item.productId,
         productName: item.name,
@@ -146,6 +153,8 @@ export default function CheckoutContent() {
         unitSubtotal: item.unitPrice, // WITHOUT VAT (= BasePrice)
         lineTotal,                    // WITH VAT (= unitPrice * qty)
         lineSubtotal: item.subtotal,  // WITHOUT VAT (= BasePrice * qty)
+        configurationJson,
+        selectedComponentIds,
       };
     });
 

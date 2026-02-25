@@ -10,6 +10,7 @@ namespace SimRacingShop.Infrastructure.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IProductAdminRepository _productRepository;
+        private readonly IComponentRepository _componentRepository;
         private readonly IShippingService _shippingService;
         private readonly ILogger<OrderService> _logger;
         private static readonly SemaphoreSlim _orderNumberSemaphore = new(1, 1);
@@ -20,11 +21,13 @@ namespace SimRacingShop.Infrastructure.Services
         public OrderService(
             IOrderRepository orderRepository,
             IProductAdminRepository productRepository,
+            IComponentRepository componentRepository,
             IShippingService shippingService,
             ILogger<OrderService> logger)
         {
             _orderRepository = orderRepository;
             _productRepository = productRepository;
+            _componentRepository = componentRepository;
             _shippingService = shippingService;
             _logger = logger;
         }
@@ -55,7 +58,7 @@ namespace SimRacingShop.Infrastructure.Services
                     throw new InvalidOperationException($"Producto {itemDto.ProductId} no encontrado");
                 }
 
-                var calculatedPrice = CalculateProductPrice(product, itemDto.ConfigurationJson);
+                var calculatedPrice = await CalculateProductPriceAsync(product, itemDto.SelectedComponentIds);
                 var calculatedLineTotal = calculatedPrice * itemDto.Quantity;
 
                 var orderItem = new OrderItem
@@ -110,7 +113,7 @@ namespace SimRacingShop.Infrastructure.Services
             return order;
         }
 
-        private List<string> ValidateOrderItem(CreateOrderItemDto item, Product product)
+        private async Task<List<string>> ValidateOrderItemAsync(CreateOrderItemDto item, Product product)
         {
             List<string> errors = new List<string>();
             // Validar que el producto esté activo
@@ -126,12 +129,15 @@ namespace SimRacingShop.Infrastructure.Services
                 errors.Add($"El SKU del producto no coincide (esperado: {product.Sku}, recibido: {item.ProductSku})");
             }
 
-            // SEGURIDAD: Calcular el precio real en el backend
-            // NO CONFIAR en los precios enviados por el frontend
-            var calculatedPrice = CalculateProductPrice(product, item.ConfigurationJson);
-            var calculatedUnitSubtotal = Math.Round(product.BasePrice, 2);
-            var calculatedLineTotal = calculatedPrice * item.Quantity;
-            var calculatedLineSubtotal = calculatedUnitSubtotal * item.Quantity;
+            // SEGURIDAD: Calcular el precio real en el backend usando los IDs de componentes
+            var priceModifier = item.SelectedComponentIds is { Count: > 0 }
+                ? await _componentRepository.GetPriceModifiersSumAsync(product.Id, item.SelectedComponentIds)
+                : 0m;
+
+            var calculatedUnitSubtotal = Math.Round(product.BasePrice + priceModifier, 2);
+            var calculatedPrice = Math.Round(calculatedUnitSubtotal * (1 + product.VatRate / 100), 2);
+            var calculatedLineSubtotal = Math.Round(calculatedUnitSubtotal * item.Quantity, 2);
+            var calculatedLineTotal = Math.Round(calculatedPrice * item.Quantity, 2);
 
             // Tolerancia de 0.01€ por redondeos
             var priceDifference = Math.Abs(calculatedPrice - item.UnitPrice);
@@ -182,7 +188,7 @@ namespace SimRacingShop.Infrastructure.Services
                     errors.Add($"El producto con ID {item.ProductId} no existe");
                     return;
                 }
-                List<string> itemErrors = ValidateOrderItem(item, product);
+                List<string> itemErrors = await ValidateOrderItemAsync(item, product);
                 if (itemErrors.Any())
                 {
                     errors.AddRange(itemErrors);
@@ -235,18 +241,20 @@ namespace SimRacingShop.Infrastructure.Services
         }
 
         /// <summary>
-        /// Calcula el precio de un producto basándose en su configuración
-        /// TODO: Implementar lógica de cálculo de precios con opciones/componentes
+        /// Calcula el precio real de un producto sumando el precio base con IVA
+        /// más los modificadores de los componentes seleccionados.
         /// </summary>
-        private static decimal CalculateProductPrice(Product product, string? configurationJson)
+        private async Task<decimal> CalculateProductPriceAsync(Product product, List<Guid>? selectedComponentIds)
         {
-            // Precio base con IVA
-            var priceWithVat = product.BasePrice * (1 + product.VatRate / 100);
+            var priceModifier = 0m;
 
-            // TODO: Si hay configuración JSON, calcular precio adicional de opciones/componentes
-            // Por ahora, retornamos el precio base
-            // En el futuro, parsear configurationJson y sumar precios de ComponentOptions
+            if (selectedComponentIds is { Count: > 0 })
+            {
+                priceModifier = await _componentRepository.GetPriceModifiersSumAsync(
+                    product.Id, selectedComponentIds);
+            }
 
+            var priceWithVat = (product.BasePrice + priceModifier) * (1 + product.VatRate / 100);
             return Math.Round(priceWithVat, 2);
         }
 

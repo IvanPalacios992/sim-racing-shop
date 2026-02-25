@@ -1,5 +1,12 @@
 namespace SimRacingShop.Core.DTOs
 {
+    public record SelectedOptionDto
+    {
+        public string GroupName { get; init; } = null!;
+        public string ComponentId { get; init; } = null!;
+        public string ComponentName { get; init; } = null!;
+    }
+
     public record CartItemDto
     {
         public Guid ProductId { get; init; }
@@ -10,6 +17,7 @@ namespace SimRacingShop.Core.DTOs
         public decimal UnitPrice { get; init; }
         public decimal VatRate { get; init; }
         public decimal Subtotal { get; init; }
+        public IReadOnlyList<SelectedOptionDto>? SelectedOptions { get; init; }
     }
 
     public record CartDto
@@ -31,6 +39,12 @@ namespace SimRacingShop.Core.DTOs
         /// El backend suma sus PriceModifier para calcular el precio unitario real.
         /// </summary>
         public List<Guid>? SelectedComponentIds { get; set; }
+
+        /// <summary>
+        /// Opciones seleccionadas con nombre de grupo y nombre de componente,
+        /// para mostrarlas en el carrito sin necesidad de reconstruirlas desde la BD.
+        /// </summary>
+        public List<SelectedOptionDto>? SelectedOptions { get; set; }
     }
 
     public class UpdateCartItemDto

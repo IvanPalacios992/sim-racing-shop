@@ -13,6 +13,7 @@ public class OrderServiceTests
 {
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
     private readonly Mock<IProductAdminRepository> _productRepositoryMock;
+    private readonly Mock<IComponentRepository> _componentRepositoryMock;
     private readonly Mock<IShippingService> _shippingServiceMock;
     private readonly Mock<ILogger<OrderService>> _loggerMock;
     private readonly OrderService _service;
@@ -21,11 +22,13 @@ public class OrderServiceTests
     {
         _orderRepositoryMock = new Mock<IOrderRepository>();
         _productRepositoryMock = new Mock<IProductAdminRepository>();
+        _componentRepositoryMock = new Mock<IComponentRepository>();
         _shippingServiceMock = new Mock<IShippingService>();
         _loggerMock = new Mock<ILogger<OrderService>>();
         _service = new OrderService(
             _orderRepositoryMock.Object,
             _productRepositoryMock.Object,
+            _componentRepositoryMock.Object,
             _shippingServiceMock.Object,
             _loggerMock.Object
         );

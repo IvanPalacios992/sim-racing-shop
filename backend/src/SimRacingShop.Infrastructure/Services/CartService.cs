@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Repositories;
@@ -74,6 +75,13 @@ namespace SimRacingShop.Infrastructure.Services
                     cartKey, dto.Quantity, dto.ProductId, newQty);
             }
 
+            // Guardar opciones seleccionadas para mostrarlas en el carrito
+            if (dto.SelectedOptions is { Count: > 0 })
+            {
+                var optionsJson = JsonSerializer.Serialize(dto.SelectedOptions);
+                await _cartRepository.SetSelectedOptionsAsync(cartKey, productIdStr, optionsJson, ttl);
+            }
+
             items[productIdStr] = newQty;
             return await BuildCartDtoAsync(cartKey, items, locale);
         }
@@ -101,6 +109,7 @@ namespace SimRacingShop.Infrastructure.Services
             var productIdStr = productId.ToString();
             await _cartRepository.RemoveItemAsync(cartKey, productIdStr);
             await _cartRepository.RemovePriceModifierAsync(cartKey, productIdStr);
+            await _cartRepository.RemoveSelectedOptionsAsync(cartKey, productIdStr);
             _logger.LogInformation("Cart {CartKey}: removed product {ProductId}", cartKey, productId);
         }
 
@@ -108,6 +117,7 @@ namespace SimRacingShop.Infrastructure.Services
         {
             await _cartRepository.DeleteCartAsync(cartKey);
             await _cartRepository.DeletePriceModifiersAsync(cartKey);
+            await _cartRepository.DeleteAllSelectedOptionsAsync(cartKey);
             _logger.LogInformation("Cart {CartKey}: cleared", cartKey);
         }
 
@@ -123,6 +133,13 @@ namespace SimRacingShop.Infrastructure.Services
 
             await _cartRepository.DeletePriceModifiersAsync(sessionKey);
 
+            // Fusionar opciones seleccionadas: copiar las de sesión al carrito de usuario
+            var sessionOptions = await _cartRepository.GetAllSelectedOptionsAsync(sessionKey);
+            foreach (var (productId, optionsJson) in sessionOptions)
+                await _cartRepository.SetSelectedOptionsAsync(userKey, productId, optionsJson, UserCartTtl);
+
+            await _cartRepository.DeleteAllSelectedOptionsAsync(sessionKey);
+
             _logger.LogInformation("Merged session cart {SessionKey} into user cart {UserKey}", sessionKey, userKey);
             return await GetCartAsync(userKey, locale);
         }
@@ -132,12 +149,15 @@ namespace SimRacingShop.Infrastructure.Services
         private static TimeSpan GetTtl(string cartKey) =>
             cartKey.StartsWith("cart:user:") ? UserCartTtl : SessionCartTtl;
 
+        private static readonly JsonSerializerOptions _jsonOptions = new(JsonSerializerDefaults.Web);
+
         private async Task<CartDto> BuildCartDtoAsync(string cartKey, Dictionary<string, int> items, string locale)
         {
             if (items.Count == 0)
                 return new CartDto();
 
             var modifiers = await _cartRepository.GetAllPriceModifiersAsync(cartKey);
+            var allSelectedOptions = await _cartRepository.GetAllSelectedOptionsAsync(cartKey);
             var cartItems = new List<CartItemDto>(items.Count);
 
             foreach (var (productIdStr, quantity) in items)
@@ -157,6 +177,19 @@ namespace SimRacingShop.Infrastructure.Services
                 var subtotal = Math.Round(unitPrice * quantity, 2);
                 var imageUrl = product.Images.FirstOrDefault()?.ImageUrl;
 
+                IReadOnlyList<SelectedOptionDto>? selectedOptions = null;
+                if (allSelectedOptions.TryGetValue(productIdStr, out var optionsJson))
+                {
+                    try
+                    {
+                        selectedOptions = JsonSerializer.Deserialize<List<SelectedOptionDto>>(optionsJson, _jsonOptions);
+                    }
+                    catch
+                    {
+                        // JSON inválido: se ignora sin romper el carrito
+                    }
+                }
+
                 cartItems.Add(new CartItemDto
                 {
                     ProductId = productId,
@@ -167,6 +200,7 @@ namespace SimRacingShop.Infrastructure.Services
                     UnitPrice = unitPrice,
                     VatRate = product.VatRate,
                     Subtotal = subtotal,
+                    SelectedOptions = selectedOptions,
                 });
             }
 

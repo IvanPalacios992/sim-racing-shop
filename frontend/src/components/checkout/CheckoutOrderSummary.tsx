@@ -58,6 +58,15 @@ export default function CheckoutOrderSummary({
             )}
             <div className="min-w-0 flex-1 text-sm">
               <p className="truncate font-medium text-white">{item.name}</p>
+              {item.selectedOptions && item.selectedOptions.length > 0 && (
+                <ul className="mt-0.5 space-y-px">
+                  {item.selectedOptions.map((opt) => (
+                    <li key={opt.groupName} className="truncate text-xs text-silver">
+                      <span className="text-graphite">{opt.groupName}:</span> {opt.componentName}
+                    </li>
+                  ))}
+                </ul>
+              )}
               <p className="text-silver">
                 {item.quantity} × €{item.unitPrice.toFixed(2)}
               </p>
