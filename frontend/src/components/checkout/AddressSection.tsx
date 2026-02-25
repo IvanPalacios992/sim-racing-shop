@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import AddressFormModal from "./AddressFormModal";
 import type { BillingAddressDetailDto, DeliveryAddressDetailDto, CreateDeliveryAddressDto, UpdateDeliveryAddressDto } from "@/types/addresses";
 
-interface Props {
+type  Props {
   billingAddress: BillingAddressDetailDto | null;
   deliveryAddresses: DeliveryAddressDetailDto[];
   selectedDeliveryId: string | null;
@@ -110,7 +110,10 @@ export default function AddressSection({
             return (
               <div
                 key={addr.id}
+                role="button"
+                tabIndex={0}
                 onClick={() => onSelectDelivery(addr.id)}
+                onKeyDown={(e) => e.key === "Enter" && onSelectDelivery(addr.id)}
                 className={`cursor-pointer rounded-lg border p-4 transition-colors ${
                   isSelected
                     ? "border-racing-red bg-racing-red/5"
@@ -144,6 +147,8 @@ export default function AddressSection({
                   <div
                     className="flex items-center gap-1"
                     onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    role="none"
                   >
                     {confirmDeleteId === addr.id ? (
                       <div className="flex items-center gap-1">
