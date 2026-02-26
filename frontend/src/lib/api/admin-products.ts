@@ -9,6 +9,8 @@ import type {
   UpsertProductComponentOptionDto,
   ProductCategoryItem,
   SetProductCategoriesDto,
+  AdminProductImageItem,
+  AddProductImageDto,
 } from "@/types/admin";
 
 export const adminProductsApi = {
@@ -88,5 +90,19 @@ export const adminProductsApi = {
   async setCategories(productId: string, dto: SetProductCategoriesDto): Promise<ProductCategoryItem[]> {
     const response = await apiClient.put<ProductCategoryItem[]>(`/admin/products/${productId}/categories`, dto);
     return response.data;
+  },
+
+  async getImages(productId: string): Promise<AdminProductImageItem[]> {
+    const response = await apiClient.get<AdminProductImageItem[]>(`/admin/products/${productId}/images`);
+    return response.data;
+  },
+
+  async addImage(productId: string, dto: AddProductImageDto): Promise<AdminProductImageItem> {
+    const response = await apiClient.post<AdminProductImageItem>(`/admin/products/${productId}/images/url`, dto);
+    return response.data;
+  },
+
+  async deleteImage(productId: string, imageId: string): Promise<void> {
+    await apiClient.delete(`/admin/products/${productId}/images/${imageId}`);
   },
 };

@@ -220,6 +220,96 @@ namespace SimRacingShop.API.Controllers
             return Created($"/api/admin/products/{id}/images", result);
         }
 
+        // ── Image URL endpoints ───────────────────────────────────────────────
+
+        /// <summary>
+        /// Listar imágenes de un producto
+        /// </summary>
+        [HttpGet("{id:guid}/images")]
+        [ProducesResponseType(typeof(List<AdminProductImageDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetImages(Guid id)
+        {
+            var product = await _adminRepository.GetByIdAsync(id);
+            if (product == null)
+                return NotFound(new { message = "Producto no encontrado" });
+
+            var images = await _adminRepository.GetImagesAsync(id);
+            var result = images.Select(i => new AdminProductImageDto
+            {
+                Id = i.Id,
+                ImageUrl = i.ImageUrl,
+                AltText = i.AltText,
+                DisplayOrder = i.DisplayOrder
+            }).ToList();
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Añadir imagen por URL a un producto
+        /// </summary>
+        [HttpPost("{id:guid}/images/url")]
+        [ProducesResponseType(typeof(AdminProductImageDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AddImageByUrl(Guid id, [FromBody] AddProductImageByUrlDto dto)
+        {
+            _logger.LogInformation("Adding image by URL for product: {ProductId}", id);
+
+            var product = await _adminRepository.GetByIdAsync(id);
+            if (product == null)
+                return NotFound(new { message = "Producto no encontrado" });
+
+            var image = new ProductImage
+            {
+                Id = Guid.NewGuid(),
+                ProductId = id,
+                ImageUrl = dto.ImageUrl,
+                AltText = dto.AltText,
+                DisplayOrder = dto.DisplayOrder
+            };
+
+            var saved = await _adminRepository.AddImageByUrlAsync(image);
+            await InvalidateProductCacheAsync(product);
+
+            _logger.LogInformation("Image added by URL for product: {ProductId}", id);
+
+            var result = new AdminProductImageDto
+            {
+                Id = saved.Id,
+                ImageUrl = saved.ImageUrl,
+                AltText = saved.AltText,
+                DisplayOrder = saved.DisplayOrder
+            };
+
+            return Created($"/api/admin/products/{id}/images/{saved.Id}", result);
+        }
+
+        /// <summary>
+        /// Eliminar una imagen de un producto
+        /// </summary>
+        [HttpDelete("{id:guid}/images/{imageId:guid}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteImage(Guid id, Guid imageId)
+        {
+            _logger.LogInformation("Deleting image: {ImageId} from product: {ProductId}", imageId, id);
+
+            var product = await _adminRepository.GetByIdAsync(id);
+            if (product == null)
+                return NotFound(new { message = "Producto no encontrado" });
+
+            var image = await _adminRepository.GetImageByIdAsync(imageId);
+            if (image == null || image.ProductId != id)
+                return NotFound(new { message = "Imagen no encontrada" });
+
+            await _adminRepository.DeleteImageAsync(image);
+            await InvalidateProductCacheAsync(product);
+
+            _logger.LogInformation("Image deleted: {ImageId}", imageId);
+            return NoContent();
+        }
+
         /// <summary>
         /// Reemplazar todas las traducciones de un producto
         /// </summary>

@@ -9,9 +9,10 @@ import AdminModal from "@/components/admin/AdminModal";
 import AdminTabBar from "@/components/admin/AdminTabBar";
 import AdminFormActions from "@/components/admin/AdminFormActions";
 import { generateSlug, extractApiError } from "@/components/admin/adminUtils";
+import CategoryImagePanel from "./CategoryImagePanel";
 import type { CategoryListItem } from "@/types/categories";
 
-type Tab = "base" | "es" | "en";
+type Tab = "base" | "es" | "en" | "image";
 
 interface TranslationForm {
   name: string;
@@ -21,7 +22,7 @@ interface TranslationForm {
 
 const emptyTranslation = (): TranslationForm => ({ name: "", slug: "", shortDescription: "" });
 
-const TABS: { key: Tab; label: string }[] = [
+const BASE_TABS: { key: Tab; label: string }[] = [
   { key: "base", label: "General" },
   { key: "es", label: "Español" },
   { key: "en", label: "English" },
@@ -134,101 +135,112 @@ export default function CategoryModal({ isOpen, onClose, onSuccess, editItem }: 
 
   const title = editItem ? "Editar categoría" : "Nueva categoría";
 
+  const tabs: { key: Tab; label: string }[] = [
+    ...BASE_TABS,
+    ...(editItem ? [{ key: "image" as Tab, label: "Imagen" }] : []),
+  ];
+
   return (
     <AdminModal isOpen={isOpen} onClose={onClose} title={title}>
       {loadingTranslations ? (
         <div className="py-12 text-center text-silver">Cargando traducciones...</div>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           {error && (
             <div className="p-3 bg-error/10 border border-error rounded-lg text-error text-sm">{error}</div>
           )}
 
-          <AdminTabBar tabs={TABS} activeTab={activeTab} onChange={(k) => setActiveTab(k as Tab)} />
+          <AdminTabBar tabs={tabs} activeTab={activeTab} onChange={(k) => setActiveTab(k as Tab)} />
 
-          {activeTab === "base" && (
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <input
-                  id="isActive"
-                  type="checkbox"
-                  checked={isActive}
-                  onChange={(e) => setIsActive(e.target.checked)}
-                  className="w-4 h-4 accent-racing-red"
-                />
-                <Label htmlFor="isActive">Categoría activa</Label>
-              </div>
-            </div>
+          {activeTab !== "image" ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {activeTab === "base" && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="isActive"
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={(e) => setIsActive(e.target.checked)}
+                      className="w-4 h-4 accent-racing-red"
+                    />
+                    <Label htmlFor="isActive">Categoría activa</Label>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "es" && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="es-name">Nombre *</Label>
+                    <Input
+                      id="es-name"
+                      value={es.name}
+                      onChange={(e) => handleEsChange("name", e.target.value)}
+                      placeholder="Ej: Volantes"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="es-slug">Slug *</Label>
+                    <Input
+                      id="es-slug"
+                      value={es.slug}
+                      onChange={(e) => handleEsChange("slug", e.target.value)}
+                      placeholder="Ej: volantes"
+                      className="font-mono text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="es-desc">Descripción corta</Label>
+                    <Input
+                      id="es-desc"
+                      value={es.shortDescription}
+                      onChange={(e) => handleEsChange("shortDescription", e.target.value)}
+                      placeholder="Descripción breve de la categoría"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {activeTab === "en" && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="en-name">Name *</Label>
+                    <Input
+                      id="en-name"
+                      value={en.name}
+                      onChange={(e) => handleEnChange("name", e.target.value)}
+                      placeholder="E.g.: Steering Wheels"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="en-slug">Slug *</Label>
+                    <Input
+                      id="en-slug"
+                      value={en.slug}
+                      onChange={(e) => handleEnChange("slug", e.target.value)}
+                      placeholder="E.g.: steering-wheels"
+                      className="font-mono text-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="en-desc">Short description</Label>
+                    <Input
+                      id="en-desc"
+                      value={en.shortDescription}
+                      onChange={(e) => handleEnChange("shortDescription", e.target.value)}
+                      placeholder="Brief category description"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <AdminFormActions loading={loading} onCancel={onClose} />
+            </form>
+          ) : (
+            editItem && <CategoryImagePanel categoryId={editItem.id} />
           )}
-
-          {activeTab === "es" && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="es-name">Nombre *</Label>
-                <Input
-                  id="es-name"
-                  value={es.name}
-                  onChange={(e) => handleEsChange("name", e.target.value)}
-                  placeholder="Ej: Volantes"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="es-slug">Slug *</Label>
-                <Input
-                  id="es-slug"
-                  value={es.slug}
-                  onChange={(e) => handleEsChange("slug", e.target.value)}
-                  placeholder="Ej: volantes"
-                  className="font-mono text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="es-desc">Descripción corta</Label>
-                <Input
-                  id="es-desc"
-                  value={es.shortDescription}
-                  onChange={(e) => handleEsChange("shortDescription", e.target.value)}
-                  placeholder="Descripción breve de la categoría"
-                />
-              </div>
-            </div>
-          )}
-
-          {activeTab === "en" && (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="en-name">Name *</Label>
-                <Input
-                  id="en-name"
-                  value={en.name}
-                  onChange={(e) => handleEnChange("name", e.target.value)}
-                  placeholder="E.g.: Steering Wheels"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="en-slug">Slug *</Label>
-                <Input
-                  id="en-slug"
-                  value={en.slug}
-                  onChange={(e) => handleEnChange("slug", e.target.value)}
-                  placeholder="E.g.: steering-wheels"
-                  className="font-mono text-sm"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="en-desc">Short description</Label>
-                <Input
-                  id="en-desc"
-                  value={en.shortDescription}
-                  onChange={(e) => handleEnChange("shortDescription", e.target.value)}
-                  placeholder="Brief category description"
-                />
-              </div>
-            </div>
-          )}
-
-          <AdminFormActions loading={loading} onCancel={onClose} />
-        </form>
+        </div>
       )}
     </AdminModal>
   );

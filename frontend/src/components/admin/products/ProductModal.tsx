@@ -11,11 +11,12 @@ import AdminFormActions from "@/components/admin/AdminFormActions";
 import { generateSlug, extractApiError } from "@/components/admin/adminUtils";
 import ComponentOptionsPanel from "./ComponentOptionsPanel";
 import CategoryAssignPanel from "./CategoryAssignPanel";
+import ProductImagesPanel from "./ProductImagesPanel";
 import type { ProductListItem } from "@/types/products";
 import type { AdminComponentListItem } from "@/types/admin";
 import type { CategoryListItem } from "@/types/categories";
 
-type Tab = "base" | "es" | "en" | "components" | "categories";
+type Tab = "base" | "es" | "en" | "components" | "categories" | "images";
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -259,6 +260,7 @@ export default function ProductModal({
     { key: "en", label: "English" },
     ...(editItem ? [{ key: "components" as Tab, label: "Componentes" }] : []),
     ...(editItem ? [{ key: "categories" as Tab, label: "Categorías" }] : []),
+    ...(editItem ? [{ key: "images" as Tab, label: "Imágenes" }] : []),
   ];
 
   const title = editItem ? "Editar producto" : "Nuevo producto";
@@ -275,7 +277,7 @@ export default function ProductModal({
 
           <AdminTabBar tabs={tabs} activeTab={activeTab} onChange={(k) => setActiveTab(k as Tab)} />
 
-          {activeTab !== "components" && activeTab !== "categories" ? (
+          {activeTab !== "components" && activeTab !== "categories" && activeTab !== "images" ? (
             <form onSubmit={handleSubmit} id="product-form" className="space-y-4">
               {activeTab === "base" && (
                 <div className="space-y-4">
@@ -415,13 +417,15 @@ export default function ProductModal({
                 availableComponents={availableComponents}
               />
             )
-          ) : (
+          ) : activeTab === "categories" ? (
             editItem && (
               <CategoryAssignPanel
                 productId={editItem.id}
                 availableCategories={availableCategories}
               />
             )
+          ) : (
+            editItem && <ProductImagesPanel productId={editItem.id} />
           )}
         </div>
       )}

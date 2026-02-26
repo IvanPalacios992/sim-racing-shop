@@ -360,4 +360,181 @@ public class CategoryAdminRepositoryTests : IDisposable
     }
 
     #endregion
+
+    #region GetImageAsync Tests
+
+    [Fact]
+    public async Task GetImageAsync_WithExistingImage_ReturnsImage()
+    {
+        // Arrange
+        var category = BuildCategory();
+        _context.Categories.Add(category);
+
+        var image = new CategoryImage
+        {
+            Id = Guid.NewGuid(),
+            CategoryId = category.Id,
+            ImageUrl = "https://example.com/cat.jpg",
+            AltText = "Imagen categoría"
+        };
+        _context.CategoriesImages.Add(image);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetImageAsync(category.Id);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(image.Id);
+        result.ImageUrl.Should().Be("https://example.com/cat.jpg");
+        result.AltText.Should().Be("Imagen categoría");
+    }
+
+    [Fact]
+    public async Task GetImageAsync_WithNoImage_ReturnsNull()
+    {
+        // Arrange
+        var category = BuildCategory();
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetImageAsync(category.Id);
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    #endregion
+
+    #region SetImageByUrlAsync Tests
+
+    [Fact]
+    public async Task SetImageByUrlAsync_WithNoExistingImage_AddsNewImage()
+    {
+        // Arrange
+        var category = BuildCategory();
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var image = new CategoryImage
+        {
+            Id = Guid.NewGuid(),
+            CategoryId = category.Id,
+            ImageUrl = "https://example.com/cat.jpg",
+            AltText = "Nueva imagen"
+        };
+
+        // Act
+        var result = await _repository.SetImageByUrlAsync(image);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.ImageUrl.Should().Be("https://example.com/cat.jpg");
+
+        var saved = await _context.CategoriesImages
+            .FirstOrDefaultAsync(i => i.CategoryId == category.Id, TestContext.Current.CancellationToken);
+        saved.Should().NotBeNull();
+        saved!.AltText.Should().Be("Nueva imagen");
+    }
+
+    [Fact]
+    public async Task SetImageByUrlAsync_WithExistingImage_ReplacesOldImage()
+    {
+        // Arrange
+        var category = BuildCategory();
+        _context.Categories.Add(category);
+
+        var existingImage = new CategoryImage
+        {
+            Id = Guid.NewGuid(),
+            CategoryId = category.Id,
+            ImageUrl = "https://example.com/old.jpg"
+        };
+        _context.CategoriesImages.Add(existingImage);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var newImage = new CategoryImage
+        {
+            Id = Guid.NewGuid(),
+            CategoryId = category.Id,
+            ImageUrl = "https://example.com/new.jpg",
+            AltText = "Nueva"
+        };
+
+        // Act
+        var result = await _repository.SetImageByUrlAsync(newImage);
+
+        // Assert
+        result.ImageUrl.Should().Be("https://example.com/new.jpg");
+
+        // Solo debe quedar una imagen
+        var images = await _context.CategoriesImages
+            .Where(i => i.CategoryId == category.Id)
+            .ToListAsync(TestContext.Current.CancellationToken);
+        images.Should().HaveCount(1);
+        images[0].ImageUrl.Should().Be("https://example.com/new.jpg");
+    }
+
+    [Fact]
+    public async Task SetImageByUrlAsync_WithExistingImage_RemovesOldImageFromDatabase()
+    {
+        // Arrange
+        var category = BuildCategory();
+        _context.Categories.Add(category);
+
+        var existingImageId = Guid.NewGuid();
+        _context.CategoriesImages.Add(new CategoryImage
+        {
+            Id = existingImageId,
+            CategoryId = category.Id,
+            ImageUrl = "https://example.com/old.jpg"
+        });
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var newImage = new CategoryImage
+        {
+            Id = Guid.NewGuid(),
+            CategoryId = category.Id,
+            ImageUrl = "https://example.com/new.jpg"
+        };
+
+        // Act
+        await _repository.SetImageByUrlAsync(newImage);
+
+        // Assert — la imagen antigua ya no debe existir
+        var old = await _context.CategoriesImages.FindAsync(new object[] { existingImageId }, TestContext.Current.CancellationToken);
+        old.Should().BeNull();
+    }
+
+    #endregion
+
+    #region DeleteImageAsync (category) Tests
+
+    [Fact]
+    public async Task DeleteCategoryImageAsync_RemovesImageFromDatabase()
+    {
+        // Arrange
+        var category = BuildCategory();
+        _context.Categories.Add(category);
+
+        var image = new CategoryImage
+        {
+            Id = Guid.NewGuid(),
+            CategoryId = category.Id,
+            ImageUrl = "https://example.com/cat.jpg"
+        };
+        _context.CategoriesImages.Add(image);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        await _repository.DeleteImageAsync(image);
+
+        // Assert
+        var deleted = await _context.CategoriesImages
+            .FirstOrDefaultAsync(i => i.CategoryId == category.Id, TestContext.Current.CancellationToken);
+        deleted.Should().BeNull();
+    }
+
+    #endregion
 }
