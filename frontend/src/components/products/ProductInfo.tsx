@@ -9,9 +9,11 @@ import type { ProductDetail } from "@/types/products";
 type Props = {
   product: ProductDetail;
   onCustomize?: () => void;
+  onAddToCart?: () => void;
+  isAddingToCart?: boolean;
 };
 
-export function ProductInfo({ product, onCustomize }: Props) {
+export function ProductInfo({ product, onCustomize, onAddToCart, isAddingToCart }: Props) {
   const t = useTranslations("productDetail");
 
   const priceWithVat = product.basePrice * (1 + product.vatRate / 100);
@@ -102,14 +104,23 @@ export function ProductInfo({ product, onCustomize }: Props) {
         </p>
       )}
 
-      {/* Customize button */}
-      {product.isCustomizable && (
+      {/* CTA button */}
+      {product.isCustomizable ? (
         <Button
           size="lg"
           onClick={onCustomize}
           className="w-full bg-racing-red text-base font-semibold uppercase tracking-wider text-white hover:bg-racing-red/80 sm:w-auto"
         >
           {t("customize")}
+        </Button>
+      ) : (
+        <Button
+          size="lg"
+          onClick={onAddToCart}
+          disabled={isAddingToCart}
+          className="w-full bg-racing-red text-base font-semibold uppercase tracking-wider text-white hover:bg-racing-red/80 sm:w-auto"
+        >
+          {t("addToCart")}
         </Button>
       )}
 

@@ -84,6 +84,15 @@ export function ProductDetailContent({ slug }: Props) {
           <ProductInfo
             product={product}
             onCustomize={() => setConfiguratorOpen(true)}
+            onAddToCart={async () => {
+              setIsAddingToCart(true);
+              try {
+                await addItem(product.id, 1, locale, [], []);
+              } finally {
+                setIsAddingToCart(false);
+              }
+            }}
+            isAddingToCart={isAddingToCart}
           />
         </div>
 

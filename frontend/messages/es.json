@@ -228,6 +228,7 @@
     "inStock": "En stock",
     "outOfStock": "Agotado",
     "customize": "PERSONALIZAR",
+    "addToCart": "AÑADIR AL CARRITO",
     "productionTime": "Tiempo de producción: {days} días",
     "weight": "Peso: {grams}g",
     "specifications": "Especificaciones técnicas",
