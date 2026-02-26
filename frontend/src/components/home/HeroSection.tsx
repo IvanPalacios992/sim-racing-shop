@@ -1,12 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+import { VideoModal } from "./VideoModal";
 
 export function HeroSection() {
   const t = useTranslations("home");
+  const [videoOpen, setVideoOpen] = useState(false);
 
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden text-center">
@@ -46,12 +49,15 @@ export function HeroSection() {
           </Button>
           <Button
             variant="outline"
+            onClick={() => setVideoOpen(true)}
             className="h-14 rounded-lg border-white bg-transparent px-8 text-base font-semibold text-white hover:bg-white/10"
           >
             {t("hero.ctaSecondary")}
           </Button>
         </div>
       </div>
+
+      <VideoModal isOpen={videoOpen} onClose={() => setVideoOpen(false)} />
 
       {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 z-10 -translate-x-1/2" style={{ animation: "bounce-slow 2s infinite" }}>

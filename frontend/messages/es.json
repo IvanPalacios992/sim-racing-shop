@@ -137,6 +137,12 @@
       "cta": "EXPLORAR PRODUCTOS",
       "ctaSecondary": "VER VÍDEO"
     },
+    "videoModal": {
+      "badge": "PRÓXIMAMENTE",
+      "title": "Nuestro vídeo está en camino",
+      "description": "Estamos preparando algo especial para ti. Mientras tanto, disfruta de esta selección del mundo de la competición.",
+      "nextVideo": "Otro vídeo"
+    },
     "categories": {
       "title": "CATEGORÍAS DESTACADAS",
       "wheels": "VOLANTES",
