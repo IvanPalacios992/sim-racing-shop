@@ -61,4 +61,19 @@ namespace SimRacingShop.Core.DTOs
         public string? AltText { get; init; }
         public int DisplayOrder { get; init; }
     }
+
+    public record AdminProductImageDto
+    {
+        public Guid Id { get; init; }
+        public string ImageUrl { get; init; } = null!;
+        public string? AltText { get; init; }
+        public int DisplayOrder { get; init; }
+    }
+
+    public record AddProductImageByUrlDto
+    {
+        public string ImageUrl { get; init; } = null!;
+        public string? AltText { get; init; }
+        public int DisplayOrder { get; init; }
+    }
 }

@@ -4,6 +4,8 @@ import type {
   AdminCreateCategoryDto,
   AdminUpdateCategoryDto,
   AdminUpdateCategoryTranslationsDto,
+  AdminCategoryImageItem,
+  SetCategoryImageDto,
 } from "@/types/admin";
 
 export const adminCategoriesApi = {
@@ -39,5 +41,23 @@ export const adminCategoriesApi = {
 
   async delete(id: string): Promise<void> {
     await apiClient.delete(`/admin/categories/${id}`);
+  },
+
+  async getImage(categoryId: string): Promise<AdminCategoryImageItem | null> {
+    try {
+      const response = await apiClient.get<AdminCategoryImageItem>(`/admin/categories/${categoryId}/image`);
+      return response.data;
+    } catch {
+      return null;
+    }
+  },
+
+  async setImage(categoryId: string, dto: SetCategoryImageDto): Promise<AdminCategoryImageItem> {
+    const response = await apiClient.put<AdminCategoryImageItem>(`/admin/categories/${categoryId}/image/url`, dto);
+    return response.data;
+  },
+
+  async deleteImage(categoryId: string): Promise<void> {
+    await apiClient.delete(`/admin/categories/${categoryId}/image`);
   },
 };
