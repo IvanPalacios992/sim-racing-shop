@@ -152,3 +152,13 @@ export interface UpsertProductComponentOptionDto {
   isDefault: boolean;
   displayOrder: number;
 }
+
+export interface ProductCategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+export interface SetProductCategoriesDto {
+  categoryIds: string[];
+}

@@ -42,16 +42,24 @@ vi.mock("@/components/admin/products/ComponentOptionsPanel", () => ({
     React.createElement("div", { "data-testid": "component-options-panel" }, productId),
 }));
 
+vi.mock("@/components/admin/products/CategoryAssignPanel", () => ({
+  default: ({ productId }: { productId: string }) =>
+    React.createElement("div", { "data-testid": "category-assign-panel" }, productId),
+}));
+
 import ProductModal from "@/components/admin/products/ProductModal";
 import { adminProductsApi } from "@/lib/api/admin-products";
+import type { CategoryListItem } from "@/types/categories";
 
 const availableComponents: AdminComponentListItem[] = [];
+const availableCategories: CategoryListItem[] = [];
 
 const defaultProps = {
   isOpen: true,
   onClose: vi.fn(),
   onSuccess: vi.fn(),
   availableComponents,
+  availableCategories,
 };
 
 const mockEditItem: ProductListItem = {
@@ -121,13 +129,14 @@ describe("ProductModal", () => {
       expect(screen.getByText("Nuevo producto")).toBeInTheDocument();
     });
 
-    it("muestra pestañas General, Español, English (sin Componentes en modo creación)", () => {
+    it("muestra pestañas General, Español, English (sin Componentes ni Categorías en modo creación)", () => {
       render(<ProductModal {...defaultProps} />);
 
       expect(screen.getByRole("button", { name: "General" })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Español" })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "English" })).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Componentes" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Categorías" })).not.toBeInTheDocument();
     });
 
     it("en pestaña General muestra campo SKU", () => {
@@ -333,6 +342,58 @@ describe("ProductModal", () => {
       await user.click(screen.getByRole("button", { name: "Componentes" }));
 
       expect(screen.getByTestId("component-options-panel")).toBeInTheDocument();
+    });
+
+    it("muestra pestaña 'Categorías' en modo edición", async () => {
+      vi.mocked(adminProductsApi.getProductBothLocales).mockResolvedValue({
+        es: mockProductDetail,
+        en: { ...mockProductDetail, name: "GT3 Steering Wheel", slug: "gt3-steering-wheel" },
+      } as never);
+
+      render(<ProductModal {...defaultProps} editItem={mockEditItem} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Categorías" })).toBeInTheDocument();
+      });
+    });
+
+    it("muestra el panel de categorías al hacer clic en la pestaña Categorías", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.getProductBothLocales).mockResolvedValue({
+        es: mockProductDetail,
+        en: { ...mockProductDetail, name: "GT3 Steering Wheel", slug: "gt3-steering-wheel" },
+      } as never);
+
+      render(<ProductModal {...defaultProps} editItem={mockEditItem} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Categorías" })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: "Categorías" }));
+
+      expect(screen.getByTestId("category-assign-panel")).toBeInTheDocument();
+    });
+
+    it("el panel de categorías no se muestra cuando la pestaña activa es otra", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.getProductBothLocales).mockResolvedValue({
+        es: mockProductDetail,
+        en: { ...mockProductDetail, name: "GT3 Steering Wheel", slug: "gt3-steering-wheel" },
+      } as never);
+
+      render(<ProductModal {...defaultProps} editItem={mockEditItem} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Componentes" })).toBeInTheDocument();
+      });
+
+      // La pestaña General está activa por defecto
+      expect(screen.queryByTestId("category-assign-panel")).not.toBeInTheDocument();
+
+      // Cambiar a Componentes tampoco debe mostrar el panel de categorías
+      await user.click(screen.getByRole("button", { name: "Componentes" }));
+      expect(screen.queryByTestId("category-assign-panel")).not.toBeInTheDocument();
     });
   });
 });
