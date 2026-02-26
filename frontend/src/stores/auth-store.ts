@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import type { AuthStore, AuthResponseDto, UserDto } from "@/types/auth";
 import { setStoredTokens, clearStoredTokens } from "@/lib/api-client";
+import { useCartStore } from "@/stores/cart-store";
 
 const initialState = {
   user: null,
@@ -41,6 +42,9 @@ export const useAuthStore = create<AuthStore>()(
       logout: () => {
         // Clear tokens from apiClient localStorage
         clearStoredTokens();
+
+        // Clear cart so the user's items are not visible after logout
+        useCartStore.getState().reset();
 
         set({
           ...initialState,
