@@ -160,18 +160,16 @@ describe("VideoModal", () => {
     });
 
     it("al cerrar y reabrir el modal se selecciona un nuevo vídeo", () => {
-      // Primera apertura: Math.random=0 → VIDEOS[0] en useState y useEffect
-      // Segunda apertura: Math.random=0.99 → VIDEOS[4] en useEffect
-      vi.spyOn(Math, "random")
-        .mockReturnValueOnce(0)    // useState init
-        .mockReturnValueOnce(0)    // useEffect — primera apertura
-        .mockReturnValueOnce(0.99) // useEffect — segunda apertura
+      // Cada montaje llama al inicializador de useState con crypto.getRandomValues
+      vi.spyOn(crypto, "getRandomValues")
+        .mockImplementationOnce((arr) => { (arr as Uint32Array)[0] = 0; return arr; }) // primer montaje → VIDEOS[0]
+        .mockImplementationOnce((arr) => { (arr as Uint32Array)[0] = 4; return arr; }); // segundo montaje → VIDEOS[4]
 
-      const { rerender } = render(<VideoModal isOpen={true} onClose={onClose} />);
+      const { unmount } = render(<VideoModal isOpen={true} onClose={onClose} />);
       const srcFirst = document.querySelector("iframe")!.src;
 
-      rerender(<VideoModal isOpen={false} onClose={onClose} />);
-      rerender(<VideoModal isOpen={true} onClose={onClose} />);
+      unmount();
+      render(<VideoModal isOpen={true} onClose={onClose} />);
 
       const srcSecond = document.querySelector("iframe")!.src;
       expect(srcSecond).not.toBe(srcFirst);

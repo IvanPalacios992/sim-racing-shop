@@ -14,7 +14,9 @@ const VIDEOS = [
 
 function getRandomVideo(exclude?: string): string {
   const available = exclude ? VIDEOS.filter((id) => id !== exclude) : VIDEOS;
-  return available[Math.floor(Math.random() * available.length)];
+  const array = new Uint32Array(1);
+  crypto.getRandomValues(array);
+  return available[array[0] % available.length];
 }
 
 interface VideoModalProps {
@@ -25,12 +27,6 @@ interface VideoModalProps {
 export function VideoModal({ isOpen, onClose }: VideoModalProps) {
   const t = useTranslations("home.videoModal");
   const [videoId, setVideoId] = useState<string>(() => getRandomVideo());
-
-  useEffect(() => {
-    if (isOpen) {
-      setVideoId(getRandomVideo());
-    }
-  }, [isOpen]);
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
