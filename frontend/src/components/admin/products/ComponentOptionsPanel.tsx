@@ -35,6 +35,7 @@ export default function ComponentOptionsPanel({ productId, availableComponents }
   const [saving, setSaving] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [componentSearch, setComponentSearch] = useState("");
 
   useEffect(() => {
     adminProductsApi
@@ -47,11 +48,13 @@ export default function ComponentOptionsPanel({ productId, availableComponents }
   const openAddForm = () => {
     setEditOptionId(null);
     setForm(emptyOption());
+    setComponentSearch("");
     setShowForm(true);
   };
 
   const openEditForm = (opt: ProductComponentOptionAdminDto) => {
     setEditOptionId(opt.id);
+    setComponentSearch("");
     setForm({
       componentId: opt.componentId,
       optionGroup: opt.optionGroup,
@@ -181,21 +184,42 @@ export default function ComponentOptionsPanel({ productId, availableComponents }
               </h4>
 
               <div className="space-y-1">
-                <Label htmlFor="opt-component" className="text-xs">Componente *</Label>
+                <Label htmlFor="opt-component-search" className="text-xs">Componente *</Label>
+                <Input
+                  id="opt-component-search"
+                  value={componentSearch}
+                  onChange={(e) => setComponentSearch(e.target.value)}
+                  placeholder="Buscar por SKU o nombre..."
+                  className="text-sm mb-1"
+                />
                 <select
                   id="opt-component"
                   value={form.componentId}
                   onChange={(e) => setForm((p) => ({ ...p, componentId: e.target.value }))}
                   required
-                  className="w-full bg-carbon border border-graphite text-pure-white text-sm rounded px-3 py-2 focus:outline-none focus:border-electric-blue"
+                  size={6}
+                  className="w-full bg-carbon border border-graphite text-pure-white text-sm rounded px-3 py-1 focus:outline-none focus:border-electric-blue"
                 >
-                  <option value="">Seleccionar componente...</option>
-                  {availableComponents.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.sku} — {c.name}
-                    </option>
-                  ))}
+                  <option value="">— Seleccionar —</option>
+                  {availableComponents
+                    .filter((c) => {
+                      const q = componentSearch.toLowerCase();
+                      return !q || c.sku.toLowerCase().includes(q) || c.name.toLowerCase().includes(q);
+                    })
+                    .map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.sku} — {c.name}
+                      </option>
+                    ))}
                 </select>
+                {componentSearch && (
+                  <p className="text-xs text-silver mt-1">
+                    {availableComponents.filter((c) => {
+                      const q = componentSearch.toLowerCase();
+                      return c.sku.toLowerCase().includes(q) || c.name.toLowerCase().includes(q);
+                    }).length} resultado(s)
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-3">

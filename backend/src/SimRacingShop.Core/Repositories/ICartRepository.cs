@@ -38,5 +38,19 @@ namespace SimRacingShop.Core.Repositories
 
         /// <summary>Elimina el hash completo de modificadores del carrito</summary>
         Task DeletePriceModifiersAsync(string cartKey);
+
+        // ── Opciones de personalización seleccionadas ────────────────────────
+
+        /// <summary>Guarda las opciones seleccionadas de un producto (JSON) en Redis</summary>
+        Task SetSelectedOptionsAsync(string cartKey, string productId, string optionsJson, TimeSpan ttl);
+
+        /// <summary>Devuelve todas las opciones seleccionadas: productId -> JSON</summary>
+        Task<Dictionary<string, string>> GetAllSelectedOptionsAsync(string cartKey);
+
+        /// <summary>Elimina las opciones seleccionadas de un producto</summary>
+        Task RemoveSelectedOptionsAsync(string cartKey, string productId);
+
+        /// <summary>Elimina el hash completo de opciones seleccionadas del carrito</summary>
+        Task DeleteAllSelectedOptionsAsync(string cartKey);
     }
 }

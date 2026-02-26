@@ -10,9 +10,16 @@ namespace SimRacingShop.Core.DTOs
         public string ProductName { get; set; } = null!;
         public string ProductSku { get; set; } = null!;
         public string? ConfigurationJson { get; set; }
+        /// <summary>
+        /// IDs de los componentes seleccionados. El backend los usa para recalcular
+        /// el precio real del producto personalizado y validar el precio enviado.
+        /// </summary>
+        public List<Guid>? SelectedComponentIds { get; set; }
         public int Quantity { get; set; }
         public decimal UnitPrice { get; set; }
+        public decimal UnitSubtotal { get; set; }
         public decimal LineTotal { get; set; }
+        public decimal LineSubtotal { get; set; }
     }
 
     // DTO para crear un pedido
@@ -107,6 +114,7 @@ namespace SimRacingShop.Core.DTOs
         public Guid Id { get; set; }
         public string ProductName { get; set; } = null!;
         public string ProductSku { get; set; } = null!;
+        public string? ConfigurationJson { get; set; }
         public int Quantity { get; set; }
         public decimal LineTotal { get; set; }
     }

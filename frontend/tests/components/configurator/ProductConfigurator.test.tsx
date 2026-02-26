@@ -418,7 +418,11 @@ describe("ProductConfigurator", () => {
       await user.click(screen.getByRole("button", { name: /add to cart/i }));
 
       await waitFor(() => {
-        expect(onAddToCart).toHaveBeenCalledWith({ Color: "opt-black" }, 100);
+        expect(onAddToCart).toHaveBeenCalledWith(
+          { Color: "opt-black" },
+          100,
+          [{ groupName: "Color", componentId: "opt-black", componentName: "Black" }]
+        );
       });
     });
 

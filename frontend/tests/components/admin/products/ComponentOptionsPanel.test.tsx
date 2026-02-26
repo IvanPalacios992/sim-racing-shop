@@ -25,6 +25,15 @@ const availableComponents: AdminComponentListItem[] = [
     inStock: true,
     weightGrams: null,
   },
+  {
+    id: "comp-2",
+    sku: "PEDALS-001",
+    name: "Pedales Sprint",
+    componentType: "Pedals",
+    stockQuantity: 5,
+    inStock: true,
+    weightGrams: null,
+  },
 ];
 
 const mockOptions: ProductComponentOptionAdminDto[] = [
@@ -186,8 +195,8 @@ describe("ComponentOptionsPanel", () => {
 
       await user.click(screen.getByText("Añadir componente"));
 
-      // Select a component
-      const select = screen.getByLabelText(/Componente/i);
+      // Select a component from the listbox (select size={6} has role="listbox")
+      const select = screen.getByRole("listbox");
       await user.selectOptions(select, "comp-1");
 
       // Fill in group (use exact label to avoid matching "Grupo requerido")
@@ -221,6 +230,95 @@ describe("ComponentOptionsPanel", () => {
       await user.click(screen.getByRole("button", { name: "Cancelar" }));
 
       expect(screen.queryByText("Añadir opción de componente")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("búsqueda de componentes", () => {
+    it("muestra todos los componentes cuando el campo de búsqueda está vacío", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.getComponentOptions).mockResolvedValue([]);
+
+      render(<ComponentOptionsPanel {...defaultProps} />);
+
+      await waitFor(() => expect(screen.getByText("Añadir componente")).toBeInTheDocument());
+      await user.click(screen.getByText("Añadir componente"));
+
+      const select = screen.getByRole("listbox");
+      expect(select).toContainElement(screen.getByText(/WHEEL-BASE-001/));
+      expect(select).toContainElement(screen.getByText(/PEDALS-001/));
+    });
+
+    it("filtra los componentes al escribir en el campo de búsqueda", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.getComponentOptions).mockResolvedValue([]);
+
+      render(<ComponentOptionsPanel {...defaultProps} />);
+
+      await waitFor(() => expect(screen.getByText("Añadir componente")).toBeInTheDocument());
+      await user.click(screen.getByText("Añadir componente"));
+
+      await user.type(screen.getByPlaceholderText("Buscar por SKU o nombre..."), "PEDALS");
+
+      const select = screen.getByRole("listbox");
+      expect(select).toContainElement(screen.getByText(/PEDALS-001/));
+      expect(select).not.toContainElement(screen.queryByText(/WHEEL-BASE-001/));
+    });
+
+    it("filtra por nombre además de por SKU", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.getComponentOptions).mockResolvedValue([]);
+
+      render(<ComponentOptionsPanel {...defaultProps} />);
+
+      await waitFor(() => expect(screen.getByText("Añadir componente")).toBeInTheDocument());
+      await user.click(screen.getByText("Añadir componente"));
+
+      await user.type(screen.getByPlaceholderText("Buscar por SKU o nombre..."), "Sprint");
+
+      const select = screen.getByRole("listbox");
+      expect(select).toContainElement(screen.getByText(/PEDALS-001/));
+      expect(select).not.toContainElement(screen.queryByText(/WHEEL-BASE-001/));
+    });
+
+    it("muestra el contador de resultados cuando hay búsqueda activa", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.getComponentOptions).mockResolvedValue([]);
+
+      render(<ComponentOptionsPanel {...defaultProps} />);
+
+      await waitFor(() => expect(screen.getByText("Añadir componente")).toBeInTheDocument());
+      await user.click(screen.getByText("Añadir componente"));
+
+      await user.type(screen.getByPlaceholderText("Buscar por SKU o nombre..."), "PEDALS");
+
+      expect(screen.getByText("1 resultado(s)")).toBeInTheDocument();
+    });
+
+    it("no muestra el contador cuando el campo de búsqueda está vacío", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.getComponentOptions).mockResolvedValue([]);
+
+      render(<ComponentOptionsPanel {...defaultProps} />);
+
+      await waitFor(() => expect(screen.getByText("Añadir componente")).toBeInTheDocument());
+      await user.click(screen.getByText("Añadir componente"));
+
+      expect(screen.queryByText(/resultado/)).not.toBeInTheDocument();
+    });
+
+    it("resetea la búsqueda al abrir el formulario de añadir", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.getComponentOptions).mockResolvedValue([]);
+
+      render(<ComponentOptionsPanel {...defaultProps} />);
+
+      await waitFor(() => expect(screen.getByText("Añadir componente")).toBeInTheDocument());
+      await user.click(screen.getByText("Añadir componente"));
+      await user.type(screen.getByPlaceholderText("Buscar por SKU o nombre..."), "PEDALS");
+      await user.click(screen.getByRole("button", { name: "Cancelar" }));
+      await user.click(screen.getByText("Añadir componente"));
+
+      expect(screen.getByPlaceholderText("Buscar por SKU o nombre...")).toHaveValue("");
     });
   });
 

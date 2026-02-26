@@ -58,13 +58,13 @@ namespace SimRacingShop.Infrastructure.Repositories
             // Sorting
             query = filter.SortBy?.ToLowerInvariant() switch
             {
-                "price" => filter.SortDescending
-                    ? query.OrderByDescending(x => x.Product.BasePrice)
-                    : query.OrderBy(x => x.Product.BasePrice),
+                "baseprice" => filter.SortDescending
+                ? query.OrderByDescending(x => x.Product.BasePrice)
+                : query.OrderBy(x => x.Product.BasePrice),
                 "name" => filter.SortDescending
                     ? query.OrderByDescending(x => x.Translation.Name)
                     : query.OrderBy(x => x.Translation.Name),
-                "newest" => query.OrderByDescending(x => x.Product.CreatedAt),
+                "createdat" => query.OrderByDescending(x => x.Product.CreatedAt),
                 _ => query.OrderByDescending(x => x.Product.CreatedAt)
             };
 

@@ -43,6 +43,15 @@ const mockCategories: CategoryListItem[] = [
   },
 ];
 
+const emptyPaginated = { items: [], totalCount: 0, page: 1, pageSize: 10, totalPages: 0 };
+const paginated = (items: CategoryListItem[]) => ({
+  items,
+  totalCount: items.length,
+  page: 1,
+  pageSize: 10,
+  totalPages: items.length > 0 ? 1 : 0,
+});
+
 describe("CategoriesContent", () => {
   beforeEach(() => {
     resetAuthStore();
@@ -70,12 +79,12 @@ describe("CategoriesContent", () => {
     });
 
     it("llama a list con locale 'es'", async () => {
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue([]);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(emptyPaginated);
 
       render(<CategoriesContent />);
 
       await waitFor(() => {
-        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es");
+        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 10);
       });
     });
   });
@@ -105,7 +114,7 @@ describe("CategoriesContent", () => {
       const user = userEvent.setup();
       vi.mocked(adminCategoriesApi.list)
         .mockRejectedValueOnce(new Error("error"))
-        .mockResolvedValueOnce([]);
+        .mockResolvedValueOnce(emptyPaginated);
 
       render(<CategoriesContent />);
 
@@ -120,7 +129,7 @@ describe("CategoriesContent", () => {
 
   describe("empty state", () => {
     it("muestra mensaje cuando no hay categorías", async () => {
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue([]);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(emptyPaginated);
 
       render(<CategoriesContent />);
 
@@ -132,7 +141,7 @@ describe("CategoriesContent", () => {
 
   describe("tabla", () => {
     it("renderiza el título de la página", async () => {
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue(mockCategories);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(paginated(mockCategories));
 
       render(<CategoriesContent />);
 
@@ -142,7 +151,7 @@ describe("CategoriesContent", () => {
     });
 
     it("renderiza las cabeceras de columna", async () => {
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue(mockCategories);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(paginated(mockCategories));
 
       render(<CategoriesContent />);
 
@@ -155,7 +164,7 @@ describe("CategoriesContent", () => {
     });
 
     it("renderiza los nombres de las categorías", async () => {
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue(mockCategories);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(paginated(mockCategories));
 
       render(<CategoriesContent />);
 
@@ -166,7 +175,7 @@ describe("CategoriesContent", () => {
     });
 
     it("muestra badge 'Activa' para categorías activas", async () => {
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue(mockCategories);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(paginated(mockCategories));
 
       render(<CategoriesContent />);
 
@@ -176,7 +185,7 @@ describe("CategoriesContent", () => {
     });
 
     it("muestra badge 'Inactiva' para categorías inactivas", async () => {
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue(mockCategories);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(paginated(mockCategories));
 
       render(<CategoriesContent />);
 
@@ -189,7 +198,7 @@ describe("CategoriesContent", () => {
   describe("eliminar", () => {
     it("al hacer clic en eliminar muestra confirmación inline", async () => {
       const user = userEvent.setup();
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue(mockCategories);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(paginated(mockCategories));
 
       render(<CategoriesContent />);
 
@@ -205,7 +214,7 @@ describe("CategoriesContent", () => {
 
     it("al hacer clic en No oculta la confirmación", async () => {
       const user = userEvent.setup();
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue(mockCategories);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(paginated(mockCategories));
 
       render(<CategoriesContent />);
 
@@ -220,7 +229,7 @@ describe("CategoriesContent", () => {
 
     it("al confirmar llama a delete con el id correcto", async () => {
       const user = userEvent.setup();
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue(mockCategories);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(paginated(mockCategories));
       vi.mocked(adminCategoriesApi.delete).mockResolvedValue(undefined);
 
       render(<CategoriesContent />);
@@ -237,10 +246,70 @@ describe("CategoriesContent", () => {
     });
   });
 
+  describe("paginación", () => {
+    it("no muestra paginación cuando hay una sola página", async () => {
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(paginated(mockCategories));
+
+      render(<CategoriesContent />);
+
+      await waitFor(() => expect(screen.getByText("Volantes")).toBeInTheDocument());
+
+      expect(screen.queryByText(/Página/)).not.toBeInTheDocument();
+    });
+
+    it("muestra paginación cuando hay múltiples páginas", async () => {
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue({ ...paginated(mockCategories), totalPages: 3 });
+
+      render(<CategoriesContent />);
+
+      await waitFor(() => {
+        expect(screen.getByText("Página 1 de 3")).toBeInTheDocument();
+      });
+    });
+
+    it("al hacer clic en 'Siguiente' carga la página 2", async () => {
+      const user = userEvent.setup();
+      const page2 = { items: [] as CategoryListItem[], totalCount: 2, page: 2, pageSize: 10, totalPages: 2 };
+      vi.mocked(adminCategoriesApi.list)
+        .mockResolvedValueOnce({ ...paginated(mockCategories), totalPages: 2 })
+        .mockResolvedValueOnce(page2);
+
+      render(<CategoriesContent />);
+
+      await waitFor(() => expect(screen.getByRole("button", { name: /Siguiente/ })).toBeInTheDocument());
+      await user.click(screen.getByRole("button", { name: /Siguiente/ }));
+
+      await waitFor(() => {
+        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 2, 10);
+      });
+    });
+
+    it("al hacer clic en 'Anterior' carga la página anterior", async () => {
+      const user = userEvent.setup();
+      const page2 = { items: [] as CategoryListItem[], totalCount: 2, page: 2, pageSize: 10, totalPages: 2 };
+      vi.mocked(adminCategoriesApi.list)
+        .mockResolvedValueOnce({ ...paginated(mockCategories), totalPages: 2 })
+        .mockResolvedValueOnce(page2)
+        .mockResolvedValue({ ...paginated(mockCategories), totalPages: 2 });
+
+      render(<CategoriesContent />);
+
+      await waitFor(() => expect(screen.getByRole("button", { name: /Siguiente/ })).toBeInTheDocument());
+      await user.click(screen.getByRole("button", { name: /Siguiente/ }));
+      await waitFor(() => expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 2, 10));
+
+      await user.click(screen.getByRole("button", { name: /Anterior/ }));
+
+      await waitFor(() => {
+        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 10);
+      });
+    });
+  });
+
   describe("modal creación", () => {
     it("al hacer clic en 'Nueva categoría' abre el modal", async () => {
       const user = userEvent.setup();
-      vi.mocked(adminCategoriesApi.list).mockResolvedValue([]);
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(emptyPaginated);
 
       render(<CategoriesContent />);
 

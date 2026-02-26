@@ -7,6 +7,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { productsApi } from "@/lib/api/products";
 import { CustomizationPanel } from "./CustomizationPanel";
 import type { CustomizationGroup, ProductDetail } from "@/types/products";
+import type { SelectedOption } from "@/types/cart";
 
 // Carga dinámica sin SSR: Three.js requiere entorno browser
 const ConfiguratorViewer = dynamic(
@@ -19,8 +20,8 @@ export type ConfiguratorSelections = Record<string, string | null>;
 interface ProductConfiguratorProps {
   product: ProductDetail;
   onClose: () => void;
-  /** Callback que recibe las selecciones y el precio total al confirmar */
-  onAddToCart?: (selections: ConfiguratorSelections, totalPrice: number) => Promise<void>;
+  /** Callback que recibe las selecciones, el precio total y las opciones detalladas al confirmar */
+  onAddToCart?: (selections: ConfiguratorSelections, totalPrice: number, selectedOptions: SelectedOption[]) => Promise<void>;
   isAddingToCart?: boolean;
 }
 
@@ -101,9 +102,19 @@ export function ProductConfigurator({
 
   const handleAddToCart = useCallback(async () => {
     if (!canAddToCart) return;
-    await onAddToCart?.(selections, totalPrice);
+    const selectedOptions: SelectedOption[] = groups
+      .filter((g) => selections[g.name] != null)
+      .map((g) => {
+        const option = g.options.find((o) => o.componentId === selections[g.name]);
+        return {
+          groupName: g.name,
+          componentId: selections[g.name]!,
+          componentName: option?.name ?? selections[g.name]!,
+        };
+      });
+    await onAddToCart?.(selections, totalPrice, selectedOptions);
     onClose();
-  }, [canAddToCart, onAddToCart, selections, totalPrice, onClose]);
+  }, [canAddToCart, onAddToCart, selections, totalPrice, groups, onClose]);
 
   return (
     <div
