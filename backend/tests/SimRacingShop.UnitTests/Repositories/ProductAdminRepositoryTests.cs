@@ -618,4 +618,182 @@ public class ProductAdminRepositoryTests : IDisposable
     }
 
     #endregion
+
+    #region GetCategoriesAsync Tests
+
+    private async Task<Category> SeedCategory(string name = "Volantes", string slug = "volantes", string locale = "es")
+    {
+        var category = new Category
+        {
+            Id = Guid.NewGuid(),
+            IsActive = true,
+            Translations = new List<CategoryTranslation>
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Locale = locale,
+                    Name = name,
+                    Slug = slug
+                }
+            }
+        };
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+        return category;
+    }
+
+    [Fact]
+    public async Task GetCategoriesAsync_DevuelveCategoriasAsignadas()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        var category = await SeedCategory("Volantes", "volantes");
+
+        product.Categories.Add(category);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetCategoriesAsync(product.Id);
+
+        // Assert
+        result.Should().HaveCount(1);
+        result[0].Id.Should().Be(category.Id);
+    }
+
+    [Fact]
+    public async Task GetCategoriesAsync_ProductoSinCategorias_DevuelveListaVacia()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetCategoriesAsync(product.Id);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetCategoriesAsync_ProductoInexistente_DevuelveListaVacia()
+    {
+        // Act
+        var result = await _repository.GetCategoriesAsync(Guid.NewGuid());
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetCategoriesAsync_IncludeTraduccionesEnElResultado()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        var category = await SeedCategory("Volantes", "volantes");
+
+        product.Categories.Add(category);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetCategoriesAsync(product.Id);
+
+        // Assert
+        result[0].Translations.Should().NotBeEmpty();
+        result[0].Translations.First().Name.Should().Be("Volantes");
+    }
+
+    #endregion
+
+    #region SetCategoriesAsync Tests
+
+    [Fact]
+    public async Task SetCategoriesAsync_AsignaCategorias()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        var cat1 = await SeedCategory("Volantes", "volantes");
+        var cat2 = await SeedCategory("Pedales", "pedales");
+
+        // Act
+        await _repository.SetCategoriesAsync(product.Id, new List<Guid> { cat1.Id, cat2.Id });
+
+        // Assert
+        var result = await _repository.GetCategoriesAsync(product.Id);
+        result.Should().HaveCount(2);
+        result.Should().Contain(c => c.Id == cat1.Id);
+        result.Should().Contain(c => c.Id == cat2.Id);
+    }
+
+    [Fact]
+    public async Task SetCategoriesAsync_ReemplazaCategoriasExistentes()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        var cat1 = await SeedCategory("Volantes", "volantes");
+        var cat2 = await SeedCategory("Pedales", "pedales");
+
+        product.Categories.Add(cat1);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act – replace cat1 with cat2
+        await _repository.SetCategoriesAsync(product.Id, new List<Guid> { cat2.Id });
+
+        // Assert
+        var result = await _repository.GetCategoriesAsync(product.Id);
+        result.Should().HaveCount(1);
+        result[0].Id.Should().Be(cat2.Id);
+    }
+
+    [Fact]
+    public async Task SetCategoriesAsync_ListaVacia_EliminaTodasLasCategorias()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        var category = await SeedCategory("Volantes", "volantes");
+
+        product.Categories.Add(category);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        await _repository.SetCategoriesAsync(product.Id, new List<Guid>());
+
+        // Assert
+        var result = await _repository.GetCategoriesAsync(product.Id);
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task SetCategoriesAsync_ProductoInexistente_NoLanzaExcepcion()
+    {
+        // Act
+        var act = async () => await _repository.SetCategoriesAsync(Guid.NewGuid(), new List<Guid>());
+
+        // Assert
+        await act.Should().NotThrowAsync();
+    }
+
+    [Fact]
+    public async Task SetCategoriesAsync_IgnoraIdsDeCategoriaInexistentes()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act – solo existe el producto, no la categoría
+        await _repository.SetCategoriesAsync(product.Id, new List<Guid> { Guid.NewGuid() });
+
+        // Assert – no debe asignar nada si la categoría no existe
+        var result = await _repository.GetCategoriesAsync(product.Id);
+        result.Should().BeEmpty();
+    }
+
+    #endregion
 }

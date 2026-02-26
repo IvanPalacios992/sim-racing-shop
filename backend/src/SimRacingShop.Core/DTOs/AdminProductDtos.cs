@@ -42,6 +42,18 @@ namespace SimRacingShop.Core.DTOs
         public List<ProductTranslationInputDto> Translations { get; init; } = new();
     }
 
+    public record ProductCategoryDto
+    {
+        public Guid Id { get; init; }
+        public string Name { get; init; } = null!;
+        public string Slug { get; init; } = null!;
+    }
+
+    public record SetProductCategoriesDto
+    {
+        public List<Guid> CategoryIds { get; init; } = new();
+    }
+
     public record ProductImageUploadResultDto
     {
         public Guid Id { get; init; }
