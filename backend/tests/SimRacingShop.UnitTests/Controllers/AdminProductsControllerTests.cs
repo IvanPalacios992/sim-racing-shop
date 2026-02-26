@@ -1304,4 +1304,245 @@ public class AdminProductsControllerTests
     }
 
     #endregion
+
+    #region GetImages Tests
+
+    [Fact]
+    public async Task GetImages_WithExistingProduct_ReturnsOkWithImageList()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var images = new List<ProductImage>
+        {
+            new() { Id = Guid.NewGuid(), ProductId = product.Id, ImageUrl = "https://example.com/img1.jpg", AltText = "Imagen 1", DisplayOrder = 0 },
+            new() { Id = Guid.NewGuid(), ProductId = product.Id, ImageUrl = "https://example.com/img2.jpg", AltText = null, DisplayOrder = 1 }
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.GetImagesAsync(product.Id)).ReturnsAsync(images);
+
+        // Act
+        var result = await _controller.GetImages(product.Id);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var list = ok.Value.Should().BeAssignableTo<List<AdminProductImageDto>>().Subject;
+        list.Should().HaveCount(2);
+        list[0].ImageUrl.Should().Be("https://example.com/img1.jpg");
+        list[0].AltText.Should().Be("Imagen 1");
+        list[0].DisplayOrder.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task GetImages_WithNoImages_ReturnsOkWithEmptyList()
+    {
+        // Arrange
+        var product = BuildProduct();
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.GetImagesAsync(product.Id)).ReturnsAsync(new List<ProductImage>());
+
+        // Act
+        var result = await _controller.GetImages(product.Id);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var list = ok.Value.Should().BeAssignableTo<List<AdminProductImageDto>>().Subject;
+        list.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetImages_WithNonExistentProduct_Returns404()
+    {
+        // Arrange
+        _adminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+
+        // Act
+        var result = await _controller.GetImages(Guid.NewGuid());
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    #endregion
+
+    #region AddImageByUrl Tests
+
+    [Fact]
+    public async Task AddImageByUrl_WithExistingProduct_Returns201WithImage()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var dto = new AddProductImageByUrlDto { ImageUrl = "https://example.com/img.jpg", AltText = "Imagen", DisplayOrder = 0 };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.AddImageByUrlAsync(It.IsAny<ProductImage>()))
+            .ReturnsAsync((ProductImage img) => img);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.AddImageByUrl(product.Id, dto);
+
+        // Assert
+        var created = result.Should().BeOfType<CreatedResult>().Subject;
+        created.StatusCode.Should().Be(201);
+        var image = created.Value.Should().BeOfType<AdminProductImageDto>().Subject;
+        image.ImageUrl.Should().Be("https://example.com/img.jpg");
+        image.AltText.Should().Be("Imagen");
+        image.DisplayOrder.Should().Be(0);
+    }
+
+    [Fact]
+    public async Task AddImageByUrl_WithNonExistentProduct_Returns404()
+    {
+        // Arrange
+        var dto = new AddProductImageByUrlDto { ImageUrl = "https://example.com/img.jpg", DisplayOrder = 0 };
+        _adminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+
+        // Act
+        var result = await _controller.AddImageByUrl(Guid.NewGuid(), dto);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task AddImageByUrl_CallsRepositoryWithCorrectData()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var dto = new AddProductImageByUrlDto { ImageUrl = "https://example.com/img.jpg", AltText = "Alt", DisplayOrder = 2 };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.AddImageByUrlAsync(It.IsAny<ProductImage>()))
+            .ReturnsAsync((ProductImage img) => img);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.AddImageByUrl(product.Id, dto);
+
+        // Assert
+        _adminRepoMock.Verify(r => r.AddImageByUrlAsync(It.Is<ProductImage>(i =>
+            i.ImageUrl == "https://example.com/img.jpg" &&
+            i.AltText == "Alt" &&
+            i.DisplayOrder == 2 &&
+            i.ProductId == product.Id)), Times.Once);
+    }
+
+    [Fact]
+    public async Task AddImageByUrl_InvalidatesCacheAfterAdd()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var dto = new AddProductImageByUrlDto { ImageUrl = "https://example.com/img.jpg", DisplayOrder = 0 };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.AddImageByUrlAsync(It.IsAny<ProductImage>()))
+            .ReturnsAsync((ProductImage img) => img);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.AddImageByUrl(product.Id, dto);
+
+        // Assert
+        _cacheMock.Verify(c => c.RemoveAsync(
+            It.Is<string>(k => k.Contains("products:detail:")),
+            default), Times.AtLeastOnce);
+    }
+
+    #endregion
+
+    #region DeleteImage (product) Tests
+
+    [Fact]
+    public async Task DeleteImage_WithExistingImage_Returns204()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var imageId = Guid.NewGuid();
+        var image = new ProductImage { Id = imageId, ProductId = product.Id, ImageUrl = "https://example.com/img.jpg" };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.GetImageByIdAsync(imageId)).ReturnsAsync(image);
+        _adminRepoMock.Setup(r => r.DeleteImageAsync(image)).Returns(Task.CompletedTask);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.DeleteImage(product.Id, imageId);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task DeleteImage_WithNonExistentProduct_Returns404()
+    {
+        // Arrange
+        _adminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+
+        // Act
+        var result = await _controller.DeleteImage(Guid.NewGuid(), Guid.NewGuid());
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task DeleteImage_WithNonExistentImage_Returns404()
+    {
+        // Arrange
+        var product = BuildProduct();
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.GetImageByIdAsync(It.IsAny<Guid>())).ReturnsAsync((ProductImage?)null);
+
+        // Act
+        var result = await _controller.DeleteImage(product.Id, Guid.NewGuid());
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task DeleteImage_WithImageBelongingToOtherProduct_Returns404()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var imageId = Guid.NewGuid();
+        var image = new ProductImage { Id = imageId, ProductId = Guid.NewGuid(), ImageUrl = "https://example.com/img.jpg" };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.GetImageByIdAsync(imageId)).ReturnsAsync(image);
+
+        // Act
+        var result = await _controller.DeleteImage(product.Id, imageId);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+        _adminRepoMock.Verify(r => r.DeleteImageAsync(It.IsAny<ProductImage>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task DeleteImage_InvalidatesCacheAfterDelete()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var imageId = Guid.NewGuid();
+        var image = new ProductImage { Id = imageId, ProductId = product.Id, ImageUrl = "https://example.com/img.jpg" };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.GetImageByIdAsync(imageId)).ReturnsAsync(image);
+        _adminRepoMock.Setup(r => r.DeleteImageAsync(image)).Returns(Task.CompletedTask);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.DeleteImage(product.Id, imageId);
+
+        // Assert
+        _cacheMock.Verify(c => c.RemoveAsync(
+            It.Is<string>(k => k.Contains("products:detail:")),
+            default), Times.AtLeastOnce);
+    }
+
+    #endregion
 }
