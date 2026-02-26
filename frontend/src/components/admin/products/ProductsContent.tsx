@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { adminProductsApi } from "@/lib/api/admin-products";
 import { adminComponentsApi } from "@/lib/api/admin-components";
+import { adminCategoriesApi } from "@/lib/api/admin-categories";
 import AdminContentShell from "@/components/admin/AdminContentShell";
 import AdminPagination from "@/components/admin/AdminPagination";
 import AdminRowActions from "@/components/admin/AdminRowActions";
@@ -10,11 +11,13 @@ import { useAdminList } from "@/components/admin/useAdminList";
 import ProductModal from "./ProductModal";
 import type { ProductListItem } from "@/types/products";
 import type { AdminComponentListItem } from "@/types/admin";
+import type { CategoryListItem } from "@/types/categories";
 
 const PAGE_SIZE = 10;
 
 export default function ProductsContent() {
   const [components, setComponents] = useState<AdminComponentListItem[]>([]);
+  const [categories, setCategories] = useState<CategoryListItem[]>([]);
 
   const {
     items: products, page, totalPages, fetchStatus,
@@ -23,11 +26,13 @@ export default function ProductsContent() {
     openCreate, openEdit, closeModal, retry,
   } = useAdminList<ProductListItem>(
     async (p) => {
-      const [productsResult, componentsResult] = await Promise.all([
+      const [productsResult, componentsResult, categoriesResult] = await Promise.all([
         adminProductsApi.list("es", p, PAGE_SIZE),
         adminComponentsApi.list("es", 1, 200),
+        adminCategoriesApi.list("es", 1, 200),
       ]);
       setComponents(componentsResult.items);
+      setCategories(categoriesResult.items);
       return { items: productsResult.items, totalPages: productsResult.totalPages };
     },
     (id) => adminProductsApi.delete(id),
@@ -112,6 +117,7 @@ export default function ProductsContent() {
         onSuccess={handleSuccess}
         editItem={editItem}
         availableComponents={components}
+        availableCategories={categories}
       />
     </>
   );

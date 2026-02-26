@@ -10,10 +10,12 @@ import AdminTabBar from "@/components/admin/AdminTabBar";
 import AdminFormActions from "@/components/admin/AdminFormActions";
 import { generateSlug, extractApiError } from "@/components/admin/adminUtils";
 import ComponentOptionsPanel from "./ComponentOptionsPanel";
+import CategoryAssignPanel from "./CategoryAssignPanel";
 import type { ProductListItem } from "@/types/products";
 import type { AdminComponentListItem } from "@/types/admin";
+import type { CategoryListItem } from "@/types/categories";
 
-type Tab = "base" | "es" | "en" | "components";
+type Tab = "base" | "es" | "en" | "components" | "categories";
 
 interface ProductModalProps {
   isOpen: boolean;
@@ -21,6 +23,7 @@ interface ProductModalProps {
   onSuccess: () => void;
   editItem?: ProductListItem;
   availableComponents: AdminComponentListItem[];
+  availableCategories: CategoryListItem[];
 }
 
 interface BaseForm {
@@ -80,6 +83,7 @@ export default function ProductModal({
   onSuccess,
   editItem,
   availableComponents,
+  availableCategories,
 }: ProductModalProps) {
   const [activeTab, setActiveTab] = useState<Tab>("base");
   const [loading, setLoading] = useState(false);
@@ -254,6 +258,7 @@ export default function ProductModal({
     { key: "es", label: "Español" },
     { key: "en", label: "English" },
     ...(editItem ? [{ key: "components" as Tab, label: "Componentes" }] : []),
+    ...(editItem ? [{ key: "categories" as Tab, label: "Categorías" }] : []),
   ];
 
   const title = editItem ? "Editar producto" : "Nuevo producto";
@@ -270,7 +275,7 @@ export default function ProductModal({
 
           <AdminTabBar tabs={tabs} activeTab={activeTab} onChange={(k) => setActiveTab(k as Tab)} />
 
-          {activeTab !== "components" ? (
+          {activeTab !== "components" && activeTab !== "categories" ? (
             <form onSubmit={handleSubmit} id="product-form" className="space-y-4">
               {activeTab === "base" && (
                 <div className="space-y-4">
@@ -403,11 +408,18 @@ export default function ProductModal({
 
               <AdminFormActions loading={loading} onCancel={onClose} />
             </form>
-          ) : (
+          ) : activeTab === "components" ? (
             editItem && (
               <ComponentOptionsPanel
                 productId={editItem.id}
                 availableComponents={availableComponents}
+              />
+            )
+          ) : (
+            editItem && (
+              <CategoryAssignPanel
+                productId={editItem.id}
+                availableCategories={availableCategories}
               />
             )
           )}
