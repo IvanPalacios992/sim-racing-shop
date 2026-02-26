@@ -1,4 +1,5 @@
 import { render, screen } from "../helpers/render";
+import userEvent from "@testing-library/user-event";
 import { ProductInfo } from "@/components/products/ProductInfo";
 import { createMockProductDetail } from "../helpers/products";
 
@@ -82,16 +83,43 @@ describe("ProductInfo", () => {
       ).toBeInTheDocument();
     });
 
-    it("does not show badge or button when product is not customizable", () => {
-      const product = createMockProductDetail({
-        isCustomizable: false,
-      });
+    it("does not show 'Customizable' badge or CUSTOMIZE button when product is not customizable", () => {
+      const product = createMockProductDetail({ isCustomizable: false });
       render(<ProductInfo product={product} />);
 
       expect(screen.queryByText("Customizable")).not.toBeInTheDocument();
       expect(
         screen.queryByRole("button", { name: "CUSTOMIZE" })
       ).not.toBeInTheDocument();
+    });
+
+    it("shows ADD TO CART button when product is not customizable", () => {
+      const product = createMockProductDetail({ isCustomizable: false });
+      render(<ProductInfo product={product} />);
+
+      expect(
+        screen.getByRole("button", { name: "ADD TO CART" })
+      ).toBeInTheDocument();
+    });
+
+    it("calls onAddToCart when ADD TO CART button is clicked", async () => {
+      const user = userEvent.setup();
+      const onAddToCart = vi.fn();
+      const product = createMockProductDetail({ isCustomizable: false });
+      render(<ProductInfo product={product} onAddToCart={onAddToCart} />);
+
+      await user.click(screen.getByRole("button", { name: "ADD TO CART" }));
+
+      expect(onAddToCart).toHaveBeenCalledTimes(1);
+    });
+
+    it("disables ADD TO CART button when isAddingToCart is true", () => {
+      const product = createMockProductDetail({ isCustomizable: false });
+      render(<ProductInfo product={product} isAddingToCart={true} />);
+
+      expect(
+        screen.getByRole("button", { name: "ADD TO CART" })
+      ).toBeDisabled();
     });
   });
 
