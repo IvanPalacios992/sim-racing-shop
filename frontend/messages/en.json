@@ -137,6 +137,12 @@
       "cta": "EXPLORE PRODUCTS",
       "ctaSecondary": "WATCH VIDEO"
     },
+    "videoModal": {
+      "badge": "COMING SOON",
+      "title": "Our video is on its way",
+      "description": "We're working on something special for you. In the meantime, enjoy this selection from the world of motorsport.",
+      "nextVideo": "Next video"
+    },
     "categories": {
       "title": "FEATURED CATEGORIES",
       "wheels": "STEERING WHEELS",
