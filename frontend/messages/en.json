@@ -609,5 +609,13 @@
     "step1": "1",
     "step2": "2",
     "step3": "3"
+  },
+  "notFound": {
+    "badge": "ERROR 404",
+    "title": "Looks like you went off",
+    "titleHighlight": "track",
+    "description": "The page you're looking for doesn't exist, has been moved, or the link is broken. Check the URL or return to the main straight.",
+    "backHome": "Back to home",
+    "viewProducts": "View products"
   }
 }
