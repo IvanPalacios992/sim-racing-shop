@@ -609,5 +609,13 @@
     "step1": "1",
     "step2": "2",
     "step3": "3"
+  },
+  "notFound": {
+    "badge": "ERROR 404",
+    "title": "Parece que has salido de",
+    "titleHighlight": "la pista",
+    "description": "La página que buscas no existe, ha sido movida o el enlace está roto. Comprueba la URL o vuelve a la recta principal.",
+    "backHome": "Volver al inicio",
+    "viewProducts": "Ver productos"
   }
 }
