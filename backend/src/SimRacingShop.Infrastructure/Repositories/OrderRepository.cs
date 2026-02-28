@@ -70,5 +70,30 @@ namespace SimRacingShop.Infrastructure.Repositories
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<Order?> GetByIdWithItemsAndUserAsync(Guid orderId)
+        {
+            return await _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+        }
+
+        public async Task<(IEnumerable<Order> Orders, int TotalCount)> GetAllWithUsersAsync(int page, int pageSize, string? status = null)
+        {
+            var query = _context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                .Where(o => status == null || o.OrderStatus == status)
+                .OrderByDescending(o => o.CreatedAt);
+
+            var totalCount = await query.CountAsync();
+            var orders = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (orders, totalCount);
+        }
     }
 }

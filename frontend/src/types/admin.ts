@@ -178,6 +178,28 @@ export interface AddProductImageDto {
   displayOrder: number;
 }
 
+// ─── ORDERS (ADMIN) ───────────────────────────────────────────────────────────
+
+import type { OrderStatus, OrderDetailDto } from "@/types/orders";
+
+export interface AdminOrderSummaryDto {
+  id: string;
+  orderNumber: string;
+  userEmail: string | null;
+  totalAmount: number;
+  orderStatus: OrderStatus;
+  createdAt: string;
+  itemCount: number;
+}
+
+export interface UpdateOrderStatusDto {
+  status: OrderStatus;
+}
+
+export interface AdminOrderDetailDto extends OrderDetailDto {
+  userEmail?: string | null;
+}
+
 // ─── CATEGORY IMAGES ──────────────────────────────────────────────────────────
 
 export interface AdminCategoryImageItem {

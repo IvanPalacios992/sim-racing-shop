@@ -53,12 +53,18 @@ describe("AdminLayout", () => {
       expect(link).toHaveAttribute("href", "/admin/productos");
     });
 
-    it("renderiza exactamente 3 elementos de navegación", () => {
+    it("renderiza el enlace a Pedidos", () => {
       render(<AdminLayout>contenido</AdminLayout>);
 
-      // El sidebar tiene exactamente 3 links de nav
+      const link = screen.getByRole("link", { name: /pedidos/i });
+      expect(link).toHaveAttribute("href", "/admin/pedidos");
+    });
+
+    it("renderiza exactamente 4 elementos de navegación", () => {
+      render(<AdminLayout>contenido</AdminLayout>);
+
       const navLinks = screen.getAllByRole("link");
-      expect(navLinks).toHaveLength(3);
+      expect(navLinks).toHaveLength(4);
     });
   });
 
@@ -85,6 +91,14 @@ describe("AdminLayout", () => {
 
       const componentesLink = screen.getByRole("link", { name: /componentes/i });
       expect(componentesLink.className).toContain("bg-racing-red");
+    });
+
+    it("marca Pedidos como activo en /admin/pedidos", () => {
+      mockPathname = "/admin/pedidos";
+      render(<AdminLayout>contenido</AdminLayout>);
+
+      const pedidosLink = screen.getByRole("link", { name: /pedidos/i });
+      expect(pedidosLink.className).toContain("bg-racing-red");
     });
 
     it("marca Productos como activo en /admin/productos", () => {
