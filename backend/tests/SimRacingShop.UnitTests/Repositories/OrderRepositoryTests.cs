@@ -508,4 +508,185 @@ public class OrderRepositoryTests : IDisposable
     }
 
     #endregion
+
+    #region GetByIdWithItemsAndUserAsync Tests
+
+    [Fact]
+    public async Task GetByIdWithItemsAndUserAsync_WithExistingOrder_ReturnsOrderWithItemsAndUser()
+    {
+        // Arrange
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = "user@example.com",
+            UserName = "user@example.com",
+        };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var order = await SeedOrder(userId: user.Id, items: [BuildItem("Volante GT"), BuildItem("Pedal Set")]);
+
+        // Asociar manualmente la relación de navegación (InMemory no carga relaciones automáticamente)
+        order = await _context.Orders
+            .Include(o => o.User)
+            .Include(o => o.OrderItems)
+            .FirstAsync(o => o.Id == order.Id, TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetByIdWithItemsAndUserAsync(order.Id);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(order.Id);
+        result.OrderItems.Should().HaveCount(2);
+        result.User.Should().NotBeNull();
+        result.User!.Email.Should().Be("user@example.com");
+    }
+
+    [Fact]
+    public async Task GetByIdWithItemsAndUserAsync_WithNonExistentId_ReturnsNull()
+    {
+        // Act
+        var result = await _repository.GetByIdWithItemsAndUserAsync(Guid.NewGuid());
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetByIdWithItemsAndUserAsync_OrderWithNoItems_ReturnsEmptyItems()
+    {
+        // Arrange
+        var order = await SeedOrder();
+
+        // Act
+        var result = await _repository.GetByIdWithItemsAndUserAsync(order.Id);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.OrderItems.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region GetAllWithUsersAsync Tests
+
+    [Fact]
+    public async Task GetAllWithUsersAsync_ReturnsAllOrdersWithTotalCount()
+    {
+        // Arrange
+        await SeedOrder();
+        await SeedOrder();
+        await SeedOrder();
+
+        // Act
+        var (orders, totalCount) = await _repository.GetAllWithUsersAsync(1, 20);
+
+        // Assert
+        orders.Should().HaveCount(3);
+        totalCount.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task GetAllWithUsersAsync_ReturnsPaginatedResults()
+    {
+        // Arrange
+        for (int i = 0; i < 5; i++)
+            await SeedOrder();
+
+        // Act
+        var (page1, total) = await _repository.GetAllWithUsersAsync(1, 3);
+        var (page2, _) = await _repository.GetAllWithUsersAsync(2, 3);
+
+        // Assert
+        total.Should().Be(5);
+        page1.Should().HaveCount(3);
+        page2.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task GetAllWithUsersAsync_ReturnsOrdersDescendingByCreatedAt()
+    {
+        // Arrange
+        var oldest = await SeedOrder(createdAt: DateTime.UtcNow.AddDays(-2));
+        var middle = await SeedOrder(createdAt: DateTime.UtcNow.AddDays(-1));
+        var newest = await SeedOrder(createdAt: DateTime.UtcNow);
+
+        // Act
+        var (orders, _) = await _repository.GetAllWithUsersAsync(1, 20);
+        var list = orders.ToList();
+
+        // Assert
+        list[0].Id.Should().Be(newest.Id);
+        list[1].Id.Should().Be(middle.Id);
+        list[2].Id.Should().Be(oldest.Id);
+    }
+
+    [Fact]
+    public async Task GetAllWithUsersAsync_FiltersByStatusWhenProvided()
+    {
+        // Arrange
+        await SeedOrder(status: "pending");
+        await SeedOrder(status: "pending");
+        await SeedOrder(status: "delivered");
+
+        // Act
+        var (pendingOrders, pendingCount) = await _repository.GetAllWithUsersAsync(1, 20, "pending");
+        var (deliveredOrders, deliveredCount) = await _repository.GetAllWithUsersAsync(1, 20, "delivered");
+
+        // Assert
+        pendingOrders.Should().HaveCount(2);
+        pendingCount.Should().Be(2);
+        pendingOrders.Should().OnlyContain(o => o.OrderStatus == "pending");
+
+        deliveredOrders.Should().HaveCount(1);
+        deliveredCount.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetAllWithUsersAsync_ReturnsAllWhenStatusIsNull()
+    {
+        // Arrange
+        await SeedOrder(status: "pending");
+        await SeedOrder(status: "processing");
+        await SeedOrder(status: "delivered");
+
+        // Act
+        var (orders, totalCount) = await _repository.GetAllWithUsersAsync(1, 20, null);
+
+        // Assert
+        orders.Should().HaveCount(3);
+        totalCount.Should().Be(3);
+    }
+
+    [Fact]
+    public async Task GetAllWithUsersAsync_StatusFilterAffectsTotalCount()
+    {
+        // Arrange
+        await SeedOrder(status: "pending");
+        await SeedOrder(status: "shipped");
+        await SeedOrder(status: "shipped");
+
+        // Act
+        var (_, shippedCount) = await _repository.GetAllWithUsersAsync(1, 20, "shipped");
+
+        // Assert — el TotalCount refleja solo los filtrados, no el total global
+        shippedCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task GetAllWithUsersAsync_ReturnsEmptyWhenNoOrdersMatchFilter()
+    {
+        // Arrange
+        await SeedOrder(status: "pending");
+
+        // Act
+        var (orders, totalCount) = await _repository.GetAllWithUsersAsync(1, 20, "cancelled");
+
+        // Assert
+        orders.Should().BeEmpty();
+        totalCount.Should().Be(0);
+    }
+
+    #endregion
 }
