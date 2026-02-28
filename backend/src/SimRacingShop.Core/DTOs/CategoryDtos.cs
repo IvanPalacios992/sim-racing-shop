@@ -37,5 +37,6 @@ namespace SimRacingShop.Core.DTOs
         public int PageSize { get; init; } = 12;
         public string? SortBy { get; init; }
         public bool SortDescending { get; init; }
+        public string? Search { get; init; }
     }
 }

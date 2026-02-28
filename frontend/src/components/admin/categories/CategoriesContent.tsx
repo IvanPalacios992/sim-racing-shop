@@ -1,5 +1,6 @@
 "use client";
 
+import { Search, X } from "lucide-react";
 import { adminCategoriesApi } from "@/lib/api/admin-categories";
 import AdminContentShell from "@/components/admin/AdminContentShell";
 import AdminPagination from "@/components/admin/AdminPagination";
@@ -14,11 +15,30 @@ export default function CategoriesContent() {
   const {
     items, page, totalPages, fetchStatus,
     modalOpen, editItem, confirmDeleteId, deleting,
-    setPage, setConfirmDeleteId, handleDelete, handleSuccess,
+    search, debouncedSearch,
+    setPage, setSearch, setConfirmDeleteId, handleDelete, handleSuccess,
     openCreate, openEdit, closeModal, retry,
   } = useAdminList<CategoryListItem>(
-    (p) => adminCategoriesApi.list("es", p, PAGE_SIZE),
+    (p, s) => adminCategoriesApi.list("es", p, PAGE_SIZE, s),
     (id) => adminCategoriesApi.delete(id),
+  );
+
+  const toolbar = (
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-silver pointer-events-none" />
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Buscar por nombre..."
+        className="w-full max-w-sm bg-obsidian border border-graphite rounded-lg pl-9 pr-9 py-2 text-sm text-pure-white placeholder:text-silver/50 focus:outline-none focus:border-racing-red"
+      />
+      {search && (
+        <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-silver hover:text-pure-white">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      )}
+    </div>
   );
 
   return (
@@ -30,9 +50,10 @@ export default function CategoriesContent() {
         onCreateClick={openCreate}
         fetchStatus={fetchStatus}
         errorText="Error al cargar categorías"
-        emptyText="No hay categorías creadas"
+        emptyText={debouncedSearch ? `No se encontraron resultados para "${debouncedSearch}"` : "No hay categorías creadas"}
         isEmpty={items.length === 0}
         onRetry={retry}
+        toolbar={toolbar}
       >
         <table className="w-full text-sm">
           <thead>

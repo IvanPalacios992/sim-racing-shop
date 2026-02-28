@@ -51,6 +51,7 @@ namespace SimRacingShop.Infrastructure.Repositories
             {
                 var searchPattern = $"%{filter.Search}%";
                 query = query.Where(x =>
+                    EF.Functions.ILike(x.Product.Sku, searchPattern) ||
                     EF.Functions.ILike(x.Translation.Name, searchPattern) ||
                     (x.Translation.ShortDescription != null && EF.Functions.ILike(x.Translation.ShortDescription, searchPattern)));
             }

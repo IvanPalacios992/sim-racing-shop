@@ -3,10 +3,11 @@ import type { PaginatedResult } from "@/types/categories";
 import type { AdminOrderSummaryDto, AdminOrderDetailDto, UpdateOrderStatusDto } from "@/types/admin";
 
 export const adminOrdersApi = {
-  async list(page = 1, pageSize = 20, status?: string): Promise<PaginatedResult<AdminOrderSummaryDto>> {
-    const response = await apiClient.get<PaginatedResult<AdminOrderSummaryDto>>("/admin/orders", {
-      params: { Page: page, PageSize: pageSize, ...(status ? { Status: status } : {}) },
-    });
+  async list(page = 1, pageSize = 20, status?: string, search?: string): Promise<PaginatedResult<AdminOrderSummaryDto>> {
+    const params: Record<string, unknown> = { Page: page, PageSize: pageSize };
+    if (status) params.Status = status;
+    if (search) params.Search = search;
+    const response = await apiClient.get<PaginatedResult<AdminOrderSummaryDto>>("/admin/orders", { params });
     return response.data;
   },
 

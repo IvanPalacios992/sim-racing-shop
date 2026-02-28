@@ -38,11 +38,11 @@ namespace SimRacingShop.API.Controllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(PaginatedResultDto<AdminOrderSummaryDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetOrders([FromQuery] int Page = 1, [FromQuery] int PageSize = 20, [FromQuery] string? Status = null)
+        public async Task<IActionResult> GetOrders([FromQuery] int Page = 1, [FromQuery] int PageSize = 20, [FromQuery] string? Status = null, [FromQuery] string? Search = null)
         {
-            _logger.LogInformation("Admin listing orders page={Page} pageSize={PageSize} status={Status}", Page, PageSize, Status);
+            _logger.LogInformation("Admin listing orders page={Page} pageSize={PageSize} status={Status} search={Search}", Page, PageSize, Status, Search);
 
-            var (orders, totalCount) = await _orderRepository.GetAllWithUsersAsync(Page, PageSize, Status);
+            var (orders, totalCount) = await _orderRepository.GetAllWithUsersAsync(Page, PageSize, Status, Search);
 
             var items = orders.Select(o => new AdminOrderSummaryDto
             {

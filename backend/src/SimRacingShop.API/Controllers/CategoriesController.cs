@@ -26,13 +26,16 @@ namespace SimRacingShop.API.Controllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(PaginatedResultDto<CategoryListItemDto>), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetCategories([FromQuery] CategoryFilterDto filter)
+        public async Task<IActionResult> GetCategories([FromQuery] CategoryFilterDto filter, [FromQuery] string? search = null)
         {
-            _logger.LogInformation(
-                "Getting categories - Page: {Page}, PageSize: {PageSize}, Locale: {Locale}",
-                filter.Page, filter.PageSize, filter.Locale);
+            // Explicit search param as fallback in case record init-property binding doesn't capture it
+            var effectiveFilter = search != null ? filter with { Search = search } : filter;
 
-            var result = await _categoryRepository.GetCategoriesAsync(filter);
+            _logger.LogInformation(
+                "Getting categories - Page: {Page}, PageSize: {PageSize}, Locale: {Locale}, Search: {Search}",
+                effectiveFilter.Page, effectiveFilter.PageSize, effectiveFilter.Locale, effectiveFilter.Search);
+
+            var result = await _categoryRepository.GetCategoriesAsync(effectiveFilter);
             return Ok(result);
         }
 
