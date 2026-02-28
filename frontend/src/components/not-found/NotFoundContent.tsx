@@ -5,6 +5,14 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { Home, ShoppingBag } from "lucide-react";
 
+// ─── Helpers ───────────────────────────────────────────────────────────────────
+
+function rand(): number {
+  const buf = new Uint32Array(1);
+  crypto.getRandomValues(buf);
+  return buf[0] / (0xffffffff + 1);
+}
+
 // ─── Game constants ────────────────────────────────────────────────────────────
 
 const W = 380;
@@ -280,11 +288,11 @@ export default function NotFoundContent() {
       s.spawnInterval = Math.max(35, 90 - Math.floor(s.score / 20) * 5);
       if (s.spawnTimer >= s.spawnInterval) {
         s.spawnTimer = 0;
-        const lane = Math.floor(Math.random() * NUM_LANES);
-        const type = Math.random() < 0.4 ? "slow" : "rival";
+        const lane = Math.floor(rand() * NUM_LANES);
+        const type = rand() < 0.4 ? "slow" : "rival";
         s.enemies.push({
           lane, x: LANE_X[lane], y: -70, w: 28, h: 52, type,
-          color: type === "slow" ? COLORS.blue : ENEMY_COLORS[Math.floor(Math.random() * ENEMY_COLORS.length)],
+          color: type === "slow" ? COLORS.blue : ENEMY_COLORS[Math.floor(rand() * ENEMY_COLORS.length)],
           spd: type === "slow" ? spd * 0.3 : spd * 0.7,
         });
       }
@@ -297,10 +305,10 @@ export default function NotFoundContent() {
         if (dx < (p.w + e.w) * 0.42 && dy < (p.h + e.h) * 0.38) {
           for (let i = 0; i < 24; i++) {
             const angle = (Math.PI * 2 * i) / 24;
-            const v = 2 + Math.random() * 4;
+            const v = 2 + rand() * 4;
             s.particles.push({
               x: p.x, y: p.y, vx: Math.cos(angle) * v, vy: Math.sin(angle) * v,
-              life: 1, color: [COLORS.red, COLORS.gold, COLORS.white][i % 3], r: 2 + Math.random() * 3,
+              life: 1, color: [COLORS.red, COLORS.gold, COLORS.white][i % 3], r: 2 + rand() * 3,
             });
           }
           s.phase = "over";
