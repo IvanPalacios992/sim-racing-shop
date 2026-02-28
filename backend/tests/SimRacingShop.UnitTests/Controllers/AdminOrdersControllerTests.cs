@@ -95,7 +95,7 @@ public class AdminOrdersControllerTests
         // Arrange
         var orders = new List<Order> { BuildOrder(), BuildOrder("processing") };
         _orderRepositoryMock
-            .Setup(r => r.GetAllWithUsersAsync(1, 20, null))
+            .Setup(r => r.GetAllWithUsersAsync(1, 20, null, null))
             .ReturnsAsync((orders, 2));
 
         // Act
@@ -116,7 +116,7 @@ public class AdminOrdersControllerTests
         // Arrange
         var order = BuildOrder(userEmail: "cliente@tienda.com");
         _orderRepositoryMock
-            .Setup(r => r.GetAllWithUsersAsync(1, 20, null))
+            .Setup(r => r.GetAllWithUsersAsync(1, 20, null, null))
             .ReturnsAsync((new List<Order> { order }, 1));
 
         // Act
@@ -134,7 +134,7 @@ public class AdminOrdersControllerTests
         // Arrange
         var order = BuildOrder(userEmail: null);
         _orderRepositoryMock
-            .Setup(r => r.GetAllWithUsersAsync(1, 20, null))
+            .Setup(r => r.GetAllWithUsersAsync(1, 20, null, null))
             .ReturnsAsync((new List<Order> { order }, 1));
 
         // Act
@@ -152,7 +152,7 @@ public class AdminOrdersControllerTests
         // Arrange
         var order = BuildOrder(itemCount: 3);
         _orderRepositoryMock
-            .Setup(r => r.GetAllWithUsersAsync(1, 20, null))
+            .Setup(r => r.GetAllWithUsersAsync(1, 20, null, null))
             .ReturnsAsync((new List<Order> { order }, 1));
 
         // Act
@@ -169,7 +169,7 @@ public class AdminOrdersControllerTests
     {
         // Arrange
         _orderRepositoryMock
-            .Setup(r => r.GetAllWithUsersAsync(1, 20, null))
+            .Setup(r => r.GetAllWithUsersAsync(1, 20, null, null))
             .ReturnsAsync((new List<Order>(), 45));
 
         // Act
@@ -187,7 +187,7 @@ public class AdminOrdersControllerTests
         // Arrange
         var order = BuildOrder("pending");
         _orderRepositoryMock
-            .Setup(r => r.GetAllWithUsersAsync(1, 20, "pending"))
+            .Setup(r => r.GetAllWithUsersAsync(1, 20, "pending", null))
             .ReturnsAsync((new List<Order> { order }, 1));
 
         // Act
@@ -195,7 +195,7 @@ public class AdminOrdersControllerTests
 
         // Assert
         result.Should().BeOfType<OkObjectResult>();
-        _orderRepositoryMock.Verify(r => r.GetAllWithUsersAsync(1, 20, "pending"), Times.Once);
+        _orderRepositoryMock.Verify(r => r.GetAllWithUsersAsync(1, 20, "pending", null), Times.Once);
     }
 
     [Fact]
@@ -203,14 +203,14 @@ public class AdminOrdersControllerTests
     {
         // Arrange
         _orderRepositoryMock
-            .Setup(r => r.GetAllWithUsersAsync(It.IsAny<int>(), It.IsAny<int>(), null))
+            .Setup(r => r.GetAllWithUsersAsync(It.IsAny<int>(), It.IsAny<int>(), null, null))
             .ReturnsAsync((new List<Order>(), 0));
 
         // Act
         await _controller.GetOrders();
 
         // Assert
-        _orderRepositoryMock.Verify(r => r.GetAllWithUsersAsync(1, 20, null), Times.Once);
+        _orderRepositoryMock.Verify(r => r.GetAllWithUsersAsync(1, 20, null, null), Times.Once);
     }
 
     [Fact]
@@ -218,14 +218,61 @@ public class AdminOrdersControllerTests
     {
         // Arrange
         _orderRepositoryMock
-            .Setup(r => r.GetAllWithUsersAsync(3, 10, null))
+            .Setup(r => r.GetAllWithUsersAsync(3, 10, null, null))
             .ReturnsAsync((new List<Order>(), 0));
 
         // Act
         await _controller.GetOrders(Page: 3, PageSize: 10);
 
         // Assert
-        _orderRepositoryMock.Verify(r => r.GetAllWithUsersAsync(3, 10, null), Times.Once);
+        _orderRepositoryMock.Verify(r => r.GetAllWithUsersAsync(3, 10, null, null), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetOrders_PassesSearchFilterToRepository()
+    {
+        // Arrange
+        var order = BuildOrder();
+        _orderRepositoryMock
+            .Setup(r => r.GetAllWithUsersAsync(1, 20, null, "ORD-2026"))
+            .ReturnsAsync((new List<Order> { order }, 1));
+
+        // Act
+        var result = await _controller.GetOrders(Search: "ORD-2026");
+
+        // Assert
+        result.Should().BeOfType<OkObjectResult>();
+        _orderRepositoryMock.Verify(r => r.GetAllWithUsersAsync(1, 20, null, "ORD-2026"), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetOrders_PassesNullSearchWhenNotProvided()
+    {
+        // Arrange
+        _orderRepositoryMock
+            .Setup(r => r.GetAllWithUsersAsync(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<string?>(), null))
+            .ReturnsAsync((new List<Order>(), 0));
+
+        // Act
+        await _controller.GetOrders();
+
+        // Assert
+        _orderRepositoryMock.Verify(r => r.GetAllWithUsersAsync(1, 20, null, null), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetOrders_CombinesStatusAndSearchFilters()
+    {
+        // Arrange
+        _orderRepositoryMock
+            .Setup(r => r.GetAllWithUsersAsync(1, 20, "pending", "cliente@test.com"))
+            .ReturnsAsync((new List<Order>(), 0));
+
+        // Act
+        await _controller.GetOrders(Status: "pending", Search: "cliente@test.com");
+
+        // Assert
+        _orderRepositoryMock.Verify(r => r.GetAllWithUsersAsync(1, 20, "pending", "cliente@test.com"), Times.Once);
     }
 
     #endregion
