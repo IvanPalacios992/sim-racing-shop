@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor } from "../../../helpers/render";
+import { render, screen, waitFor, within } from "../../../helpers/render";
 import userEvent from "@testing-library/user-event";
 import { useAuthStore } from "@/stores/auth-store";
 import { resetAuthStore, createMockAuthResponse } from "../../../helpers/auth-store";
@@ -118,7 +118,7 @@ describe("ProductsContent", () => {
       render(<ProductsContent />);
 
       await waitFor(() => {
-        expect(adminProductsApi.list).toHaveBeenCalledWith("es", 1, 10);
+        expect(adminProductsApi.list).toHaveBeenCalledWith("es", 1, 10, "");
       });
     });
 
@@ -354,7 +354,7 @@ describe("ProductsContent", () => {
       await user.click(screen.getByRole("button", { name: /Siguiente/ }));
 
       await waitFor(() => {
-        expect(adminProductsApi.list).toHaveBeenCalledWith("es", 2, 10);
+        expect(adminProductsApi.list).toHaveBeenCalledWith("es", 2, 10, "");
       });
     });
 
@@ -370,12 +370,12 @@ describe("ProductsContent", () => {
 
       await waitFor(() => expect(screen.getByRole("button", { name: /Siguiente/ })).toBeInTheDocument());
       await user.click(screen.getByRole("button", { name: /Siguiente/ }));
-      await waitFor(() => expect(adminProductsApi.list).toHaveBeenCalledWith("es", 2, 10));
+      await waitFor(() => expect(adminProductsApi.list).toHaveBeenCalledWith("es", 2, 10, ""));
 
       await user.click(screen.getByRole("button", { name: /Anterior/ }));
 
       await waitFor(() => {
-        expect(adminProductsApi.list).toHaveBeenCalledWith("es", 1, 10);
+        expect(adminProductsApi.list).toHaveBeenCalledWith("es", 1, 10, "");
       });
     });
   });
@@ -392,6 +392,118 @@ describe("ProductsContent", () => {
       await user.click(screen.getByText("Nuevo producto"));
 
       expect(screen.getByTestId("product-modal")).toBeInTheDocument();
+    });
+  });
+
+  describe("buscador", () => {
+    it("muestra el input de búsqueda con el placeholder correcto", async () => {
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
+
+      render(<ProductsContent />);
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText("Buscar por nombre o SKU...")).toBeInTheDocument();
+      });
+    });
+
+    it("el input de búsqueda es visible durante la carga", () => {
+      vi.mocked(adminProductsApi.list).mockImplementation(() => new Promise(() => {}));
+
+      render(<ProductsContent />);
+
+      expect(screen.getByPlaceholderText("Buscar por nombre o SKU...")).toBeInTheDocument();
+    });
+
+    it("al escribir llama a la API con el término de búsqueda tras el debounce", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
+
+      render(<ProductsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      await user.type(screen.getByPlaceholderText("Buscar por nombre o SKU..."), "GT3");
+
+      await waitFor(() => {
+        expect(adminProductsApi.list).toHaveBeenCalledWith("es", 1, 10, "GT3");
+      });
+    });
+
+    it("la búsqueda no afecta a las llamadas de carga de datos auxiliares", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
+
+      render(<ProductsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      await user.type(screen.getByPlaceholderText("Buscar por nombre o SKU..."), "GT3");
+
+      await waitFor(() => expect(adminProductsApi.list).toHaveBeenCalledWith("es", 1, 10, "GT3"));
+
+      // Los datos auxiliares (componentes y categorías para el modal) se cargan sin search
+      expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 200);
+      expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 1, 200);
+    });
+
+    it("el botón limpiar aparece al escribir en el input", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
+
+      render(<ProductsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      const input = screen.getByPlaceholderText("Buscar por nombre o SKU...");
+      await user.type(input, "GT3");
+
+      expect(within(input.closest("div") as HTMLElement).getByRole("button")).toBeInTheDocument();
+    });
+
+    it("al hacer clic en el botón limpiar se vacía el input", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
+
+      render(<ProductsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      const input = screen.getByPlaceholderText("Buscar por nombre o SKU...");
+      await user.type(input, "GT3");
+
+      const clearButton = within(input.closest("div") as HTMLElement).getByRole("button");
+      await user.click(clearButton);
+
+      expect(input).toHaveValue("");
+    });
+
+    it("muestra mensaje dinámico cuando la búsqueda no devuelve resultados", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
+
+      render(<ProductsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      await user.type(screen.getByPlaceholderText("Buscar por nombre o SKU..."), "xyz");
+
+      await waitFor(() => {
+        expect(screen.getByText('No se encontraron resultados para "xyz"')).toBeInTheDocument();
+      });
+    });
+
+    it("al limpiar la búsqueda vuelve al mensaje de empty state estándar", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
+
+      render(<ProductsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      const input = screen.getByPlaceholderText("Buscar por nombre o SKU...");
+      await user.type(input, "xyz");
+      await waitFor(() => screen.getByText('No se encontraron resultados para "xyz"'));
+
+      const clearButton = within(input.closest("div") as HTMLElement).getByRole("button");
+      await user.click(clearButton);
+
+      await waitFor(() => {
+        expect(screen.getByText("No hay productos creados")).toBeInTheDocument();
+      });
     });
   });
 });

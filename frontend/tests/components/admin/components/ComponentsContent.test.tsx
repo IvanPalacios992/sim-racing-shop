@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor } from "../../../helpers/render";
+import { render, screen, waitFor, within } from "../../../helpers/render";
 import userEvent from "@testing-library/user-event";
 import { useAuthStore } from "@/stores/auth-store";
 import { resetAuthStore, createMockAuthResponse } from "../../../helpers/auth-store";
@@ -106,8 +106,8 @@ describe("ComponentsContent", () => {
 
       await waitFor(() => {
         expect(adminComponentsApi.list).toHaveBeenCalledTimes(2);
-        expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 1, 10);
-        expect(adminComponentsApi.list).toHaveBeenCalledWith("en", 1, 10);
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 1, 10, "");
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("en", 1, 10, "");
       });
     });
   });
@@ -326,8 +326,8 @@ describe("ComponentsContent", () => {
       await user.click(screen.getByRole("button", { name: /Siguiente/ }));
 
       await waitFor(() => {
-        expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 2, 10);
-        expect(adminComponentsApi.list).toHaveBeenCalledWith("en", 2, 10);
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 2, 10, "");
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("en", 2, 10, "");
       });
     });
 
@@ -345,13 +345,13 @@ describe("ComponentsContent", () => {
 
       await waitFor(() => expect(screen.getByRole("button", { name: /Siguiente/ })).toBeInTheDocument());
       await user.click(screen.getByRole("button", { name: /Siguiente/ }));
-      await waitFor(() => expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 2, 10));
+      await waitFor(() => expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 2, 10, ""));
 
       await user.click(screen.getByRole("button", { name: /Anterior/ }));
 
       await waitFor(() => {
-        expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 1, 10);
-        expect(adminComponentsApi.list).toHaveBeenCalledWith("en", 1, 10);
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 1, 10, "");
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("en", 1, 10, "");
       });
     });
   });
@@ -368,6 +368,103 @@ describe("ComponentsContent", () => {
       await user.click(screen.getByText("Nuevo componente"));
 
       expect(screen.getByTestId("component-modal")).toBeInTheDocument();
+    });
+  });
+
+  describe("buscador", () => {
+    it("muestra el input de búsqueda con el placeholder correcto", async () => {
+      vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<ComponentsContent />);
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText("Buscar por nombre o SKU...")).toBeInTheDocument();
+      });
+    });
+
+    it("el input de búsqueda es visible durante la carga", () => {
+      vi.mocked(adminComponentsApi.list).mockImplementation(() => new Promise(() => {}));
+
+      render(<ComponentsContent />);
+
+      expect(screen.getByPlaceholderText("Buscar por nombre o SKU...")).toBeInTheDocument();
+    });
+
+    it("al escribir llama a la API en ambos locales con el término de búsqueda", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<ComponentsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      await user.type(screen.getByPlaceholderText("Buscar por nombre o SKU..."), "WHEEL");
+
+      await waitFor(() => {
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("es", 1, 10, "WHEEL");
+        expect(adminComponentsApi.list).toHaveBeenCalledWith("en", 1, 10, "WHEEL");
+      });
+    });
+
+    it("el botón limpiar aparece al escribir en el input", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<ComponentsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      const input = screen.getByPlaceholderText("Buscar por nombre o SKU...");
+      await user.type(input, "WHEEL");
+
+      expect(within(input.closest("div") as HTMLElement).getByRole("button")).toBeInTheDocument();
+    });
+
+    it("al hacer clic en el botón limpiar se vacía el input", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<ComponentsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      const input = screen.getByPlaceholderText("Buscar por nombre o SKU...");
+      await user.type(input, "WHEEL");
+
+      const clearButton = within(input.closest("div") as HTMLElement).getByRole("button");
+      await user.click(clearButton);
+
+      expect(input).toHaveValue("");
+    });
+
+    it("muestra mensaje dinámico cuando la búsqueda no devuelve resultados", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<ComponentsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      await user.type(screen.getByPlaceholderText("Buscar por nombre o SKU..."), "xyz");
+
+      await waitFor(() => {
+        expect(screen.getByText('No se encontraron resultados para "xyz"')).toBeInTheDocument();
+      });
+    });
+
+    it("al limpiar la búsqueda vuelve al mensaje de empty state estándar", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<ComponentsContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre o SKU..."));
+
+      const input = screen.getByPlaceholderText("Buscar por nombre o SKU...");
+      await user.type(input, "xyz");
+      await waitFor(() => screen.getByText('No se encontraron resultados para "xyz"'));
+
+      const clearButton = within(input.closest("div") as HTMLElement).getByRole("button");
+      await user.click(clearButton);
+
+      await waitFor(() => {
+        expect(screen.getByText("No hay componentes creados")).toBeInTheDocument();
+      });
     });
   });
 });
