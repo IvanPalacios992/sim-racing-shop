@@ -121,6 +121,8 @@ namespace SimRacingShop.Infrastructure.Repositories
         private IQueryable<ProductWithTranslation> BuildDetailQuery(string locale)
         {
             return from p in _context.Products
+                       .Include(p => p.Images)
+                       .Include(p => p.Specifications)
                    join t in _context.ProductTranslations
                        on p.Id equals t.ProductId
                    where t.Locale == locale
