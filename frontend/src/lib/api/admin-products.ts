@@ -14,10 +14,10 @@ import type {
 } from "@/types/admin";
 
 export const adminProductsApi = {
-  async list(locale = "es", page = 1, pageSize = 10): Promise<PaginatedResult<ProductListItem>> {
-    const response = await apiClient.get<PaginatedResult<ProductListItem>>("/products", {
-      params: { Locale: locale, PageSize: pageSize, Page: page },
-    });
+  async list(locale = "es", page = 1, pageSize = 10, search?: string): Promise<PaginatedResult<ProductListItem>> {
+    const params: Record<string, unknown> = { Locale: locale, PageSize: pageSize, Page: page };
+    if (search) params.search = search;
+    const response = await apiClient.get<PaginatedResult<ProductListItem>>("/products", { params });
     return response.data;
   },
 

@@ -29,8 +29,8 @@ namespace SimRacingShop.API.Controllers
         public async Task<IActionResult> GetCategories([FromQuery] CategoryFilterDto filter)
         {
             _logger.LogInformation(
-                "Getting categories - Page: {Page}, PageSize: {PageSize}, Locale: {Locale}",
-                filter.Page, filter.PageSize, filter.Locale);
+                "Getting categories - Page: {Page}, PageSize: {PageSize}, Locale: {Locale}, Search: {Search}",
+                filter.Page, filter.PageSize, filter.Locale, filter.Search);
 
             var result = await _categoryRepository.GetCategoriesAsync(filter);
             return Ok(result);

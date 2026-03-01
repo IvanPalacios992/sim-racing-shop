@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Search, X } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { adminOrdersApi } from "@/lib/api/admin-orders";
 import AdminPagination from "@/components/admin/AdminPagination";
@@ -33,6 +34,8 @@ export default function OrdersAdminContent() {
   const [retryCount, setRetryCount] = useState(0);
   const [activeFilter, setActiveFilter] = useState<FilterOption>("all");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const isMountedRef = useRef(true);
   useEffect(() => {
@@ -41,10 +44,18 @@ export default function OrdersAdminContent() {
   }, []);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
     if (!_hasHydrated) return;
     setFetchStatus("loading");
     const status = activeFilter === "all" ? undefined : activeFilter;
-    adminOrdersApi.list(page, PAGE_SIZE, status).then(
+    adminOrdersApi.list(page, PAGE_SIZE, status, debouncedSearch || undefined).then(
       (result) => {
         if (isMountedRef.current) {
           setOrders(result.items);
@@ -57,7 +68,7 @@ export default function OrdersAdminContent() {
       },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_hasHydrated, page, retryCount, activeFilter]);
+  }, [_hasHydrated, page, retryCount, activeFilter, debouncedSearch]);
 
   const handleFilterChange = (filter: FilterOption) => {
     setActiveFilter(filter);
@@ -80,6 +91,12 @@ export default function OrdersAdminContent() {
   const formatAmount = (amount: number) =>
     amount.toLocaleString("es-ES", { style: "currency", currency: "EUR" });
 
+  const emptyText = debouncedSearch
+    ? `No se encontraron resultados para "${debouncedSearch}"`
+    : activeFilter !== "all"
+      ? "No hay pedidos con este estado"
+      : "No hay pedidos";
+
   return (
     <div>
       <div className="border-b border-graphite py-6 mb-6">
@@ -87,8 +104,8 @@ export default function OrdersAdminContent() {
         <p className="text-silver">Gestiona y actualiza el estado de los pedidos</p>
       </div>
 
-      {/* Filter chips */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      {/* Filter chips + search */}
+      <div className="flex flex-wrap items-center gap-2 mb-6">
         {FILTER_CHIPS.map((chip) => {
           const isActive = activeFilter === chip.value;
           return (
@@ -105,6 +122,21 @@ export default function OrdersAdminContent() {
             </button>
           );
         })}
+        <div className="relative ml-auto">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-silver pointer-events-none" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por número de pedido o email..."
+            className="w-full min-w-64 bg-obsidian border border-graphite rounded-lg pl-9 pr-9 py-2 text-sm text-pure-white placeholder:text-silver/50 focus:outline-none focus:border-racing-red"
+          />
+          {search && (
+            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-silver hover:text-pure-white">
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {fetchStatus === "loading" && (
@@ -128,8 +160,8 @@ export default function OrdersAdminContent() {
         <>
           {orders.length === 0 ? (
             <div className="bg-obsidian border border-graphite rounded-lg p-8 text-center">
-              <p className="text-silver">No hay pedidos con este estado</p>
-              {activeFilter !== "all" && (
+              <p className="text-silver">{emptyText}</p>
+              {!debouncedSearch && activeFilter !== "all" && (
                 <button
                   onClick={() => handleFilterChange("all")}
                   className="mt-3 text-electric-blue text-sm hover:underline"

@@ -87,7 +87,7 @@ describe("OrdersAdminContent", () => {
       render(<OrdersAdminContent />);
 
       await waitFor(() => {
-        expect(adminOrdersApi.list).toHaveBeenCalledWith(1, 20, undefined);
+        expect(adminOrdersApi.list).toHaveBeenCalledWith(1, 20, undefined, undefined);
       });
     });
   });
@@ -141,7 +141,7 @@ describe("OrdersAdminContent", () => {
       render(<OrdersAdminContent />);
 
       await waitFor(() => {
-        expect(screen.getByText("No hay pedidos con este estado")).toBeInTheDocument();
+        expect(screen.getByText("No hay pedidos")).toBeInTheDocument();
       });
     });
 
@@ -150,7 +150,7 @@ describe("OrdersAdminContent", () => {
 
       render(<OrdersAdminContent />);
 
-      await waitFor(() => expect(screen.getByText("No hay pedidos con este estado")).toBeInTheDocument());
+      await waitFor(() => expect(screen.getByText("No hay pedidos")).toBeInTheDocument());
 
       expect(screen.queryByText("Ver todos los pedidos")).not.toBeInTheDocument();
     });
@@ -291,7 +291,7 @@ describe("OrdersAdminContent", () => {
       await user.click(screen.getByRole("button", { name: /Siguiente/ }));
 
       await waitFor(() => {
-        expect(adminOrdersApi.list).toHaveBeenCalledWith(2, 20, undefined);
+        expect(adminOrdersApi.list).toHaveBeenCalledWith(2, 20, undefined, undefined);
       });
     });
   });
@@ -336,7 +336,7 @@ describe("OrdersAdminContent", () => {
       await user.click(screen.getByRole("button", { name: "Pendiente" }));
 
       await waitFor(() => {
-        expect(adminOrdersApi.list).toHaveBeenCalledWith(1, 20, "pending");
+        expect(adminOrdersApi.list).toHaveBeenCalledWith(1, 20, "pending", undefined);
       });
     });
 
@@ -352,7 +352,7 @@ describe("OrdersAdminContent", () => {
       await user.click(screen.getByRole("button", { name: "Entregado" }));
 
       await waitFor(() => {
-        expect(adminOrdersApi.list).toHaveBeenCalledWith(1, 20, "delivered");
+        expect(adminOrdersApi.list).toHaveBeenCalledWith(1, 20, "delivered", undefined);
       });
     });
 
@@ -366,13 +366,13 @@ describe("OrdersAdminContent", () => {
 
       await waitFor(() => expect(screen.getByRole("button", { name: /Siguiente/ })).toBeInTheDocument());
       await user.click(screen.getByRole("button", { name: /Siguiente/ }));
-      await waitFor(() => expect(adminOrdersApi.list).toHaveBeenCalledWith(2, 20, undefined));
+      await waitFor(() => expect(adminOrdersApi.list).toHaveBeenCalledWith(2, 20, undefined, undefined));
 
       vi.mocked(adminOrdersApi.list).mockResolvedValue(paginated([mockOrders[0]]));
       await user.click(screen.getByRole("button", { name: "Pendiente" }));
 
       await waitFor(() => {
-        expect(adminOrdersApi.list).toHaveBeenCalledWith(1, 20, "pending");
+        expect(adminOrdersApi.list).toHaveBeenCalledWith(1, 20, "pending", undefined);
       });
     });
 
@@ -411,7 +411,7 @@ describe("OrdersAdminContent", () => {
       await user.click(screen.getByText("Ver todos los pedidos"));
 
       await waitFor(() => {
-        expect(adminOrdersApi.list).toHaveBeenCalledWith(1, 20, undefined);
+        expect(adminOrdersApi.list).toHaveBeenCalledWith(1, 20, undefined, undefined);
       });
     });
   });

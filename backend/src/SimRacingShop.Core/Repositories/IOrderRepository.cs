@@ -12,7 +12,7 @@ namespace SimRacingShop.Core.Repositories
         Task<IEnumerable<Order>> GetByUserIdWithItemsAsync(Guid userId);
         Task<int> CountByOrderNumberPrefixAsync(string prefix);
         Task UpdateAsync(Order order);
-        Task<(IEnumerable<Order> Orders, int TotalCount)> GetAllWithUsersAsync(int page, int pageSize, string? status = null);
+        Task<(IEnumerable<Order> Orders, int TotalCount)> GetAllWithUsersAsync(int page, int pageSize, string? status = null, string? search = null);
         Task<Order?> GetByIdWithItemsAndUserAsync(Guid orderId);
     }
 }

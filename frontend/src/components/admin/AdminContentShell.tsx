@@ -15,6 +15,7 @@ interface AdminContentShellProps {
   emptyText: string;
   isEmpty: boolean;
   onRetry: () => void;
+  toolbar?: ReactNode;
   children: ReactNode;
 }
 
@@ -28,6 +29,7 @@ export default function AdminContentShell({
   emptyText,
   isEmpty,
   onRetry,
+  toolbar,
   children,
 }: AdminContentShellProps) {
   return (
@@ -42,6 +44,8 @@ export default function AdminContentShell({
           {createLabel}
         </Button>
       </div>
+
+      {toolbar && <div className="mb-4">{toolbar}</div>}
 
       {fetchStatus === "loading" && (
         <div className="space-y-2">

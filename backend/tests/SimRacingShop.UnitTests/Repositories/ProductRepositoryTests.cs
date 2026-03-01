@@ -548,6 +548,76 @@ public class ProductRepositoryTests : IDisposable
         result.Items.Should().HaveCount(2);
     }
 
+    [Fact]
+    public async Task GetProducts_SortByBasePrice_ReturnsSortedProductsByBasePrice()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "Caro", slug: "caro", basePrice: 500m);
+        await SeedProduct(sku: "SKU-002", name: "Barato", slug: "barato", basePrice: 50m);
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null, SortBy = "baseprice" };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items[0].Name.Should().Be("Barato");
+        result.Items[1].Name.Should().Be("Caro");
+    }
+
+    [Fact]
+    public async Task GetProducts_SortByBasePriceDescending_ReturnsSortedProductsByBasePriceDesc()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "Barato", slug: "barato", basePrice: 50m);
+        await SeedProduct(sku: "SKU-002", name: "Caro", slug: "caro", basePrice: 500m);
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null, SortBy = "baseprice", SortDescending = true };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items[0].Name.Should().Be("Caro");
+        result.Items[1].Name.Should().Be("Barato");
+    }
+
+    [Fact]
+    public async Task GetProducts_SortByCreatedAt_ReturnsMostRecentFirst()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "Antiguo", slug: "antiguo", createdAt: DateTime.UtcNow.AddDays(-5));
+        await SeedProduct(sku: "SKU-002", name: "Reciente", slug: "reciente", createdAt: DateTime.UtcNow);
+
+        var filter = new ProductFilterDto { Locale = "es", IsActive = null, SortBy = "createdat" };
+
+        // Act
+        var result = await _repository.GetProductsAsync(filter);
+
+        // Assert
+        result.Items[0].Name.Should().Be("Reciente");
+        result.Items[1].Name.Should().Be("Antiguo");
+    }
+
+    [Fact]
+    public async Task GetProducts_NullOrEmptySearch_ReturnsAllProducts()
+    {
+        // Arrange
+        await SeedProduct(sku: "SKU-001", name: "Volante F1", slug: "volante-f1");
+        await SeedProduct(sku: "SKU-002", name: "Pedales Pro", slug: "pedales-pro");
+
+        var filterNull = new ProductFilterDto { Locale = "es", IsActive = null, Search = null };
+        var filterEmpty = new ProductFilterDto { Locale = "es", IsActive = null, Search = "" };
+
+        // Act
+        var resultNull = await _repository.GetProductsAsync(filterNull);
+        var resultEmpty = await _repository.GetProductsAsync(filterEmpty);
+
+        // Assert
+        resultNull.Items.Should().HaveCount(2);
+        resultEmpty.Items.Should().HaveCount(2);
+    }
+
     #endregion
 
     #region GetProductByIdAsync Tests
