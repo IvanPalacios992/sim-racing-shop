@@ -105,53 +105,19 @@ public class CategoriesControllerTests
     }
 
     [Fact]
-    public async Task GetCategories_WhenExplicitSearchProvided_MergesIntoFilter()
+    public async Task GetCategories_WithSearchInFilter_PassesFilterWithSearchToRepository()
     {
         // Arrange
-        var filter = new CategoryFilterDto { Page = 1, PageSize = 10, Locale = "es" };
-        var expectedFilter = filter with { Search = "Volante" };
-
-        _repositoryMock.Setup(x => x.GetCategoriesAsync(expectedFilter))
-            .ReturnsAsync(new PaginatedResultDto<CategoryListItemDto>());
-
-        // Act
-        await _controller.GetCategories(filter, "Volante");
-
-        // Assert
-        _repositoryMock.Verify(x => x.GetCategoriesAsync(expectedFilter), Times.Once);
-    }
-
-    [Fact]
-    public async Task GetCategories_WhenNoExplicitSearch_PassesOriginalFilter()
-    {
-        // Arrange
-        var filter = new CategoryFilterDto { Page = 1, PageSize = 10, Locale = "es" };
+        var filter = new CategoryFilterDto { Page = 1, PageSize = 10, Locale = "es", Search = "Volante" };
 
         _repositoryMock.Setup(x => x.GetCategoriesAsync(filter))
             .ReturnsAsync(new PaginatedResultDto<CategoryListItemDto>());
 
         // Act
-        await _controller.GetCategories(filter, null);
+        await _controller.GetCategories(filter);
 
         // Assert
         _repositoryMock.Verify(x => x.GetCategoriesAsync(filter), Times.Once);
-    }
-
-    [Fact]
-    public async Task GetCategories_WhenExplicitSearchProvided_OverridesFilterSearchProperty()
-    {
-        // Arrange — el filter ya tiene un Search, el parámetro explícito debe sobreescribirlo
-        var filter = new CategoryFilterDto { Page = 1, PageSize = 10, Locale = "es", Search = "ignorar" };
-        var expectedFilter = filter with { Search = "Pedal" };
-
-        _repositoryMock.Setup(x => x.GetCategoriesAsync(expectedFilter))
-            .ReturnsAsync(new PaginatedResultDto<CategoryListItemDto>());
-
-        // Act
-        await _controller.GetCategories(filter, "Pedal");
-
-        // Assert
-        _repositoryMock.Verify(x => x.GetCategoriesAsync(expectedFilter), Times.Once);
     }
 
     #endregion

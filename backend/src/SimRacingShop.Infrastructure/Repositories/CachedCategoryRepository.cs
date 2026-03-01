@@ -79,7 +79,7 @@ namespace SimRacingShop.Infrastructure.Repositories
         public static string BuildListCacheKey(CategoryFilterDto filter)
         {
             return $"categories:list:{filter.Locale}:{filter.Page}:{filter.PageSize}" +
-                   $":{filter.IsActive}" +
+                   $":{filter.Search}:{filter.IsActive}" +
                    $":{filter.SortBy}:{filter.SortDescending}";
         }
     }

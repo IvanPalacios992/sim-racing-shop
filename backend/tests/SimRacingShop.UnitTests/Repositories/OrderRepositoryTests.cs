@@ -688,5 +688,35 @@ public class OrderRepositoryTests : IDisposable
         totalCount.Should().Be(0);
     }
 
+    [Fact]
+    public async Task GetAllWithUsersAsync_NullSearch_ReturnsAllOrders()
+    {
+        // Arrange
+        await SeedOrder(orderNumber: "ORD-2026-001");
+        await SeedOrder(orderNumber: "ORD-2026-002");
+
+        // Act
+        var (orders, totalCount) = await _repository.GetAllWithUsersAsync(1, 20, null, null);
+
+        // Assert
+        orders.Should().HaveCount(2);
+        totalCount.Should().Be(2);
+    }
+
+    [Fact]
+    public async Task GetAllWithUsersAsync_EmptySearch_ReturnsAllOrders()
+    {
+        // Arrange
+        await SeedOrder(orderNumber: "ORD-2026-001");
+        await SeedOrder(orderNumber: "ORD-2026-002");
+
+        // Act
+        var (orders, totalCount) = await _repository.GetAllWithUsersAsync(1, 20, null, "");
+
+        // Assert
+        orders.Should().HaveCount(2);
+        totalCount.Should().Be(2);
+    }
+
     #endregion
 }
