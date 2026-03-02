@@ -2,12 +2,14 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using SimRacingShop.API.Controllers;
 using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Repositories;
 using SimRacingShop.Core.Services;
+using SimRacingShop.Core.Settings;
 using System.Security.Claims;
 
 namespace SimRacingShop.UnitTests.Controllers;
@@ -16,6 +18,7 @@ public class OrdersControllerTests
 {
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
     private readonly Mock<IOrderService> _orderServiceMock;
+    private readonly Mock<IEmailService> _emailServiceMock;
     private readonly Mock<ILogger<OrdersController>> _loggerMock;
     private readonly OrdersController _controller;
     private readonly Guid _testUserId;
@@ -24,10 +27,19 @@ public class OrdersControllerTests
     {
         _orderRepositoryMock = new Mock<IOrderRepository>();
         _orderServiceMock = new Mock<IOrderService>();
+        _emailServiceMock = new Mock<IEmailService>();
         _loggerMock = new Mock<ILogger<OrdersController>>();
+        var resendSettings = Options.Create(new ResendSettings
+        {
+            ApiKey = "test",
+            FromEmail = "test@test.com",
+            FrontendBaseUrl = "http://localhost:3000"
+        });
         _controller = new OrdersController(
             _orderRepositoryMock.Object,
             _orderServiceMock.Object,
+            _emailServiceMock.Object,
+            resendSettings,
             _loggerMock.Object
         );
 
