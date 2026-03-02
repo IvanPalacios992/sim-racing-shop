@@ -2,6 +2,7 @@ using Microsoft.Extensions.Options;
 using Resend;
 using SimRacingShop.Core.Services;
 using SimRacingShop.Core.Settings;
+using System.Globalization;
 using System.Web;
 
 namespace SimRacingShop.Infrastructure.Services
@@ -213,7 +214,7 @@ namespace SimRacingShop.Infrastructure.Services
             <p style=""margin: 0; font-size: 14px; color: #666;"">{t.OrderNumberLabel}</p>
             <p style=""margin: 5px 0 0; font-size: 20px; font-weight: bold; color: #333;"">{orderNumber}</p>
             <p style=""margin: 15px 0 0; font-size: 14px; color: #666;"">{t.TotalLabel}</p>
-            <p style=""margin: 5px 0 0; font-size: 20px; font-weight: bold; color: #dc3545;"">{totalAmount:F2} €</p>
+            <p style=""margin: 5px 0 0; font-size: 20px; font-weight: bold; color: #dc3545;"">{totalAmount.ToString("F2", CultureInfo.InvariantCulture)} €</p>
         </div>
         <p>{t.TrackingText}</p>
         <div style=""text-align: center; margin: 30px 0;"">
