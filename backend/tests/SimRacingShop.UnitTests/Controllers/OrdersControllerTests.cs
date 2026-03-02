@@ -138,6 +138,81 @@ public class OrdersControllerTests
         badRequestResult.StatusCode.Should().Be(400);
     }
 
+    [Fact]
+    public async Task CreateOrder_WithSpanishLocale_SendsConfirmationEmailInSpanish()
+    {
+        // Arrange
+        SetupControllerUser(_testUserId, language: "es");
+        var dto = CreateValidOrderDto(Guid.NewGuid());
+        var createdOrder = CreateOrderEntity(_testUserId, dto);
+
+        _orderServiceMock.Setup(x => x.CreateOrderAsync(dto, _testUserId)).ReturnsAsync(createdOrder);
+
+        // Act
+        await _controller.CreateOrder(dto);
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendOrderConfirmationEmailAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                createdOrder.OrderNumber, It.IsAny<string>(), createdOrder.TotalAmount, "es"),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateOrder_WithEnglishLocale_SendsConfirmationEmailInEnglish()
+    {
+        // Arrange
+        SetupControllerUser(_testUserId, language: "en");
+        var dto = CreateValidOrderDto(Guid.NewGuid());
+        var createdOrder = CreateOrderEntity(_testUserId, dto);
+
+        _orderServiceMock.Setup(x => x.CreateOrderAsync(dto, _testUserId)).ReturnsAsync(createdOrder);
+
+        // Act
+        await _controller.CreateOrder(dto);
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendOrderConfirmationEmailAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                createdOrder.OrderNumber, It.IsAny<string>(), createdOrder.TotalAmount, "en"),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateOrder_WithoutLanguageClaim_DefaultsToSpanishEmail()
+    {
+        // Arrange — usuario sin claim de idioma
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, _testUserId.ToString()),
+            new Claim(ClaimTypes.Email, "test@test.com")
+        };
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
+            }
+        };
+
+        var dto = CreateValidOrderDto(Guid.NewGuid());
+        var createdOrder = CreateOrderEntity(_testUserId, dto);
+
+        _orderServiceMock.Setup(x => x.CreateOrderAsync(dto, _testUserId)).ReturnsAsync(createdOrder);
+
+        // Act
+        await _controller.CreateOrder(dto);
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendOrderConfirmationEmailAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                createdOrder.OrderNumber, It.IsAny<string>(), createdOrder.TotalAmount, "es"),
+            Times.Once);
+    }
+
     #endregion
 
     #region GetUserOrders Tests
@@ -322,11 +397,13 @@ public class OrdersControllerTests
 
     #region Helper Methods
 
-    private void SetupControllerUser(Guid userId)
+    private void SetupControllerUser(Guid userId, string email = "test@test.com", string language = "es")
     {
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Email, email),
+            new Claim("language", language)
         };
 
         var identity = new ClaimsIdentity(claims, "TestAuth");
@@ -338,6 +415,24 @@ public class OrdersControllerTests
             {
                 User = claimsPrincipal
             }
+        };
+    }
+
+    private static Order CreateOrderEntity(Guid userId, CreateOrderDto dto)
+    {
+        return new Order
+        {
+            Id = Guid.NewGuid(),
+            OrderNumber = "ORD-20260302-0001",
+            UserId = userId,
+            Subtotal = dto.Subtotal,
+            VatAmount = dto.VatAmount,
+            ShippingCost = dto.ShippingCost,
+            TotalAmount = dto.TotalAmount,
+            OrderStatus = "pending",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            OrderItems = new List<OrderItem>()
         };
     }
 
