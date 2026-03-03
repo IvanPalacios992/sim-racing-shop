@@ -2,12 +2,14 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Moq;
 using SimRacingShop.API.Controllers;
 using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Repositories;
 using SimRacingShop.Core.Services;
+using SimRacingShop.Core.Settings;
 using System.Security.Claims;
 
 namespace SimRacingShop.UnitTests.Controllers;
@@ -16,6 +18,7 @@ public class OrdersControllerTests
 {
     private readonly Mock<IOrderRepository> _orderRepositoryMock;
     private readonly Mock<IOrderService> _orderServiceMock;
+    private readonly Mock<IEmailService> _emailServiceMock;
     private readonly Mock<ILogger<OrdersController>> _loggerMock;
     private readonly OrdersController _controller;
     private readonly Guid _testUserId;
@@ -24,10 +27,19 @@ public class OrdersControllerTests
     {
         _orderRepositoryMock = new Mock<IOrderRepository>();
         _orderServiceMock = new Mock<IOrderService>();
+        _emailServiceMock = new Mock<IEmailService>();
         _loggerMock = new Mock<ILogger<OrdersController>>();
+        var resendSettings = Options.Create(new ResendSettings
+        {
+            ApiKey = "test",
+            FromEmail = "test@test.com",
+            FrontendBaseUrl = "http://localhost:3000"
+        });
         _controller = new OrdersController(
             _orderRepositoryMock.Object,
             _orderServiceMock.Object,
+            _emailServiceMock.Object,
+            resendSettings,
             _loggerMock.Object
         );
 
@@ -124,6 +136,81 @@ public class OrdersControllerTests
         // Assert
         var badRequestResult = result.Should().BeOfType<BadRequestObjectResult>().Subject;
         badRequestResult.StatusCode.Should().Be(400);
+    }
+
+    [Fact]
+    public async Task CreateOrder_WithSpanishLocale_SendsConfirmationEmailInSpanish()
+    {
+        // Arrange
+        SetupControllerUser(_testUserId, language: "es");
+        var dto = CreateValidOrderDto(Guid.NewGuid());
+        var createdOrder = CreateOrderEntity(_testUserId, dto);
+
+        _orderServiceMock.Setup(x => x.CreateOrderAsync(dto, _testUserId)).ReturnsAsync(createdOrder);
+
+        // Act
+        await _controller.CreateOrder(dto);
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendOrderConfirmationEmailAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                createdOrder.OrderNumber, It.IsAny<string>(), createdOrder.TotalAmount, "es"),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateOrder_WithEnglishLocale_SendsConfirmationEmailInEnglish()
+    {
+        // Arrange
+        SetupControllerUser(_testUserId, language: "en");
+        var dto = CreateValidOrderDto(Guid.NewGuid());
+        var createdOrder = CreateOrderEntity(_testUserId, dto);
+
+        _orderServiceMock.Setup(x => x.CreateOrderAsync(dto, _testUserId)).ReturnsAsync(createdOrder);
+
+        // Act
+        await _controller.CreateOrder(dto);
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendOrderConfirmationEmailAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                createdOrder.OrderNumber, It.IsAny<string>(), createdOrder.TotalAmount, "en"),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateOrder_WithoutLanguageClaim_DefaultsToSpanishEmail()
+    {
+        // Arrange — usuario sin claim de idioma
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, _testUserId.ToString()),
+            new Claim(ClaimTypes.Email, "test@test.com")
+        };
+        _controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = new DefaultHttpContext
+            {
+                User = new ClaimsPrincipal(new ClaimsIdentity(claims, "TestAuth"))
+            }
+        };
+
+        var dto = CreateValidOrderDto(Guid.NewGuid());
+        var createdOrder = CreateOrderEntity(_testUserId, dto);
+
+        _orderServiceMock.Setup(x => x.CreateOrderAsync(dto, _testUserId)).ReturnsAsync(createdOrder);
+
+        // Act
+        await _controller.CreateOrder(dto);
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendOrderConfirmationEmailAsync(
+                It.IsAny<string>(), It.IsAny<string>(),
+                createdOrder.OrderNumber, It.IsAny<string>(), createdOrder.TotalAmount, "es"),
+            Times.Once);
     }
 
     #endregion
@@ -310,11 +397,13 @@ public class OrdersControllerTests
 
     #region Helper Methods
 
-    private void SetupControllerUser(Guid userId)
+    private void SetupControllerUser(Guid userId, string email = "test@test.com", string language = "es")
     {
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString())
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.Email, email),
+            new Claim("language", language)
         };
 
         var identity = new ClaimsIdentity(claims, "TestAuth");
@@ -326,6 +415,24 @@ public class OrdersControllerTests
             {
                 User = claimsPrincipal
             }
+        };
+    }
+
+    private static Order CreateOrderEntity(Guid userId, CreateOrderDto dto)
+    {
+        return new Order
+        {
+            Id = Guid.NewGuid(),
+            OrderNumber = "ORD-20260302-0001",
+            UserId = userId,
+            Subtotal = dto.Subtotal,
+            VatAmount = dto.VatAmount,
+            ShippingCost = dto.ShippingCost,
+            TotalAmount = dto.TotalAmount,
+            OrderStatus = "pending",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            OrderItems = new List<OrderItem>()
         };
     }
 
