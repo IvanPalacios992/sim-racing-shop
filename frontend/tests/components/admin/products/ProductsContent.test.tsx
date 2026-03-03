@@ -131,6 +131,16 @@ describe("ProductsContent", () => {
         expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 200);
       });
     });
+
+    it("carga categorías disponibles junto con productos y componentes", async () => {
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
+
+      render(<ProductsContent />);
+
+      await waitFor(() => {
+        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 200);
+      });
+    });
   });
 
   describe("error", () => {
