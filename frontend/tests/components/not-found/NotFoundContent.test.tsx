@@ -168,5 +168,65 @@ describe("NotFoundContent", () => {
 
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
+
+    it("lee la puntuación best desde localStorage al abrir", () => {
+      localStorage.setItem("simrun404best", "42");
+      mockCanvasAndRaf();
+      render(<NotFoundContent />);
+      KONAMI.forEach((key) => fireEvent.keyDown(document, { key }));
+
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(screen.getByText("Récord")).toBeInTheDocument();
+
+      localStorage.removeItem("simrun404best");
+    });
+  });
+
+  describe("código Konami – reset de índice", () => {
+    it("una tecla incorrecta al inicio resetea el índice a 0 (la secuencia parcial no abre el juego)", () => {
+      render(<NotFoundContent />);
+
+      // Wrong key at the start → idx stays 0
+      fireEvent.keyDown(document, { key: "z" });
+      // Provide only 8 of the 10 Konami keys (not enough even from idx=0)
+      KONAMI.slice(0, 8).forEach((key) => fireEvent.keyDown(document, { key }));
+
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    it("una tecla incorrecta (no KONAMI[0]) en mitad de la secuencia resetea el índice a 0", () => {
+      render(<NotFoundContent />);
+
+      // Advance partway through the sequence, then break it
+      KONAMI.slice(0, 5).forEach((key) => fireEvent.keyDown(document, { key }));
+      // Wrong key (not KONAMI[0]="ArrowUp") → idx resets to 0
+      fireEvent.keyDown(document, { key: "z" });
+      // Remaining 5 keys from idx=0 are not enough to complete the full 10
+      KONAMI.slice(5).forEach((key) => fireEvent.keyDown(document, { key }));
+
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("triple clic – reset del temporizador", () => {
+    it("el contador se resetea si pasan más de 600ms entre clics", () => {
+      vi.useFakeTimers();
+      render(<NotFoundContent />);
+
+      const code404 = screen.getByTitle("¿Buscas algo más?");
+      fireEvent.click(code404);
+      fireEvent.click(code404);
+
+      // Let the 600ms timer expire → counter resets to 0
+      vi.advanceTimersByTime(700);
+
+      // Two more clicks (total effective = 2 after reset, not enough to open)
+      fireEvent.click(code404);
+      fireEvent.click(code404);
+
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+
+      vi.useRealTimers();
+    });
   });
 });

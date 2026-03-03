@@ -166,4 +166,100 @@ describe("adminCategoriesApi", () => {
       expect(result).toBeUndefined();
     });
   });
+
+  // ── list with search ──────────────────────────────────────────────────────
+
+  describe("list (search)", () => {
+    it("includes Search param when search is provided", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: emptyPaginated });
+
+      await adminCategoriesApi.list("es", 1, 10, "volantes");
+
+      expect(apiClient.get).toHaveBeenCalledWith("/categories", {
+        params: { Locale: "es", PageSize: 10, Page: 1, Search: "volantes" },
+      });
+    });
+
+    it("omits Search param when search is undefined", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: emptyPaginated });
+
+      await adminCategoriesApi.list("es", 1, 10);
+
+      const [, opts] = vi.mocked(apiClient.get).mock.calls[0];
+      expect((opts as { params: Record<string, unknown> }).params).not.toHaveProperty("Search");
+    });
+  });
+
+  // ── getImage ──────────────────────────────────────────────────────────────
+
+  describe("getImage", () => {
+    const mockImage = { id: "img-1", url: "https://example.com/cat.webp", altText: null };
+
+    it("calls GET /admin/categories/{id}/image", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: mockImage });
+
+      await adminCategoriesApi.getImage("cat-1");
+
+      expect(apiClient.get).toHaveBeenCalledWith("/admin/categories/cat-1/image");
+    });
+
+    it("returns the image data on success", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: mockImage });
+
+      const result = await adminCategoriesApi.getImage("cat-1");
+
+      expect(result).toEqual(mockImage);
+    });
+
+    it("returns null when the request throws", async () => {
+      vi.mocked(apiClient.get).mockRejectedValue(new Error("Not Found"));
+
+      const result = await adminCategoriesApi.getImage("cat-1");
+
+      expect(result).toBeNull();
+    });
+  });
+
+  // ── setImage ──────────────────────────────────────────────────────────────
+
+  describe("setImage", () => {
+    const mockImage = { id: "img-1", url: "https://example.com/cat.webp", altText: null };
+
+    it("calls PUT /admin/categories/{id}/image/url with the dto", async () => {
+      vi.mocked(apiClient.put).mockResolvedValue({ data: mockImage });
+
+      const dto = { url: "https://example.com/cat.webp", altText: null };
+      await adminCategoriesApi.setImage("cat-1", dto);
+
+      expect(apiClient.put).toHaveBeenCalledWith("/admin/categories/cat-1/image/url", dto);
+    });
+
+    it("returns response.data", async () => {
+      vi.mocked(apiClient.put).mockResolvedValue({ data: mockImage });
+
+      const result = await adminCategoriesApi.setImage("cat-1", { url: "https://example.com/cat.webp", altText: null });
+
+      expect(result).toEqual(mockImage);
+    });
+  });
+
+  // ── deleteImage ───────────────────────────────────────────────────────────
+
+  describe("deleteImage", () => {
+    it("calls DELETE /admin/categories/{id}/image", async () => {
+      vi.mocked(apiClient.delete).mockResolvedValue({});
+
+      await adminCategoriesApi.deleteImage("cat-1");
+
+      expect(apiClient.delete).toHaveBeenCalledWith("/admin/categories/cat-1/image");
+    });
+
+    it("resolves without returning a value", async () => {
+      vi.mocked(apiClient.delete).mockResolvedValue({});
+
+      const result = await adminCategoriesApi.deleteImage("cat-1");
+
+      expect(result).toBeUndefined();
+    });
+  });
 });
