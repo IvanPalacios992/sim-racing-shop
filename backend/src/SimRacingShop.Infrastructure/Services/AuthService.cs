@@ -66,6 +66,9 @@ namespace SimRacingShop.Infrastructure.Services
 
             await _userManager.AddToRoleAsync(user, "Customer");
 
+            // Fire-and-forget: no bloqueamos el registro si el email falla
+            _ = _emailService.SendWelcomeEmailAsync(user.Email!, user.FirstName ?? user.Email!, user.Language);
+
             var token = await GenerateJwtToken(user);
             var refreshToken = await CreateRefreshTokenAsync(user);
 
@@ -200,7 +203,7 @@ namespace SimRacingShop.Infrastructure.Services
 
             var userName = user.FirstName ?? user.Email ?? "Usuario";
 
-            await _emailService.SendPasswordResetEmailAsync(user.Email!, resetToken, userName);
+            await _emailService.SendPasswordResetEmailAsync(user.Email!, resetToken, userName, user.Language);
         }
 
         public async Task ResetPasswordAsync(ResetPasswordRequestDto dto)
