@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>SimRacing Shop – Presentación</title>
+<style>
+  :root{
+    --black:#0A0A0A;--carbon:#171717;--graphite:#262626;
+    --red:#E53935;--blue:#2196F3;--gold:#C9AF89;
+    --white:#FFFFFF;--silver:#9CA3AF;--smoke:#4B5563;
+    --green:#4ade80;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--black);color:var(--white);overflow:hidden;height:100vh;user-select:none;}
+
+  #deck{width:100%;height:100vh;position:relative;}
+  .slide{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:56px 80px 80px;opacity:0;pointer-events:none;transition:opacity .35s ease;}
+  .slide.active{opacity:1;pointer-events:auto;}
+  .slide-section-break{background:var(--black);position:absolute;inset:0;overflow:hidden;padding:0;display:flex;flex-direction:column;justify-content:center;align-items:center;}
+  .slide-section-break::before{content:'';position:absolute;left:-20%;top:-20%;width:60%;height:140%;background:radial-gradient(ellipse,rgba(229,57,53,.08) 0%,transparent 70%);pointer-events:none;}
+  .section-number{font-size:8rem;font-weight:900;color:rgba(255,255,255,.04);position:absolute;right:80px;bottom:60px;line-height:1;}
+
+  .bg-carbon{background:var(--carbon);}
+  .bg-black{background:var(--black);}
+
+  .accent-line{width:56px;height:3px;background:var(--red);margin:14px auto;}
+  .accent-line.left{margin:14px 0;}
+  .accent-line.gold{background:var(--gold);}
+  .accent-line.blue{background:var(--blue);}
+  .accent-line.wide{width:100px;}
+
+  .slide-label{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--red);margin-bottom:6px;font-weight:700;}
+  .slide-label.gold{color:var(--gold);}
+  .slide-label.blue{color:var(--blue);}
+  h1{font-size:3.4rem;font-weight:900;line-height:1.05;text-align:center;}
+  h2{font-size:1.9rem;font-weight:800;line-height:1.2;}
+  h3{font-size:1rem;font-weight:700;color:var(--gold);}
+  p,li{font-size:.9rem;line-height:1.75;color:var(--silver);}
+  .hero-sub{font-size:1.1rem;color:var(--silver);text-align:center;max-width:620px;margin-top:14px;line-height:1.6;}
+  strong{color:var(--white);}
+
+  .ai-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(33,150,243,.12);border:1px solid rgba(33,150,243,.35);border-radius:20px;padding:5px 14px;font-size:.72rem;color:var(--blue);font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  .ai-badge::before{content:'✦';}
+
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:28px;width:100%;max-width:980px;}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;width:100%;max-width:1020px;}
+  .g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:18px;width:100%;max-width:1020px;}
+
+  .card{background:var(--graphite);border:1px solid #2e2e2e;border-radius:12px;padding:22px;position:relative;overflow:hidden;}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+  .card.red::before{background:var(--red);}
+  .card.gold::before{background:var(--gold);}
+  .card.blue::before{background:var(--blue);}
+  .card.silver::before{background:var(--silver);}
+  .card.green::before{background:var(--green);}
+  .card-icon{font-size:1.8rem;margin-bottom:10px;}
+  .card h3{margin-bottom:6px;font-size:.95rem;}
+  .card p{font-size:.82rem;}
+
+  .pill{display:inline-block;background:rgba(255,255,255,.06);border:1px solid #2e2e2e;border-radius:5px;padding:3px 9px;font-size:.72rem;color:var(--silver);margin:2px;}
+  .pill.red{border-color:rgba(229,57,53,.35);color:var(--red);}
+  .pill.gold{border-color:rgba(201,175,137,.35);color:var(--gold);}
+  .pill.blue{border-color:rgba(33,150,243,.35);color:var(--blue);}
+  .pill.green{border-color:rgba(74,222,128,.3);color:var(--green);}
+
+  .stat{text-align:center;}
+  .stat .num{font-size:2.6rem;font-weight:900;color:var(--red);line-height:1;}
+  .stat .unit{font-size:.82rem;color:var(--gold);font-weight:700;}
+  .stat .desc{font-size:.75rem;color:var(--silver);margin-top:3px;}
+
+  .quote-box{background:rgba(255,255,255,.03);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:18px 24px;}
+  .quote-box p{font-size:.9rem;color:var(--white);font-style:italic;line-height:1.65;}
+  .quote-box .author{font-size:.75rem;color:var(--gold);margin-top:8px;font-style:normal;font-weight:700;}
+
+  .prog{margin-bottom:14px;}
+  .prog .lbl{display:flex;justify-content:space-between;margin-bottom:5px;font-size:.78rem;}
+  .prog .lbl span:first-child{color:var(--white);}
+  .prog .lbl span:last-child{color:var(--gold);}
+  .prog-bar{height:5px;background:#2a2a2a;border-radius:3px;overflow:hidden;}
+  .prog-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--red),var(--gold));}
+
+  .flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;width:100%;max-width:920px;}
+  .flow-step{background:var(--graphite);border:1px solid #333;border-radius:9px;padding:12px 18px;text-align:center;min-width:100px;}
+  .flow-step .sn{font-size:.6rem;color:var(--red);font-weight:800;letter-spacing:.12em;text-transform:uppercase;}
+  .flow-step .sl{font-size:.82rem;color:var(--white);font-weight:700;margin-top:2px;}
+  .flow-arr{color:var(--smoke);font-size:1.3rem;padding:0 3px;flex-shrink:0;}
+
+  .tl-row{display:flex;gap:18px;margin-bottom:18px;align-items:flex-start;}
+  .tl-dot{width:34px;height:34px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;margin-top:2px;}
+  .tl-dot.gold{background:var(--gold);color:var(--black);}
+  .tl-dot.blue{background:var(--blue);}
+  .tl-dot.grey{background:var(--smoke);}
+  .tl-content h3{font-size:.9rem;color:var(--white);margin-bottom:3px;}
+  .tl-content p{font-size:.8rem;color:var(--silver);}
+
+  .arch{display:flex;flex-direction:column;gap:10px;align-items:center;width:100%;}
+  .arch-row{display:flex;gap:10px;justify-content:center;width:100%;}
+  .arch-box{background:var(--graphite);border:1px solid #3a3a3a;border-radius:8px;padding:10px 18px;text-align:center;font-size:.78rem;color:var(--silver);}
+  .arch-box strong{display:block;font-size:.85rem;color:var(--white);margin-bottom:1px;}
+  .arch-box.red{border-color:rgba(229,57,53,.4);}
+  .arch-box.blue{border-color:rgba(33,150,243,.4);}
+  .arch-box.gold{border-color:rgba(201,175,137,.4);}
+  .arch-arr{color:var(--smoke);text-align:center;font-size:1.1rem;}
+
+  .cmp{width:100%;border-collapse:collapse;font-size:.8rem;}
+  .cmp th{background:var(--graphite);color:var(--silver);font-weight:700;padding:10px 14px;text-align:left;border-bottom:2px solid #333;letter-spacing:.05em;font-size:.72rem;text-transform:uppercase;}
+  .cmp td{padding:9px 14px;border-bottom:1px solid #222;color:var(--silver);}
+  .cmp tr.chosen td{background:rgba(229,57,53,.06);color:var(--white);}
+  .cmp td:first-child{font-weight:600;color:var(--white);}
+  .badge-chosen{background:var(--red);color:#fff;border-radius:4px;padding:1px 7px;font-size:.65rem;font-weight:700;}
+  .badge-no{background:#222;color:var(--smoke);border-radius:4px;padding:1px 7px;font-size:.65rem;}
+
+  .info-box{background:rgba(33,150,243,.08);border:1px solid rgba(33,150,243,.25);border-radius:10px;padding:16px 22px;}
+  .info-box p{font-size:.83rem;color:var(--white);}
+
+  .time-badge{background:rgba(201,175,137,.1);border:1px solid rgba(201,175,137,.25);border-radius:5px;padding:2px 8px;font-size:.68rem;color:var(--gold);font-weight:600;}
+
+  ul{list-style:none;padding:0;}
+  ul li::before{content:'▸ ';color:var(--red);}
+
+  #nav{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;background:rgba(23,23,23,.92);backdrop-filter:blur(16px);border:1px solid #2e2e2e;border-radius:40px;padding:8px 18px;z-index:100;}
+  #nav button{background:none;border:none;color:var(--smoke);cursor:pointer;font-size:1rem;padding:3px 8px;border-radius:5px;transition:color .15s;}
+  #nav button:hover{color:var(--white);}
+  #slide-info{font-size:.75rem;color:var(--smoke);min-width:55px;text-align:center;}
+  .dot-nav{display:flex;gap:5px;align-items:center;}
+  .dot{width:5px;height:5px;border-radius:50%;background:#333;cursor:pointer;transition:all .2s;}
+  .dot.active{background:var(--red);width:16px;border-radius:3px;}
+</style>
+</head>
+<body>
+<div id="deck">
+
+<!-- S1 · PORTADA -->
+<div class="slide bg-black">
+  <div style="text-align:center;max-width:780px;">
+    <div class="ai-badge" style="margin-bottom:22px;">Máster en Desarrollo con IA · 2026</div>
+    <div class="slide-label">Proyecto Final</div>
+    <h1>SIM<span style="color:var(--red)">RACING</span><br/>SHOP</h1>
+    <div class="accent-line wide"></div>
+    <p class="hero-sub">E-commerce con configurador 3D para hardware de simulación de carreras, construido en <strong>1 mes</strong> con IA como copiloto principal del desarrollo.</p>
+    <div style="margin-top:28px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <span class="pill red">Next.js 16</span>
+      <span class="pill">ASP.NET Core 10</span>
+      <span class="pill">PostgreSQL 16</span>
+      <span class="pill blue">React Three Fiber</span>
+      <span class="pill gold">Stripe</span>
+      <span class="pill blue">Claude Code</span>
+    </div>
+  </div>
+</div>
+
+<!-- S2 · SECTION BREAK 01 -->
+<div class="slide slide-section-break">
+  <div class="section-number">01</div>
+  <div style="text-align:center;">
+    <div class="slide-label">Sección 01</div>
+    <h1 style="font-size:3rem;">El<br/><span style="color:var(--red)">Proyecto</span></h1>
+    <div class="accent-line wide"></div>
+    <p class="hero-sub">El problema, la solución y la experiencia de usuario.</p>
+  </div>
+</div>
+
+<!-- S3 · EL PROBLEMA -->
+<div class="slide bg-carbon">
+  <div style="width:100%;max-width:940px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div class="slide-label">El Problema</div>
+      <h2>El mercado sim racing tiene un hueco</h2>
+      <div class="accent-line"></div>
+      <p style="margin-top:8px;">Los entusiastas de la simulación de carreras quieren equipamiento único. El mercado no se lo ofrece.</p>
+    </div>
+    <div class="g3">
+      <div class="card red"><div class="card-icon">😤</div><h3>Sin personalización real</h3><p>Catálogos estándar. El piloto no puede adaptar el producto a su estilo de conducción, ergonomía o estética.</p></div>
+      <div class="card red"><div class="card-icon">🖼️</div><h3>Compra a ciegas</h3><p>Solo imágenes 2D estáticas. El usuario no sabe cómo quedará su configuración hasta que llega el paquete.</p></div>
+      <div class="card red"><div class="card-icon">📦</div><h3>Stock masivo o nada</h3><p>O compras lo que hay en stock, o esperas meses. No existe un modelo bajo demanda ágil y transparente.</p></div>
+    </div>
+    <div style="margin-top:22px;text-align:center;">
+      <div class="info-box" style="display:inline-block;background:rgba(229,57,53,.08);border-color:rgba(229,57,53,.25);">
+        <p style="color:var(--white);">El sim racing es uno de los nichos de hardware con mayor tasa de gasto por usuario. <strong style="color:var(--red);">Ticket medio: 150-500€.</strong> La personalización es el diferenciador que falta.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S4 · LA SOLUCIÓN -->
+<div class="slide bg-black">
+  <div style="width:100%;max-width:940px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div class="slide-label gold">La Solución</div>
+      <h2>SimRacing Shop: diseña tu cockpit</h2>
+      <div class="accent-line gold"></div>
+      <p style="margin-top:8px;">Una plataforma donde el cliente <strong>diseña en 3D</strong> y recibe el producto fabricado a medida.</p>
+    </div>
+    <div class="g3">
+      <div class="card gold"><div class="card-icon">🏎️</div><h3>Configurador 3D en tiempo real</h3><p>Orbit, zoom, rotación. Cambios de color, botones y texto que se reflejan <strong style="color:var(--white);">instantáneamente</strong> en el modelo 3D.</p></div>
+      <div class="card gold"><div class="card-icon">🔧</div><h3>Fabricación bajo demanda</h3><p>Sin stock masivo. Cada producto es único. Stock gestionado con <strong style="color:var(--white);">lead times transparentes</strong>.</p></div>
+      <div class="card gold"><div class="card-icon">🔗</div><h3>Configuraciones compartibles</h3><p>Cada configuración genera una <strong style="color:var(--white);">URL única</strong>. El usuario puede guardarla, compartirla o retomarla.</p></div>
+    </div>
+    <div style="margin-top:20px;display:flex;gap:28px;justify-content:center;">
+      <div class="stat"><div class="num">&lt;3s</div><div class="unit">carga modelo</div><div class="desc">GLB optimizados &lt;2MB</div></div>
+      <div class="stat"><div class="num">60fps</div><div class="unit">visor 3D</div><div class="desc">Desktop / 30fps mobile</div></div>
+      <div class="stat"><div class="num">∞</div><div class="unit">configs</div><div class="desc">URLs compartibles</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S5 · FLUJO DE USUARIO -->
+<div class="slide bg-carbon">
+  <div style="width:100%;max-width:940px;text-align:center;">
+    <div class="slide-label">Experiencia</div>
+    <h2>El viaje del cliente</h2>
+    <div class="accent-line"></div>
+    <p style="margin-bottom:28px;">Diseñado para ser fluido y diferencial en cada paso.</p>
+    <div class="flow">
+      <div class="flow-step"><div class="sn">01</div><div class="sl">Descubrir</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-step" style="border-color:rgba(201,175,137,.4);"><div class="sn" style="color:var(--gold);">02</div><div class="sl" style="color:var(--gold);">Configurar 3D</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-step"><div class="sn">03</div><div class="sl">Precio dinámico</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-step"><div class="sn">04</div><div class="sl">Carrito</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-step"><div class="sn">05</div><div class="sl">Checkout 3 pasos</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-step"><div class="sn">06</div><div class="sl">Pago Stripe</div></div>
+      <div class="flow-arr">→</div>
+      <div class="flow-step"><div class="sn">07</div><div class="sl">Fabricación & Envío</div></div>
+    </div>
+    <div style="margin-top:24px;" class="g4">
+      <div class="card gold" style="padding:14px;"><div style="font-size:.75rem;color:var(--silver);">Conversión carrito→checkout</div><div style="font-size:1.4rem;font-weight:800;color:var(--gold);">&gt; 40%</div></div>
+      <div class="card gold" style="padding:14px;"><div style="font-size:.75rem;color:var(--silver);">Conversión checkout→pago</div><div style="font-size:1.4rem;font-weight:800;color:var(--gold);">&gt; 80%</div></div>
+      <div class="card gold" style="padding:14px;"><div style="font-size:.75rem;color:var(--silver);">Tiempo en configurador</div><div style="font-size:1.4rem;font-weight:800;color:var(--gold);">&lt; 5 min</div></div>
+      <div class="card gold" style="padding:14px;"><div style="font-size:.75rem;color:var(--silver);">Uptime objetivo</div><div style="font-size:1.4rem;font-weight:800;color:var(--gold);">99.5%</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S6 · SECTION BREAK 02 -->
+<div class="slide slide-section-break">
+  <div class="section-number">02</div>
+  <div style="text-align:center;">
+    <div class="slide-label blue">Sección 02</div>
+    <h1 style="font-size:3rem;">La <span style="color:var(--blue)">IA</span><br/>en cada fase</h1>
+    <div class="accent-line blue wide"></div>
+    <p class="hero-sub">Requisitos → Arquitectura → Código → Testing.<br/>La IA no fue una herramienta puntual: fue el copiloto.</p>
+  </div>
+</div>
+
+<!-- S7 · OVERVIEW FASES IA -->
+<div class="slide bg-black">
+  <div style="width:100%;max-width:940px;text-align:center;">
+    <div class="slide-label blue">Inteligencia Artificial</div>
+    <h2 style="margin-bottom:8px;">La IA participó en <span style="color:var(--blue);">todas las fases</span></h2>
+    <div class="accent-line blue"></div>
+    <p style="margin-bottom:28px;">Un solo desarrollador + herramientas de IA cubrió el trabajo de un equipo multidisciplinar.</p>
+    <div class="g4">
+      <div class="card blue"><div class="card-icon">📋</div><h3>Fase 1<br/>Requisitos</h3><p style="font-size:.78rem;">50 RF + 20 RNF con MoSCoW, INVEST y criterios Given-When-Then.</p><div style="margin-top:10px;"><span class="ai-badge" style="font-size:.62rem;">Analista funcional</span></div></div>
+      <div class="card blue"><div class="card-icon">🏗️</div><h3>Fase 2<br/>Arquitectura</h3><p style="font-size:.78rem;">Evaluación de stacks con comparativas objetivas. Stack finalizado en horas.</p><div style="margin-top:10px;"><span class="ai-badge" style="font-size:.62rem;">Arquitecto de soluciones</span></div></div>
+      <div class="card blue"><div class="card-icon">💻</div><h3>Fase 3<br/>Código</h3><p style="font-size:.78rem;">Generación, revisión y refactoring full-stack guiado por el contexto del proyecto.</p><div style="margin-top:10px;"><span class="ai-badge" style="font-size:.62rem;">Pair programmer</span></div></div>
+      <div class="card blue"><div class="card-icon">🧪</div><h3>Fase 4<br/>Testing</h3><p style="font-size:.78rem;">Tests derivados automáticamente de los criterios de aceptación del spec.</p><div style="margin-top:10px;"><span class="ai-badge" style="font-size:.62rem;">QA Engineer</span></div></div>
+    </div>
+    <div style="margin-top:20px;" class="info-box">
+      <p>El equipo fue: <strong>1 desarrollador + IA</strong>. La IA actuó como analista, arquitecto, pair programmer y QA <em>simultáneamente</em>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- S8 · IA EN REQUISITOS -->
+<div class="slide bg-carbon">
+  <div class="g2" style="max-width:920px;align-items:start;">
+    <div>
+      <div class="slide-label blue">IA · Fase 1 / 4</div>
+      <h2 style="margin-bottom:8px;">Ingeniería de<br/>Requisitos asistida</h2>
+      <div class="accent-line left blue"></div>
+      <p style="margin-bottom:12px;">Con una descripción de la idea de negocio, la IA ayudó a generar un documento de requisitos completo siguiendo metodologías profesionales.</p>
+      <p style="margin-bottom:16px;">Ante la falta de un cliente real, la IA actuó como analista proponiendo un cuestionario de hasta <strong>90 preguntas</strong> a partir de la descripción inicial, ayudando a definir los requisitos finales del MVP.</p>
+      <div class="ai-badge" style="margin-bottom:14px;">IA como analista funcional</div>
+      <ul style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+        <li><strong>70 requisitos</strong> estructurados con prioridades MoSCoW</li>
+        <li>Historias de usuario con formato <strong>Who – What – Why</strong></li>
+        <li>Criterios de aceptación <strong>Given – When – Then</strong> por requisito</li>
+        <li>Métricas cuantitativas en RNF (tiempos, porcentajes, umbrales)</li>
+        <li>Detección proactiva de <strong>edge cases</strong> y escenarios de error</li>
+      </ul>
+    </div>
+    <div>
+      <div class="quote-box" style="margin-bottom:18px;">
+        <p>"La IA transformó una idea de negocio en un spec document de 150+ páginas en horas. Sin IA, habría sido semanas de trabajo de un equipo de analistas."</p>
+        <div class="author">— Reflexión del proyecto</div>
+      </div>
+      <div class="prog"><div class="lbl"><span>Tiempo ahorrado vs. análisis manual</span><span>~85%</span></div><div class="prog-bar"><div class="prog-fill" style="width:85%"></div></div></div>
+      <div class="prog"><div class="lbl"><span>Cobertura de casos de uso</span><span>95%</span></div><div class="prog-bar"><div class="prog-fill" style="width:95%"></div></div></div>
+      <div class="prog"><div class="lbl"><span>Requisitos aprobados sin revisión mayor</span><span>78%</span></div><div class="prog-bar"><div class="prog-fill" style="width:78%"></div></div></div>
+      <div style="margin-top:14px;display:flex;gap:12px;">
+        <div class="card blue" style="padding:14px;text-align:center;flex:1;"><div style="font-size:1.6rem;font-weight:900;color:var(--blue);">50</div><div style="font-size:.72rem;color:var(--silver);">Requisitos funcionales</div></div>
+        <div class="card blue" style="padding:14px;text-align:center;flex:1;"><div style="font-size:1.6rem;font-weight:900;color:var(--blue);">20</div><div style="font-size:.72rem;color:var(--silver);">Requisitos no funcionales</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S9 · IA EN ARQUITECTURA -->
+<div class="slide bg-black">
+  <div class="g2" style="max-width:920px;align-items:start;">
+    <div>
+      <div class="slide-label blue">IA · Fase 2 / 4</div>
+      <h2 style="margin-bottom:8px;">Decisiones de<br/>Arquitectura razonadas</h2>
+      <div class="accent-line left blue"></div>
+      <p style="margin-bottom:16px;">Con las respuestas del cuestionario, la IA evaluó múltiples alternativas tecnológicas con comparativas objetivas, teniendo en cuenta el presupuesto disponible. Cada elección tiene justificación documentada.</p>
+      <div class="ai-badge" style="margin-bottom:14px;">IA como arquitecto de soluciones</div>
+      <table class="cmp" style="margin-top:10px;">
+        <thead><tr><th>Framework</th><th>Razón de elección</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr class="chosen"><td>Next.js 16</td><td>SSR, SEO, Image opt., App Router</td><td><span class="badge-chosen">✓ Elegido</span></td></tr>
+          <tr><td>Remix</td><td>Ecosistema menor, menos maduro</td><td><span class="badge-no">Descartado</span></td></tr>
+          <tr class="chosen"><td>ASP.NET Core 10</td><td>Performance, type-safe, maduro</td><td><span class="badge-chosen">✓ Elegido</span></td></tr>
+          <tr><td>Node/Express</td><td>Menos type-safe, performance menor</td><td><span class="badge-no">Descartado</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <div class="arch">
+        <div class="arch-row"><div class="arch-box blue" style="width:220px;"><strong>Next.js 16</strong>Vercel · App Router · i18n</div></div>
+        <div class="arch-arr">↕</div>
+        <div class="arch-row">
+          <div class="arch-box red" style="width:190px;"><strong>ASP.NET Core 10</strong>Railway · JWT · EF Core</div>
+          <div class="arch-box" style="width:110px;"><strong>Stripe</strong>SCA · Webhooks</div>
+        </div>
+        <div class="arch-arr">↕</div>
+        <div class="arch-row">
+          <div class="arch-box gold" style="width:160px;"><strong>PostgreSQL 16</strong>Railway · JSONB</div>
+          <div class="arch-box" style="width:130px;"><strong>Redis</strong>Upstash · Cache</div>
+        </div>
+        <div class="arch-arr">↕</div>
+        <div class="arch-row">
+          <div class="arch-box" style="width:100px;"><strong>CDN</strong>Cloudflare</div>
+          <div class="arch-box" style="width:100px;"><strong>Email</strong>Resend</div>
+          <div class="arch-box" style="width:100px;"><strong>Errors</strong>Sentry</div>
+        </div>
+      </div>
+      <div style="margin-top:14px;text-align:center;">
+        <div style="display:inline-flex;gap:20px;background:var(--graphite);border-radius:10px;padding:12px 22px;">
+          <div class="stat"><div class="num" style="font-size:1.8rem;">6€</div><div class="unit">/mes</div><div class="desc">Infra MVP</div></div>
+          <div style="width:1px;background:#333;"></div>
+          <div class="stat"><div class="num" style="font-size:1.8rem;">115€</div><div class="unit">/mes</div><div class="desc">En crecimiento</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S10 · IA EN CÓDIGO -->
+<div class="slide bg-carbon">
+  <div style="width:100%;max-width:940px;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div class="slide-label blue">IA · Fase 3 / 4</div>
+      <h2>Código: el desarrollador como <span style="color:var(--blue);">director</span></h2>
+      <div class="accent-line blue"></div>
+      <p style="margin-top:6px;">Cursor IDE y GitHub Copilot fueron las opciones recomendadas inicialmente, pero la elección final fue <strong>Claude Code</strong> por su enfoque al desarrollo desde terminal y la facilidad para mantener el contexto del proyecto.</p>
+    </div>
+    <div class="g3">
+      <div class="card blue"><h3>🎨 Frontend</h3><p style="font-size:.8rem;margin-bottom:10px;">Componentes React: configurador 3D con <strong>React Three Fiber</strong>, carrito con Zustand, checkout multi-paso con validación Zod.</p><div><span class="pill blue">Next.js 16</span><span class="pill blue">R3F + Drei</span><span class="pill blue">shadcn/ui</span></div></div>
+      <div class="card blue"><h3>⚙️ Backend</h3><p style="font-size:.8rem;margin-bottom:10px;">APIs RESTful, lógica de negocio (stock, cálculo envíos por zona CP), webhooks Stripe, emails con Resend.</p><div><span class="pill blue">.NET 10 APIs</span><span class="pill blue">EF Core</span><span class="pill blue">FluentValidation</span></div></div>
+      <div class="card blue"><h3>🗄️ Base de Datos</h3><p style="font-size:.8rem;margin-bottom:10px;">Esquema PostgreSQL con <strong>JSONB para configuraciones 3D</strong>, triggers de stock, full-text search, migraciones EF Core.</p><div><span class="pill blue">JSONB configs</span><span class="pill blue">Triggers</span><span class="pill blue">FTS</span></div></div>
+    </div>
+    <div style="margin-top:20px;" class="g2">
+      <div class="info-box"><p><span style="color:var(--blue);font-weight:700;">Claude Code</span> — Con los documentos del proyecto como contexto, generó código alineado con los requisitos. El desarrollador revisó, validó y dirigió. Gran versatilidad para asistir en diseño, arquitectura y debug.</p></div>
+      <div class="info-box" style="background:rgba(201,175,137,.06);border-color:rgba(201,175,137,.25);"><p><span style="color:var(--gold);font-weight:700;">Stitch</span> — Usado para generación de mockups de diseño, aunque el resultado desarrollado con Claude resultó más atractivo y se mantuvo como diseño final.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- S11 · IA EN TESTING -->
+<div class="slide bg-black">
+  <div class="g2" style="max-width:920px;align-items:start;">
+    <div>
+      <div class="slide-label blue">IA · Fase 4 / 4</div>
+      <h2 style="margin-bottom:8px;">Testing con<br/>trazabilidad automática</h2>
+      <div class="accent-line left blue"></div>
+      <p style="margin-bottom:14px;">Los criterios <strong>Given-When-Then</strong> del spec se convirtieron directamente en tests. La IA cerró el ciclo requisito → código → test.</p>
+      <div class="ai-badge" style="margin-bottom:14px;">IA como QA Engineer</div>
+      <ul style="display:flex;flex-direction:column;gap:9px;margin-top:10px;">
+        <li><strong>Vitest</strong> — Tests unitarios de lógica de negocio (precios, stock, envíos)</li>
+        <li><strong>React Testing Library</strong> — Tests de componentes centrados en UX</li>
+        <li><strong>Playwright</strong> — E2E del flujo completo de compra en multi-browser</li>
+        <li><strong>xUnit + Testcontainers</strong> — Tests de integración con PostgreSQL real</li>
+        <li>Objetivo: <strong>&gt; 80% de cobertura en código crítico</strong></li>
+      </ul>
+    </div>
+    <div>
+      <div class="quote-box" style="margin-bottom:16px;">
+        <p>"La trazabilidad requisito → criterio → test, orquestada por IA, redujo drásticamente los bugs no detectados. Cada requisito tenía su test asociado, aumentando la trazabilidad y mantenibilidad."</p>
+        <div class="author">— Proceso de QA del proyecto</div>
+      </div>
+      <div class="prog"><div class="lbl"><span>Checkout &amp; Pagos</span><span>&gt; 80%</span></div><div class="prog-bar"><div class="prog-fill" style="width:82%"></div></div></div>
+      <div class="prog"><div class="lbl"><span>Lógica de Stock &amp; Componentes</span><span>&gt; 80%</span></div><div class="prog-bar"><div class="prog-fill" style="width:80%"></div></div></div>
+      <div class="prog"><div class="lbl"><span>Configurador 3D</span><span>&gt; 70%</span></div><div class="prog-bar"><div class="prog-fill" style="width:72%"></div></div></div>
+      <div class="prog"><div class="lbl"><span>Autenticación &amp; Roles</span><span>&gt; 75%</span></div><div class="prog-bar"><div class="prog-fill" style="width:76%"></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S12 · SECTION BREAK 03 -->
+<div class="slide slide-section-break">
+  <div class="section-number">03</div>
+  <div style="text-align:center;">
+    <div class="slide-label gold">Sección 03</div>
+    <h1 style="font-size:3rem;"><span style="color:var(--gold);">Stack</span><br/>&amp; MVP</h1>
+    <div class="accent-line gold wide"></div>
+    <p class="hero-sub">Las tecnologías elegidas y el alcance del producto mínimo viable.</p>
+  </div>
+</div>
+
+<!-- S13 · STACK -->
+<div class="slide bg-carbon">
+  <div style="width:100%;max-width:940px;text-align:center;">
+    <div class="slide-label gold">Stack Tecnológico</div>
+    <h2 style="margin-bottom:8px;">Evaluado y elegido con IA</h2>
+    <div class="accent-line gold"></div>
+    <p style="margin-bottom:10px;">Cada tecnología fue comparada objetivamente. El resultado: máximo valor, mínimo coste inicial.</p>
+    <p style="margin-bottom:20px;">También se tuvo en cuenta el carácter formativo del TFM, buscando tecnologías desconocidas para el desarrollador como React, Vercel o Railway, añadiendo un punto extra de desafío y aprendizaje.</p>
+    <div class="g2" style="gap:18px;">
+      <div class="card blue"><h3 style="margin-bottom:10px;">🖥️ Frontend</h3><div><span class="pill blue">Next.js 16</span><span class="pill blue">React 19</span><span class="pill blue">TypeScript</span><span class="pill blue">Tailwind CSS</span><span class="pill blue">shadcn/ui</span><span class="pill blue">React Three Fiber</span><span class="pill blue">Zustand</span><span class="pill blue">Zod</span><span class="pill blue">next-intl</span><span class="pill blue">Stripe Elements</span></div></div>
+      <div class="card red"><h3 style="margin-bottom:10px;">⚙️ Backend</h3><div><span class="pill red">ASP.NET Core 10</span><span class="pill red">EF Core 10</span><span class="pill red">PostgreSQL 16</span><span class="pill red">Redis (Upstash)</span><span class="pill red">FluentValidation</span><span class="pill red">Serilog</span><span class="pill red">Stripe.net</span><span class="pill red">Resend</span><span class="pill red">Sentry</span></div></div>
+      <div class="card gold"><h3 style="margin-bottom:10px;">☁️ Infraestructura</h3><div><span class="pill gold">Vercel (Frontend)</span><span class="pill gold">Railway (Backend + DB)</span><span class="pill gold">Upstash (Redis)</span><span class="pill gold">Cloudflare (CDN)</span><span class="pill gold">GitHub Actions (CI/CD)</span></div></div>
+      <div class="card silver"><h3 style="margin-bottom:10px;">🤖 IA en el Equipo</h3><div><span class="pill">Claude</span><span class="pill">Claude Code</span><span class="pill">Stitch</span></div><div style="margin-top:12px;padding:10px;background:rgba(255,255,255,.04);border-radius:7px;"><p style="font-size:.8rem;color:var(--gold);font-weight:600;">Equipo: 1 desarrollador + IA = product team completo</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S14 · MVP SCOPE -->
+<div class="slide bg-black">
+  <div style="width:100%;max-width:940px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div class="slide-label">MVP · Alcance</div>
+      <h2>¿Qué incluye el MVP?</h2>
+      <div class="accent-line"></div>
+      <p style="margin-top:6px;">Todo lo necesario para <strong>la primera venta real</strong>. En 1 mes con 1 persona.</p>
+    </div>
+    <div class="g3">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <h3 style="color:var(--red);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;">👤 Usuarios &amp; Auth</h3>
+        <ul style="display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:.8rem;">Registro, login, recuperación contraseña</li>
+          <li style="font-size:.8rem;">Gestión de perfil y direcciones</li>
+          <li style="font-size:.8rem;">Historial de pedidos</li>
+          <li style="font-size:.8rem;">Roles Customer / Admin</li>
+          <li style="font-size:.8rem;">2FA TOTP para administradores</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <h3 style="color:var(--gold);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;">🛒 Tienda</h3>
+        <ul style="display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:.8rem;">Catálogo (~10 productos iniciales)</li>
+          <li style="font-size:.8rem;">Configurador 3D interactivo</li>
+          <li style="font-size:.8rem;">Precio dinámico en tiempo real</li>
+          <li style="font-size:.8rem;">Carrito persistente (auth + anónimo)</li>
+          <li style="font-size:.8rem;">Cálculo envío por zonas (CP)</li>
+        </ul>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <h3 style="color:var(--blue);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;">🔧 Admin &amp; Extras</h3>
+        <ul style="display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:.8rem;">Panel admin con KPIs</li>
+          <li style="font-size:.8rem;">Gestión de pedidos y estados</li>
+          <li style="font-size:.8rem;">Control de stock con alertas</li>
+          <li style="font-size:.8rem;">Emails transaccionales (Resend)</li>
+          <li style="font-size:.8rem;">Español / Inglés (i18n completo)</li>
+          <li style="font-size:.8rem;">SEO + RGPD + páginas legales</li>
+        </ul>
+      </div>
+    </div>
+    <div style="margin-top:20px;display:flex;gap:24px;justify-content:center;">
+      <div class="stat"><div class="num">50</div><div class="unit">RF cubiertos</div><div class="desc">Requisitos funcionales</div></div>
+      <div class="stat"><div class="num">20</div><div class="unit">RNF medibles</div><div class="desc">Con métricas cuantitativas</div></div>
+      <div class="stat"><div class="num">1</div><div class="unit">mes</div><div class="desc">Timeline del MVP</div></div>
+      <div class="stat"><div class="num">6€</div><div class="unit">/mes</div><div class="desc">Coste infra inicial</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S15 · SECTION BREAK 04 -->
+<div class="slide slide-section-break">
+  <div class="section-number">04</div>
+  <div style="text-align:center;">
+    <div class="slide-label" style="color:var(--silver);">Sección 04</div>
+    <h1 style="font-size:3rem;">Resultados<br/>&amp; <span style="color:var(--gold);">Reflexión</span></h1>
+    <div class="accent-line gold wide"></div>
+    <p class="hero-sub">KPIs objetivo, roadmap y qué cambia cuando la IA lidera el desarrollo.</p>
+  </div>
+</div>
+
+<!-- S16 · KPIs -->
+<div class="slide bg-carbon">
+  <div style="width:100%;max-width:920px;text-align:center;">
+    <div class="slide-label">KPIs &amp; Métricas</div>
+    <h2 style="margin-bottom:8px;">El MVP es exitoso cuando…</h2>
+    <div class="accent-line gold"></div>
+    <p style="margin-bottom:28px;">Métricas cuantificables definidas desde el día 1, no después.</p>
+    <div class="g4" style="margin-bottom:20px;">
+      <div class="card gold" style="padding:16px;text-align:center;"><div style="font-size:.72rem;color:var(--silver);margin-bottom:4px;">Performance</div><div style="font-size:1.8rem;font-weight:900;color:var(--gold);">90+</div><div style="font-size:.72rem;color:var(--silver);">Lighthouse score</div></div>
+      <div class="card gold" style="padding:16px;text-align:center;"><div style="font-size:.72rem;color:var(--silver);margin-bottom:4px;">Carga inicial</div><div style="font-size:1.8rem;font-weight:900;color:var(--gold);">&lt;3s</div><div style="font-size:.72rem;color:var(--silver);">Tiempo de carga</div></div>
+      <div class="card gold" style="padding:16px;text-align:center;"><div style="font-size:.72rem;color:var(--silver);margin-bottom:4px;">Disponibilidad</div><div style="font-size:1.8rem;font-weight:900;color:var(--gold);">99.5%</div><div style="font-size:.72rem;color:var(--silver);">Uptime mensual</div></div>
+      <div class="card gold" style="padding:16px;text-align:center;"><div style="font-size:.72rem;color:var(--silver);margin-bottom:4px;">Conversión pago</div><div style="font-size:1.8rem;font-weight:900;color:var(--gold);">&gt;80%</div><div style="font-size:.72rem;color:var(--silver);">Checkout → pago</div></div>
+    </div>
+    <div class="g4">
+      <div class="card" style="padding:16px;text-align:center;"><div style="font-size:.72rem;color:var(--silver);margin-bottom:4px;">Visor 3D desktop</div><div style="font-size:1.8rem;font-weight:900;color:var(--white);">60fps</div><div style="font-size:.72rem;color:var(--silver);">30fps en mobile</div></div>
+      <div class="card" style="padding:16px;text-align:center;"><div style="font-size:.72rem;color:var(--silver);margin-bottom:4px;">API response</div><div style="font-size:1.8rem;font-weight:900;color:var(--white);">&lt;200ms</div><div style="font-size:.72rem;color:var(--silver);">P50 de latencia</div></div>
+      <div class="card" style="padding:16px;text-align:center;"><div style="font-size:.72rem;color:var(--silver);margin-bottom:4px;">Accesibilidad</div><div style="font-size:1.8rem;font-weight:900;color:var(--white);">WCAG AA</div><div style="font-size:.72rem;color:var(--silver);">Contraste 4.5:1</div></div>
+      <div class="card" style="padding:16px;text-align:center;"><div style="font-size:.72rem;color:var(--silver);margin-bottom:4px;">Break-even</div><div style="font-size:1.8rem;font-weight:900;color:var(--white);">2-3</div><div style="font-size:.72rem;color:var(--silver);">ventas/mes (150€ ticket)</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S17 · ROADMAP -->
+<div class="slide bg-black">
+  <div style="width:100%;max-width:860px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div class="slide-label">Roadmap</div>
+      <h2>Del MVP al producto</h2>
+      <div class="accent-line"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="tl-row"><div class="tl-dot">M1</div><div class="tl-content"><h3>MVP — Core E-commerce <span class="time-badge" style="font-size:.65rem;vertical-align:middle;">En desarrollo</span></h3><p>Catálogo, configurador 3D, checkout Stripe, panel admin, i18n ES/EN, RGPD. Primera venta real.</p></div></div>
+      <div class="tl-row"><div class="tl-dot gold">M2</div><div class="tl-content"><h3>Optimización — Conversión</h3><p>PayPal + Bizum, cupones/descuentos, A/B testing básico, mejoras SEO y performance.</p></div></div>
+      <div class="tl-row"><div class="tl-dot blue">M3</div><div class="tl-content"><h3>Engagement — Retención</h3><p>Newsletter, blog SEO, reviews de productos, programa de puntos, wishlist.</p></div></div>
+      <div class="tl-row"><div class="tl-dot grey">M4+</div><div class="tl-content"><h3>Escala — Crecimiento</h3><p>Chat en vivo, integración transportistas, app móvil, programa de afiliados, analytics avanzado.</p></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S18 · DESAFÍOS -->
+<div class="slide bg-carbon">
+  <div style="width:100%;max-width:940px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div class="slide-label">Desafíos</div>
+      <h2>Obstáculos superados durante el MVP</h2>
+      <div class="accent-line"></div>
+      <p style="margin-top:8px;">Parte del valor del proyecto fue enfrentarse a tecnologías y servicios completamente nuevos.</p>
+    </div>
+    <div class="g2">
+      <div class="card red">
+        <div class="card-icon">🧠</div>
+        <h3>Tecnologías desconocidas</h3>
+        <p style="margin-bottom:14px;">Primera vez trabajando con el stack de frontend. Aprender y construir en paralelo fue un reto constante que la IA ayudó a acelerar.</p>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:7px;padding:7px 12px;"><span style="color:var(--red);">▸</span><span style="font-size:.82rem;color:var(--white);">Next.js 16 y App Router</span></div>
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:7px;padding:7px 12px;"><span style="color:var(--red);">▸</span><span style="font-size:.82rem;color:var(--white);">React 19 y su ecosistema</span></div>
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:7px;padding:7px 12px;"><span style="color:var(--red);">▸</span><span style="font-size:.82rem;color:var(--white);">React Three Fiber para 3D en el navegador</span></div>
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:7px;padding:7px 12px;"><span style="color:var(--red);">▸</span><span style="font-size:.82rem;color:var(--white);">TypeScript en un proyecto de escala real</span></div>
+        </div>
+      </div>
+      <div class="card gold">
+        <div class="card-icon">☁️</div>
+        <h3>Nuevos proveedores de servicios</h3>
+        <p style="margin-bottom:14px;">Primera integración real con plataformas cloud modernas. Cada servicio tenía su curva de aprendizaje y peculiaridades.</p>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:7px;padding:7px 12px;"><span style="color:var(--gold);">▸</span><span style="font-size:.82rem;color:var(--white);">Vercel — despliegue y preview environments</span></div>
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:7px;padding:7px 12px;"><span style="color:var(--gold);">▸</span><span style="font-size:.82rem;color:var(--white);">Railway — backend + base de datos en producción</span></div>
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:7px;padding:7px 12px;"><span style="color:var(--gold);">▸</span><span style="font-size:.82rem;color:var(--white);">Resend — emails transaccionales con plantillas</span></div>
+          <div style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.04);border-radius:7px;padding:7px 12px;"><span style="color:var(--gold);">▸</span><span style="font-size:.82rem;color:var(--white);">Stripe — pagos, webhooks y SCA compliance</span></div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:18px;" class="info-box">
+      <p>La IA fue clave para reducir la curva de aprendizaje: generó ejemplos concretos, explicó patrones y resolvió errores en el contexto exacto del proyecto, <strong>sin salir del flujo de desarrollo</strong>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- S19 · ESTADO REAL DEL MVP -->
+<div class="slide bg-black">
+  <div style="width:100%;max-width:960px;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div class="slide-label">Estado Real del MVP</div>
+      <h2>¿Qué se completó realmente?</h2>
+      <div class="accent-line"></div>
+    </div>
+    <div class="g3" style="gap:16px;">
+
+      <!-- Completados -->
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <span style="font-size:1.1rem;">✅</span>
+          <h3 style="color:var(--green);font-size:.85rem;">Completados — 34 RF</h3>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px;">
+          <span class="pill green">RF-001</span><span class="pill green">RF-002</span><span class="pill green">RF-003</span><span class="pill green">RF-004</span><span class="pill green">RF-005</span><span class="pill green">RF-006</span><span class="pill green">RF-007</span><span class="pill green">RF-009</span><span class="pill green">RF-010</span><span class="pill green">RF-011</span><span class="pill green">RF-012</span><span class="pill green">RF-013</span><span class="pill green">RF-014</span><span class="pill green">RF-015</span><span class="pill green">RF-017</span><span class="pill green">RF-019</span><span class="pill green">RF-020</span><span class="pill green">RF-021</span><span class="pill green">RF-022</span><span class="pill green">RF-023</span><span class="pill green">RF-024</span><span class="pill green">RF-025</span><span class="pill green">RF-026</span><span class="pill green">RF-027</span><span class="pill green">RF-029</span><span class="pill green">RF-030</span><span class="pill green">RF-031</span><span class="pill green">RF-033</span><span class="pill green">RF-036</span><span class="pill green">RF-037</span><span class="pill green">RF-038</span><span class="pill green">RF-039</span><span class="pill green">RF-041</span><span class="pill green">RF-042</span>
+        </div>
+      </div>
+
+      <!-- Parciales + No implementados -->
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="card" style="padding:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="font-size:1.1rem;">🔶</span>
+            <h3 style="color:var(--gold);font-size:.85rem;">Parciales — 2 RF</h3>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div style="background:rgba(201,175,137,.08);border:1px solid rgba(201,175,137,.3);border-radius:8px;padding:7px 12px;font-size:.78rem;flex:1;">
+              <span style="color:var(--gold);font-weight:700;">RF-032</span><br/>
+              <span style="color:var(--silver);">Gestión automática inventario</span>
+            </div>
+            <div style="background:rgba(201,175,137,.08);border:1px solid rgba(201,175,137,.3);border-radius:8px;padding:7px 12px;font-size:.78rem;flex:1;">
+              <span style="color:var(--gold);font-weight:700;">RF-034</span><br/>
+              <span style="color:var(--silver);">Tiempo fabricación según stock</span>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="font-size:1.1rem;">❌</span>
+            <h3 style="color:var(--smoke);font-size:.85rem;">Pendientes — 7 RF</h3>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:5px;">
+            <div style="display:flex;justify-content:space-between;font-size:.76rem;padding:3px 0;border-bottom:1px solid #222;"><span style="color:var(--smoke);">RF-008 · 2FA administrador</span><span class="pill" style="font-size:.62rem;padding:1px 6px;">Should</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:.76rem;padding:3px 0;border-bottom:1px solid #222;"><span style="color:var(--smoke);">RF-018 · Tiempo fabricación estimado</span><span class="pill" style="font-size:.62rem;padding:1px 6px;">Should</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:.76rem;padding:3px 0;border-bottom:1px solid #222;"><span style="color:var(--smoke);">RF-035 · Dashboard métricas</span><span class="pill red" style="font-size:.62rem;padding:1px 6px;">Must</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:.76rem;padding:3px 0;border-bottom:1px solid #222;"><span style="color:var(--smoke);">RF-040 · Gestión usuarios admin</span><span class="pill" style="font-size:.62rem;padding:1px 6px;">Could</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:.76rem;padding:3px 0;border-bottom:1px solid #222;"><span style="color:var(--smoke);">RF-043 · Páginas legales</span><span class="pill red" style="font-size:.62rem;padding:1px 6px;">Must</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:.76rem;padding:3px 0;border-bottom:1px solid #222;"><span style="color:var(--smoke);">RF-044 · Cookie consent RGPD</span><span class="pill red" style="font-size:.62rem;padding:1px 6px;">Must</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:.76rem;padding:3px 0;"><span style="color:var(--smoke);">RF-045 · Protección anti-bots</span><span class="pill" style="font-size:.62rem;padding:1px 6px;">Should</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen visual -->
+      <div style="display:flex;flex-direction:column;gap:12px;justify-content:center;">
+        <div style="background:var(--graphite);border-radius:12px;padding:18px;text-align:center;">
+          <div style="font-size:2.6rem;font-weight:900;color:var(--green);line-height:1;">34</div>
+          <div style="font-size:.75rem;color:var(--green);font-weight:700;margin-top:2px;">Completados</div>
+          <div style="font-size:.7rem;color:var(--silver);margin-top:3px;">de 43 totales del MVP</div>
+        </div>
+        <div style="background:var(--graphite);border-radius:12px;padding:18px;text-align:center;">
+          <div style="font-size:2.6rem;font-weight:900;color:var(--gold);line-height:1;">2</div>
+          <div style="font-size:.75rem;color:var(--gold);font-weight:700;margin-top:2px;">Parciales</div>
+          <div style="font-size:.7rem;color:var(--silver);margin-top:3px;">funcionalidad base OK</div>
+        </div>
+        <div style="background:var(--graphite);border-radius:12px;padding:18px;text-align:center;">
+          <div style="font-size:2.6rem;font-weight:900;color:var(--smoke);line-height:1;">7</div>
+          <div style="font-size:.75rem;color:var(--smoke);font-weight:700;margin-top:2px;">Pendientes</div>
+          <div style="font-size:.7rem;color:var(--silver);margin-top:3px;">próxima iteración</div>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(74,222,128,.1),rgba(201,175,137,.05));border:1px solid rgba(74,222,128,.25);border-radius:12px;padding:14px;text-align:center;">
+          <div style="font-size:2.4rem;font-weight:900;color:var(--green);line-height:1;">79%</div>
+          <div style="font-size:.75rem;color:var(--silver);margin-top:2px;">completitud del MVP</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- S20 · REFLEXIÓN -->
+<div class="slide bg-carbon">
+  <div style="width:100%;max-width:920px;">
+    <div style="text-align:center;margin-bottom:24px;">
+      <div class="slide-label">Reflexión Final</div>
+      <h2>¿Qué cambió realmente<br/>con la IA?</h2>
+      <div class="accent-line gold"></div>
+    </div>
+    <div class="g2" style="margin-bottom:20px;">
+      <div>
+        <h3 style="color:var(--smoke);margin-bottom:14px;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;">❌ Sin IA · Enfoque tradicional</h3>
+        <ul style="display:flex;flex-direction:column;gap:9px;">
+          <li style="color:var(--smoke);font-size:.85rem;">Semanas de análisis y documentación de requisitos</li>
+          <li style="color:var(--smoke);font-size:.85rem;">Arquitectura basada únicamente en experiencia previa</li>
+          <li style="color:var(--smoke);font-size:.85rem;">Código escrito línea a línea por el desarrollador</li>
+          <li style="color:var(--smoke);font-size:.85rem;">Tests como tarea adicional y frecuentemente incompleta</li>
+          <li style="color:var(--smoke);font-size:.85rem;">Equipo de 3-5 personas para el mismo alcance</li>
+          <li style="color:var(--smoke);font-size:.85rem;">Timeline: 3-4 meses mínimo</li>
+        </ul>
+      </div>
+      <div>
+        <h3 style="color:var(--gold);margin-bottom:14px;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;">✓ Con IA · Nuevo paradigma</h3>
+        <ul style="display:flex;flex-direction:column;gap:9px;">
+          <li style="font-size:.85rem;">Requisitos completos y estructurados en horas</li>
+          <li style="font-size:.85rem;">Alternativas evaluadas con comparativas objetivas</li>
+          <li style="font-size:.85rem;">El dev <strong>revisa y dirige</strong>, la IA propone y ejecuta</li>
+          <li style="font-size:.85rem;">Tests derivados automáticamente de criterios de aceptación</li>
+          <li style="font-size:.85rem;"><strong style="color:var(--gold);">1 desarrollador + IA = equipo completo</strong></li>
+          <li style="font-size:.85rem;">Timeline: <strong style="color:var(--gold);">1 mes para MVP funcional</strong></li>
+        </ul>
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,rgba(229,57,53,.08),rgba(201,175,137,.08));border:1px solid rgba(201,175,137,.25);border-radius:12px;padding:18px 26px;text-align:center;">
+      <p style="font-size:.98rem;color:var(--white);">La IA no reemplazó al desarrollador. <strong style="color:var(--gold);">Multiplicó su capacidad</strong>, actuando como analista, arquitecto, pair programmer y QA simultáneamente. El rol del dev evolucionó: de ejecutor a <strong style="color:var(--red);">estratega y director técnico</strong>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- S21 · CIERRE -->
+<div class="slide bg-black">
+  <div style="text-align:center;max-width:720px;">
+    <div class="slide-label">Gracias</div>
+    <h1 style="font-size:3.4rem;margin-bottom:4px;">SIM<span style="color:var(--red)">RACING</span><br/>SHOP</h1>
+    <div class="accent-line gold wide"></div>
+    <p class="hero-sub" style="margin-bottom:28px;">Un proyecto donde la IA no fue una opción, sino la <span style="color:var(--gold);">estrategia de desarrollo</span>.</p>
+    <div style="display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;">
+      <div class="stat"><div class="num">1</div><div class="unit">mes</div><div class="desc">de desarrollo</div></div>
+      <div class="stat"><div class="num">70+</div><div class="unit">requisitos</div><div class="desc">documentados</div></div>
+      <div class="stat"><div class="num">4</div><div class="unit">fases</div><div class="desc">con IA integrada</div></div>
+      <div class="stat"><div class="num">79%</div><div class="unit">MVP</div><div class="desc">completitud alcanzada</div></div>
+    </div>
+    <div class="ai-badge" style="font-size:.75rem;">Desarrollado con IA como copiloto principal</div>
+  </div>
+</div>
+
+</div><!-- /deck -->
+
+<div id="nav">
+  <button onclick="changeSlide(-1)">←</button>
+  <div class="dot-nav" id="dot-nav"></div>
+  <span id="slide-info">1 / 21</span>
+  <button onclick="changeSlide(1)">→</button>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  let cur = 0;
+
+  function buildDots(){
+    const nav = document.getElementById('dot-nav');
+    slides.forEach((_,i)=>{
+      const d = document.createElement('div');
+      d.className = 'dot' + (i === 0 ? ' active' : '');
+      d.onclick = () => goTo(i);
+      nav.appendChild(d);
+    });
+  }
+
+  function goTo(n){
+    slides[cur].classList.remove('active');
+    document.querySelectorAll('.dot')[cur].classList.remove('active');
+    cur = (n + slides.length) % slides.length;
+    slides[cur].classList.add('active');
+    document.querySelectorAll('.dot')[cur].classList.add('active');
+    document.getElementById('slide-info').textContent = (cur + 1) + ' / ' + slides.length;
+  }
+
+  function changeSlide(dir){ goTo(cur + dir); }
+
+  document.addEventListener('keydown', e => {
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' '){e.preventDefault();changeSlide(1);}
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();changeSlide(-1);}
+  });
+
+  buildDots();
+</script>
+</body>
+</html>
