@@ -363,6 +363,48 @@ namespace SimRacingShop.API.Controllers
             return Ok(MapToComponentOptionDto(option, component.Sku));
         }
 
+        // ── Category endpoints ────────────────────────────────────────────────
+
+        /// <summary>
+        /// Listar categorías asignadas a un producto
+        /// </summary>
+        [HttpGet("{id:guid}/categories")]
+        [ProducesResponseType(typeof(List<ProductCategoryDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetProductCategories(Guid id)
+        {
+            var product = await _adminRepository.GetByIdAsync(id);
+            if (product == null)
+                return NotFound(new { message = "Producto no encontrado" });
+
+            var categories = await _adminRepository.GetCategoriesAsync(id);
+            var result = categories.Select(c => MapToCategoryDto(c)).ToList();
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Reemplazar las categorías de un producto (enviar lista completa de IDs)
+        /// </summary>
+        [HttpPut("{id:guid}/categories")]
+        [ProducesResponseType(typeof(List<ProductCategoryDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SetProductCategories(Guid id, [FromBody] SetProductCategoriesDto dto)
+        {
+            _logger.LogInformation("Setting categories for product: {ProductId}", id);
+
+            var product = await _adminRepository.GetByIdAsync(id);
+            if (product == null)
+                return NotFound(new { message = "Producto no encontrado" });
+
+            await _adminRepository.SetCategoriesAsync(id, dto.CategoryIds);
+
+            var categories = await _adminRepository.GetCategoriesAsync(id);
+            var result = categories.Select(c => MapToCategoryDto(c)).ToList();
+
+            _logger.LogInformation("Categories updated for product: {ProductId}, count: {Count}", id, result.Count);
+            return Ok(result);
+        }
+
         /// <summary>
         /// Desvincular un componente de un producto
         /// </summary>
@@ -411,6 +453,18 @@ namespace SimRacingShop.API.Controllers
             {
                 _logger.LogWarning(ex, "Could not invalidate product list cache");
             }
+        }
+
+        private static ProductCategoryDto MapToCategoryDto(Category category)
+        {
+            var translation = category.Translations.FirstOrDefault(t => t.Locale == "es")
+                              ?? category.Translations.FirstOrDefault();
+            return new ProductCategoryDto
+            {
+                Id = category.Id,
+                Name = translation?.Name ?? string.Empty,
+                Slug = translation?.Slug ?? string.Empty,
+            };
         }
 
         private static ProductComponentOptionAdminDto MapToComponentOptionDto(

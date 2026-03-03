@@ -19,5 +19,9 @@ namespace SimRacingShop.Core.Repositories
         Task<ProductComponentOption> AddComponentOptionAsync(ProductComponentOption option);
         Task UpdateComponentOptionAsync(ProductComponentOption option);
         Task DeleteComponentOptionAsync(ProductComponentOption option);
+
+        // Category management
+        Task<List<Category>> GetCategoriesAsync(Guid productId);
+        Task SetCategoriesAsync(Guid productId, List<Guid> categoryIds);
     }
 }

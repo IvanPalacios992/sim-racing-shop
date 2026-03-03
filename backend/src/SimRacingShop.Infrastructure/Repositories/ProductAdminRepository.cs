@@ -115,5 +115,38 @@ namespace SimRacingShop.Infrastructure.Repositories
             _context.ProductComponentOptions.Remove(option);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<Category>> GetCategoriesAsync(Guid productId)
+        {
+            var product = await _context.Products
+                .Include(p => p.Categories)
+                    .ThenInclude(c => c.Translations)
+                .FirstOrDefaultAsync(p => p.Id == productId);
+
+            return product?.Categories.ToList() ?? new List<Category>();
+        }
+
+        public async Task SetCategoriesAsync(Guid productId, List<Guid> categoryIds)
+        {
+            var product = await _context.Products
+                .Include(p => p.Categories)
+                .FirstOrDefaultAsync(p => p.Id == productId);
+
+            if (product == null) return;
+
+            product.Categories.Clear();
+
+            if (categoryIds.Count > 0)
+            {
+                var categories = await _context.Categories
+                    .Where(c => categoryIds.Contains(c.Id))
+                    .ToListAsync();
+
+                foreach (var cat in categories)
+                    product.Categories.Add(cat);
+            }
+
+            await _context.SaveChangesAsync();
+        }
     }
 }

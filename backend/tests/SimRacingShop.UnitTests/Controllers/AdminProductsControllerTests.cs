@@ -1104,4 +1104,204 @@ public class AdminProductsControllerTests
     }
 
     #endregion
+
+    #region GetProductCategories Tests
+
+    [Fact]
+    public async Task GetProductCategories_ProductoExistente_Devuelve200ConLista()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var categoryId = Guid.NewGuid();
+        var category = new Category
+        {
+            Id = categoryId,
+            IsActive = true,
+            Translations = new List<CategoryTranslation>
+            {
+                new() { Id = Guid.NewGuid(), CategoryId = categoryId, Locale = "es", Name = "Volantes", Slug = "volantes" }
+            }
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.GetCategoriesAsync(product.Id))
+            .ReturnsAsync(new List<Category> { category });
+
+        // Act
+        var result = await _controller.GetProductCategories(product.Id);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var list = ok.Value.Should().BeAssignableTo<List<ProductCategoryDto>>().Subject;
+        list.Should().HaveCount(1);
+        list[0].Id.Should().Be(categoryId);
+        list[0].Name.Should().Be("Volantes");
+        list[0].Slug.Should().Be("volantes");
+    }
+
+    [Fact]
+    public async Task GetProductCategories_ProductoNoExistente_Devuelve404()
+    {
+        // Arrange
+        _adminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+
+        // Act
+        var result = await _controller.GetProductCategories(Guid.NewGuid());
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetProductCategories_ProductoSinCategorias_Devuelve200ConListaVacia()
+    {
+        // Arrange
+        var product = BuildProduct();
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.GetCategoriesAsync(product.Id))
+            .ReturnsAsync(new List<Category>());
+
+        // Act
+        var result = await _controller.GetProductCategories(product.Id);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var list = ok.Value.Should().BeAssignableTo<List<ProductCategoryDto>>().Subject;
+        list.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetProductCategories_UsaTraduccionEs_CuandoExiste()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var categoryId = Guid.NewGuid();
+        var category = new Category
+        {
+            Id = categoryId,
+            IsActive = true,
+            Translations = new List<CategoryTranslation>
+            {
+                new() { Id = Guid.NewGuid(), CategoryId = categoryId, Locale = "en", Name = "Wheels", Slug = "wheels" },
+                new() { Id = Guid.NewGuid(), CategoryId = categoryId, Locale = "es", Name = "Volantes", Slug = "volantes" }
+            }
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.GetCategoriesAsync(product.Id))
+            .ReturnsAsync(new List<Category> { category });
+
+        // Act
+        var result = await _controller.GetProductCategories(product.Id);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var list = ok.Value.Should().BeAssignableTo<List<ProductCategoryDto>>().Subject;
+        list[0].Name.Should().Be("Volantes");
+    }
+
+    #endregion
+
+    #region SetProductCategories Tests
+
+    [Fact]
+    public async Task SetProductCategories_ProductoExistente_Devuelve200ConCategoriasActualizadas()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var categoryId = Guid.NewGuid();
+        var dto = new SetProductCategoriesDto { CategoryIds = new List<Guid> { categoryId } };
+
+        var updatedCategory = new Category
+        {
+            Id = categoryId,
+            IsActive = true,
+            Translations = new List<CategoryTranslation>
+            {
+                new() { Id = Guid.NewGuid(), CategoryId = categoryId, Locale = "es", Name = "Pedales", Slug = "pedales" }
+            }
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.SetCategoriesAsync(product.Id, dto.CategoryIds))
+            .Returns(Task.CompletedTask);
+        _adminRepoMock.Setup(r => r.GetCategoriesAsync(product.Id))
+            .ReturnsAsync(new List<Category> { updatedCategory });
+
+        // Act
+        var result = await _controller.SetProductCategories(product.Id, dto);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var list = ok.Value.Should().BeAssignableTo<List<ProductCategoryDto>>().Subject;
+        list.Should().HaveCount(1);
+        list[0].Name.Should().Be("Pedales");
+    }
+
+    [Fact]
+    public async Task SetProductCategories_ProductoNoExistente_Devuelve404()
+    {
+        // Arrange
+        var dto = new SetProductCategoriesDto { CategoryIds = new List<Guid> { Guid.NewGuid() } };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Product?)null);
+
+        // Act
+        var result = await _controller.SetProductCategories(Guid.NewGuid(), dto);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task SetProductCategories_LlamaASetCategoriesAsync()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var catId1 = Guid.NewGuid();
+        var catId2 = Guid.NewGuid();
+        var dto = new SetProductCategoriesDto { CategoryIds = new List<Guid> { catId1, catId2 } };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.SetCategoriesAsync(product.Id, It.IsAny<List<Guid>>()))
+            .Returns(Task.CompletedTask);
+        _adminRepoMock.Setup(r => r.GetCategoriesAsync(product.Id))
+            .ReturnsAsync(new List<Category>());
+
+        // Act
+        await _controller.SetProductCategories(product.Id, dto);
+
+        // Assert
+        _adminRepoMock.Verify(r => r.SetCategoriesAsync(product.Id,
+            It.Is<List<Guid>>(ids => ids.Count == 2 && ids.Contains(catId1) && ids.Contains(catId2))),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task SetProductCategories_ListaVacia_EliminaTodasLasCategorias()
+    {
+        // Arrange
+        var product = BuildProduct();
+        var dto = new SetProductCategoriesDto { CategoryIds = new List<Guid>() };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(product.Id)).ReturnsAsync(product);
+        _adminRepoMock.Setup(r => r.SetCategoriesAsync(product.Id, It.IsAny<List<Guid>>()))
+            .Returns(Task.CompletedTask);
+        _adminRepoMock.Setup(r => r.GetCategoriesAsync(product.Id))
+            .ReturnsAsync(new List<Category>());
+
+        // Act
+        var result = await _controller.SetProductCategories(product.Id, dto);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var list = ok.Value.Should().BeAssignableTo<List<ProductCategoryDto>>().Subject;
+        list.Should().BeEmpty();
+
+        _adminRepoMock.Verify(r => r.SetCategoriesAsync(product.Id,
+            It.Is<List<Guid>>(ids => ids.Count == 0)), Times.Once);
+    }
+
+    #endregion
 }

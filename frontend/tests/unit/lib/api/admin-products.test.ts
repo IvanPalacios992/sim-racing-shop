@@ -353,4 +353,69 @@ describe("adminProductsApi", () => {
       expect(result).toBeUndefined();
     });
   });
+
+  // ── getCategories ─────────────────────────────────────────────────────────
+
+  describe("getCategories", () => {
+    const mockCategories = [
+      { id: "cat-1", name: "Volantes", slug: "volantes" },
+      { id: "cat-2", name: "Pedales", slug: "pedales" },
+    ];
+
+    it("calls GET /admin/products/{id}/categories", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: mockCategories });
+
+      await adminProductsApi.getCategories("prod-1");
+
+      expect(apiClient.get).toHaveBeenCalledWith("/admin/products/prod-1/categories");
+    });
+
+    it("returns the response array", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: mockCategories });
+
+      const result = await adminProductsApi.getCategories("prod-1");
+
+      expect(result).toEqual(mockCategories);
+    });
+
+    it("returns empty array when product has no categories", async () => {
+      vi.mocked(apiClient.get).mockResolvedValue({ data: [] });
+
+      const result = await adminProductsApi.getCategories("prod-1");
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  // ── setCategories ─────────────────────────────────────────────────────────
+
+  describe("setCategories", () => {
+    const mockCategories = [{ id: "cat-1", name: "Volantes", slug: "volantes" }];
+
+    it("calls PUT /admin/products/{id}/categories with the dto", async () => {
+      vi.mocked(apiClient.put).mockResolvedValue({ data: mockCategories });
+
+      const dto = { categoryIds: ["cat-1", "cat-2"] };
+      await adminProductsApi.setCategories("prod-1", dto);
+
+      expect(apiClient.put).toHaveBeenCalledWith("/admin/products/prod-1/categories", dto);
+    });
+
+    it("returns the updated categories array", async () => {
+      vi.mocked(apiClient.put).mockResolvedValue({ data: mockCategories });
+
+      const result = await adminProductsApi.setCategories("prod-1", { categoryIds: ["cat-1"] });
+
+      expect(result).toEqual(mockCategories);
+    });
+
+    it("calls PUT with empty categoryIds to remove all categories", async () => {
+      vi.mocked(apiClient.put).mockResolvedValue({ data: [] });
+
+      const dto = { categoryIds: [] };
+      await adminProductsApi.setCategories("prod-1", dto);
+
+      expect(apiClient.put).toHaveBeenCalledWith("/admin/products/prod-1/categories", dto);
+    });
+  });
 });

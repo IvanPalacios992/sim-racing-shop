@@ -7,6 +7,8 @@ import type {
   AdminUpdateProductTranslationsDto,
   ProductComponentOptionAdminDto,
   UpsertProductComponentOptionDto,
+  ProductCategoryItem,
+  SetProductCategoriesDto,
 } from "@/types/admin";
 
 export const adminProductsApi = {
@@ -76,5 +78,15 @@ export const adminProductsApi = {
 
   async deleteComponentOption(id: string, optionId: string): Promise<void> {
     await apiClient.delete(`/admin/products/${id}/component-options/${optionId}`);
+  },
+
+  async getCategories(productId: string): Promise<ProductCategoryItem[]> {
+    const response = await apiClient.get<ProductCategoryItem[]>(`/admin/products/${productId}/categories`);
+    return response.data;
+  },
+
+  async setCategories(productId: string, dto: SetProductCategoriesDto): Promise<ProductCategoryItem[]> {
+    const response = await apiClient.put<ProductCategoryItem[]>(`/admin/products/${productId}/categories`, dto);
+    return response.data;
   },
 };

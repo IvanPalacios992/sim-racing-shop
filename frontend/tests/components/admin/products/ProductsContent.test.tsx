@@ -18,6 +18,12 @@ vi.mock("@/lib/api/admin-components", () => ({
   },
 }));
 
+vi.mock("@/lib/api/admin-categories", () => ({
+  adminCategoriesApi: {
+    list: vi.fn(),
+  },
+}));
+
 vi.mock("@/components/admin/products/ProductModal", () => ({
   default: ({ isOpen }: { isOpen: boolean }) =>
     isOpen
@@ -28,6 +34,7 @@ vi.mock("@/components/admin/products/ProductModal", () => ({
 import ProductsContent from "@/components/admin/products/ProductsContent";
 import { adminProductsApi } from "@/lib/api/admin-products";
 import { adminComponentsApi } from "@/lib/api/admin-components";
+import { adminCategoriesApi } from "@/lib/api/admin-categories";
 
 const mockProducts: ProductListItem[] = [
   {
@@ -68,6 +75,7 @@ const mockProducts: ProductListItem[] = [
 
 const emptyProductsPaginated = { items: [] as ProductListItem[], totalCount: 0, page: 1, pageSize: 10, totalPages: 0 };
 const emptyComponentsPaginated = { items: [], totalCount: 0, page: 1, pageSize: 200, totalPages: 0 };
+const emptyCategoriesPaginated = { items: [], totalCount: 0, page: 1, pageSize: 200, totalPages: 0 };
 const paginatedProducts = (items: ProductListItem[]) => ({
   items,
   totalCount: items.length,
@@ -83,6 +91,7 @@ describe("ProductsContent", () => {
     useAuthStore.getState().setAuth(createMockAuthResponse());
     useAuthStore.setState({ _hasHydrated: true });
     vi.mocked(adminComponentsApi.list).mockResolvedValue(emptyComponentsPaginated);
+    vi.mocked(adminCategoriesApi.list).mockResolvedValue(emptyCategoriesPaginated);
   });
 
   describe("loading", () => {
@@ -110,6 +119,16 @@ describe("ProductsContent", () => {
 
       await waitFor(() => {
         expect(adminProductsApi.list).toHaveBeenCalledWith("es", 1, 10);
+      });
+    });
+
+    it("carga categorías disponibles junto con productos y componentes", async () => {
+      vi.mocked(adminProductsApi.list).mockResolvedValue(emptyProductsPaginated);
+
+      render(<ProductsContent />);
+
+      await waitFor(() => {
+        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 200);
       });
     });
   });
