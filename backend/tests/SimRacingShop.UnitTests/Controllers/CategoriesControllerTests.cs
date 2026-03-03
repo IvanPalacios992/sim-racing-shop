@@ -104,6 +104,22 @@ public class CategoriesControllerTests
         _repositoryMock.Verify(x => x.GetCategoriesAsync(filter), Times.Once);
     }
 
+    [Fact]
+    public async Task GetCategories_WithSearchInFilter_PassesFilterWithSearchToRepository()
+    {
+        // Arrange
+        var filter = new CategoryFilterDto { Page = 1, PageSize = 10, Locale = "es", Search = "Volante" };
+
+        _repositoryMock.Setup(x => x.GetCategoriesAsync(filter))
+            .ReturnsAsync(new PaginatedResultDto<CategoryListItemDto>());
+
+        // Act
+        await _controller.GetCategories(filter);
+
+        // Assert
+        _repositoryMock.Verify(x => x.GetCategoriesAsync(filter), Times.Once);
+    }
+
     #endregion
 
     #region GetCategoryById Tests

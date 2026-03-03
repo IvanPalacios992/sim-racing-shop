@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, waitFor } from "../../../helpers/render";
+import { render, screen, waitFor, within } from "../../../helpers/render";
 import userEvent from "@testing-library/user-event";
 import { useAuthStore } from "@/stores/auth-store";
 import { resetAuthStore, createMockAuthResponse } from "../../../helpers/auth-store";
@@ -84,7 +84,7 @@ describe("CategoriesContent", () => {
       render(<CategoriesContent />);
 
       await waitFor(() => {
-        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 10);
+        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 10, "");
       });
     });
   });
@@ -280,7 +280,7 @@ describe("CategoriesContent", () => {
       await user.click(screen.getByRole("button", { name: /Siguiente/ }));
 
       await waitFor(() => {
-        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 2, 10);
+        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 2, 10, "");
       });
     });
 
@@ -296,12 +296,12 @@ describe("CategoriesContent", () => {
 
       await waitFor(() => expect(screen.getByRole("button", { name: /Siguiente/ })).toBeInTheDocument());
       await user.click(screen.getByRole("button", { name: /Siguiente/ }));
-      await waitFor(() => expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 2, 10));
+      await waitFor(() => expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 2, 10, ""));
 
       await user.click(screen.getByRole("button", { name: /Anterior/ }));
 
       await waitFor(() => {
-        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 10);
+        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 10, "");
       });
     });
   });
@@ -318,6 +318,102 @@ describe("CategoriesContent", () => {
       await user.click(screen.getByText("Nueva categoría"));
 
       expect(screen.getByTestId("category-modal")).toBeInTheDocument();
+    });
+  });
+
+  describe("buscador", () => {
+    it("muestra el input de búsqueda con el placeholder correcto", async () => {
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<CategoriesContent />);
+
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText("Buscar por nombre...")).toBeInTheDocument();
+      });
+    });
+
+    it("el input de búsqueda es visible durante la carga", () => {
+      vi.mocked(adminCategoriesApi.list).mockImplementation(() => new Promise(() => {}));
+
+      render(<CategoriesContent />);
+
+      expect(screen.getByPlaceholderText("Buscar por nombre...")).toBeInTheDocument();
+    });
+
+    it("al escribir llama a la API con el término de búsqueda tras el debounce", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<CategoriesContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre..."));
+
+      await user.type(screen.getByPlaceholderText("Buscar por nombre..."), "Vol");
+
+      await waitFor(() => {
+        expect(adminCategoriesApi.list).toHaveBeenCalledWith("es", 1, 10, "Vol");
+      });
+    });
+
+    it("el botón limpiar aparece al escribir en el input", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<CategoriesContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre..."));
+
+      const input = screen.getByPlaceholderText("Buscar por nombre...");
+      await user.type(input, "Vol");
+
+      expect(within(input.closest("div") as HTMLElement).getByRole("button")).toBeInTheDocument();
+    });
+
+    it("al hacer clic en el botón limpiar se vacía el input", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<CategoriesContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre..."));
+
+      const input = screen.getByPlaceholderText("Buscar por nombre...");
+      await user.type(input, "Vol");
+
+      const clearButton = within(input.closest("div") as HTMLElement).getByRole("button");
+      await user.click(clearButton);
+
+      expect(input).toHaveValue("");
+    });
+
+    it("muestra mensaje dinámico cuando la búsqueda no devuelve resultados", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<CategoriesContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre..."));
+
+      await user.type(screen.getByPlaceholderText("Buscar por nombre..."), "xyz");
+
+      await waitFor(() => {
+        expect(screen.getByText('No se encontraron resultados para "xyz"')).toBeInTheDocument();
+      });
+    });
+
+    it("al limpiar la búsqueda vuelve al mensaje de empty state estándar", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminCategoriesApi.list).mockResolvedValue(emptyPaginated);
+
+      render(<CategoriesContent />);
+      await waitFor(() => screen.getByPlaceholderText("Buscar por nombre..."));
+
+      const input = screen.getByPlaceholderText("Buscar por nombre...");
+      await user.type(input, "xyz");
+      await waitFor(() => screen.getByText('No se encontraron resultados para "xyz"'));
+
+      const clearButton = within(input.closest("div") as HTMLElement).getByRole("button");
+      await user.click(clearButton);
+
+      await waitFor(() => {
+        expect(screen.getByText("No hay categorías creadas")).toBeInTheDocument();
+      });
     });
   });
 });

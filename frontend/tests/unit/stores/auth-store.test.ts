@@ -1,9 +1,12 @@
 import { useAuthStore } from "@/stores/auth-store";
+import { useCartStore } from "@/stores/cart-store";
 import { resetAuthStore, createMockAuthResponse } from "../../helpers/auth-store";
+import { createMockCart, resetCartStore } from "../../helpers/cart";
 
 describe("auth-store", () => {
   beforeEach(() => {
     resetAuthStore();
+    resetCartStore();
     localStorage.clear();
   });
 
@@ -68,6 +71,15 @@ describe("auth-store", () => {
       expect(state.refreshToken).toBeNull();
       expect(state.isAuthenticated).toBe(false);
       expect(state.isLoading).toBe(false);
+    });
+
+    it("vacía el carrito al cerrar sesión", () => {
+      useCartStore.setState({ cart: createMockCart() });
+
+      useAuthStore.getState().setAuth(createMockAuthResponse());
+      useAuthStore.getState().logout();
+
+      expect(useCartStore.getState().cart).toBeNull();
     });
   });
 

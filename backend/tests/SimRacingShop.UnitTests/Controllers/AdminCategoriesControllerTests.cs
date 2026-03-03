@@ -719,4 +719,251 @@ public class AdminCategoriesControllerTests
     }
 
     #endregion
+
+    #region DeleteCategory (sin imagen) Tests
+
+    [Fact]
+    public async Task DeleteCategory_WithNullImage_Returns204AndDoesNotCallFileStorage()
+    {
+        // Arrange — categoría sin imagen (Image == null)
+        var category = BuildCategory();
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(category.Id)).ReturnsAsync(category);
+        _adminRepoMock.Setup(r => r.DeleteAsync(category)).Returns(Task.CompletedTask);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.DeleteCategory(category.Id);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+        _fileStorageMock.Verify(f => f.DeleteFileAsync(It.IsAny<string>()), Times.Never);
+    }
+
+    #endregion
+
+    #region GetImage Tests
+
+    [Fact]
+    public async Task GetImage_WithExistingImage_ReturnsOkWithImageDto()
+    {
+        // Arrange
+        var category = BuildCategory();
+        var image = new CategoryImage
+        {
+            Id = Guid.NewGuid(),
+            CategoryId = category.Id,
+            ImageUrl = "https://example.com/cat.jpg",
+            AltText = "Imagen categoría"
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(category.Id)).ReturnsAsync(category);
+        _adminRepoMock.Setup(r => r.GetImageAsync(category.Id)).ReturnsAsync(image);
+
+        // Act
+        var result = await _controller.GetImage(category.Id);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var dto = ok.Value.Should().BeOfType<AdminCategoryImageDto>().Subject;
+        dto.ImageUrl.Should().Be("https://example.com/cat.jpg");
+        dto.AltText.Should().Be("Imagen categoría");
+    }
+
+    [Fact]
+    public async Task GetImage_WithNoImage_Returns404()
+    {
+        // Arrange
+        var category = BuildCategory();
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(category.Id)).ReturnsAsync(category);
+        _adminRepoMock.Setup(r => r.GetImageAsync(category.Id)).ReturnsAsync((CategoryImage?)null);
+
+        // Act
+        var result = await _controller.GetImage(category.Id);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task GetImage_WithNonExistentCategory_Returns404()
+    {
+        // Arrange
+        _adminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Category?)null);
+
+        // Act
+        var result = await _controller.GetImage(Guid.NewGuid());
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    #endregion
+
+    #region SetImageByUrl Tests
+
+    [Fact]
+    public async Task SetImageByUrl_WithExistingCategory_Returns200WithImage()
+    {
+        // Arrange
+        var category = BuildCategory();
+        var dto = new SetCategoryImageByUrlDto { ImageUrl = "https://example.com/cat.jpg", AltText = "Alt" };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(category.Id)).ReturnsAsync(category);
+        _adminRepoMock.Setup(r => r.SetImageByUrlAsync(It.IsAny<CategoryImage>()))
+            .ReturnsAsync((CategoryImage img) => img);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.SetImageByUrl(category.Id, dto);
+
+        // Assert
+        var ok = result.Should().BeOfType<OkObjectResult>().Subject;
+        var imageDto = ok.Value.Should().BeOfType<AdminCategoryImageDto>().Subject;
+        imageDto.ImageUrl.Should().Be("https://example.com/cat.jpg");
+        imageDto.AltText.Should().Be("Alt");
+    }
+
+    [Fact]
+    public async Task SetImageByUrl_WithNonExistentCategory_Returns404()
+    {
+        // Arrange
+        var dto = new SetCategoryImageByUrlDto { ImageUrl = "https://example.com/cat.jpg" };
+        _adminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Category?)null);
+
+        // Act
+        var result = await _controller.SetImageByUrl(Guid.NewGuid(), dto);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task SetImageByUrl_CallsSetImageByUrlAsyncWithCorrectData()
+    {
+        // Arrange
+        var category = BuildCategory();
+        var dto = new SetCategoryImageByUrlDto { ImageUrl = "https://example.com/cat.jpg", AltText = "Alt" };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(category.Id)).ReturnsAsync(category);
+        _adminRepoMock.Setup(r => r.SetImageByUrlAsync(It.IsAny<CategoryImage>()))
+            .ReturnsAsync((CategoryImage img) => img);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.SetImageByUrl(category.Id, dto);
+
+        // Assert
+        _adminRepoMock.Verify(r => r.SetImageByUrlAsync(It.Is<CategoryImage>(i =>
+            i.ImageUrl == "https://example.com/cat.jpg" &&
+            i.AltText == "Alt" &&
+            i.CategoryId == category.Id)), Times.Once);
+    }
+
+    [Fact]
+    public async Task SetImageByUrl_InvalidatesCategoryCache()
+    {
+        // Arrange
+        var category = BuildCategory();
+        var dto = new SetCategoryImageByUrlDto { ImageUrl = "https://example.com/cat.jpg" };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(category.Id)).ReturnsAsync(category);
+        _adminRepoMock.Setup(r => r.SetImageByUrlAsync(It.IsAny<CategoryImage>()))
+            .ReturnsAsync((CategoryImage img) => img);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.SetImageByUrl(category.Id, dto);
+
+        // Assert
+        _cacheMock.Verify(c => c.RemoveAsync(
+            It.Is<string>(k => k.Contains("categories:detail:")),
+            default), Times.AtLeastOnce);
+    }
+
+    #endregion
+
+    #region DeleteImage (category) Tests
+
+    [Fact]
+    public async Task DeleteCategoryImage_WithExistingImage_Returns204()
+    {
+        // Arrange
+        var category = BuildCategory();
+        var image = new CategoryImage
+        {
+            Id = Guid.NewGuid(),
+            CategoryId = category.Id,
+            ImageUrl = "https://example.com/cat.jpg"
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(category.Id)).ReturnsAsync(category);
+        _adminRepoMock.Setup(r => r.GetImageAsync(category.Id)).ReturnsAsync(image);
+        _adminRepoMock.Setup(r => r.DeleteImageAsync(image)).Returns(Task.CompletedTask);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.DeleteImage(category.Id);
+
+        // Assert
+        result.Should().BeOfType<NoContentResult>();
+    }
+
+    [Fact]
+    public async Task DeleteCategoryImage_WithNonExistentCategory_Returns404()
+    {
+        // Arrange
+        _adminRepoMock.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Category?)null);
+
+        // Act
+        var result = await _controller.DeleteImage(Guid.NewGuid());
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task DeleteCategoryImage_WithNoImage_Returns404()
+    {
+        // Arrange
+        var category = BuildCategory();
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(category.Id)).ReturnsAsync(category);
+        _adminRepoMock.Setup(r => r.GetImageAsync(category.Id)).ReturnsAsync((CategoryImage?)null);
+
+        // Act
+        var result = await _controller.DeleteImage(category.Id);
+
+        // Assert
+        result.Should().BeOfType<NotFoundObjectResult>();
+    }
+
+    [Fact]
+    public async Task DeleteCategoryImage_InvalidatesCategoryCache()
+    {
+        // Arrange
+        var category = BuildCategory();
+        var image = new CategoryImage
+        {
+            Id = Guid.NewGuid(),
+            CategoryId = category.Id,
+            ImageUrl = "https://example.com/cat.jpg"
+        };
+
+        _adminRepoMock.Setup(r => r.GetByIdAsync(category.Id)).ReturnsAsync(category);
+        _adminRepoMock.Setup(r => r.GetImageAsync(category.Id)).ReturnsAsync(image);
+        _adminRepoMock.Setup(r => r.DeleteImageAsync(image)).Returns(Task.CompletedTask);
+        _cacheMock.Setup(c => c.RemoveAsync(It.IsAny<string>(), default)).Returns(Task.CompletedTask);
+
+        // Act
+        await _controller.DeleteImage(category.Id);
+
+        // Assert
+        _cacheMock.Verify(c => c.RemoveAsync(
+            It.Is<string>(k => k.Contains("categories:detail:")),
+            default), Times.AtLeastOnce);
+    }
+
+    #endregion
 }

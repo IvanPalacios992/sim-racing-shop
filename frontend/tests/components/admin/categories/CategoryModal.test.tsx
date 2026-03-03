@@ -9,7 +9,15 @@ vi.mock("@/lib/api/admin-categories", () => ({
     update: vi.fn(),
     updateTranslations: vi.fn(),
     getCategoryBothLocales: vi.fn(),
+    getImage: vi.fn(),
+    setImage: vi.fn(),
+    deleteImage: vi.fn(),
   },
+}));
+
+vi.mock("@/components/admin/categories/CategoryImagePanel", () => ({
+  default: ({ categoryId }: { categoryId: string }) =>
+    React.createElement("div", { "data-testid": "category-image-panel" }, categoryId),
 }));
 
 vi.mock("@/components/admin/AdminModal", () => ({
@@ -103,12 +111,13 @@ describe("CategoryModal", () => {
       expect(screen.getByText("Nueva categoría")).toBeInTheDocument();
     });
 
-    it("muestra las 3 pestañas: General, Español, English", () => {
+    it("muestra las 3 pestañas: General, Español, English (sin Imagen en modo creación)", () => {
       render(<CategoryModal {...defaultProps} />);
 
       expect(screen.getByRole("button", { name: "General" })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "Español" })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: "English" })).toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Imagen" })).not.toBeInTheDocument();
     });
 
     it("en pestaña General muestra checkbox 'Categoría activa'", () => {
@@ -242,6 +251,43 @@ describe("CategoryModal", () => {
 
       const nameInput = screen.getByLabelText(/Nombre/i);
       expect((nameInput as HTMLInputElement).value).toBe("Volantes");
+    });
+
+    it("muestra pestaña 'Imagen' en modo edición", async () => {
+      vi.mocked(adminCategoriesApi.getCategoryBothLocales).mockResolvedValue(mockBothLocales as never);
+
+      render(<CategoryModal {...defaultProps} editItem={mockEditItem} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Imagen" })).toBeInTheDocument();
+      });
+    });
+
+    it("muestra el panel de imagen al hacer clic en la pestaña Imagen", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminCategoriesApi.getCategoryBothLocales).mockResolvedValue(mockBothLocales as never);
+
+      render(<CategoryModal {...defaultProps} editItem={mockEditItem} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Imagen" })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: "Imagen" }));
+
+      expect(screen.getByTestId("category-image-panel")).toBeInTheDocument();
+    });
+
+    it("el panel de imagen no se muestra cuando la pestaña activa es otra", async () => {
+      vi.mocked(adminCategoriesApi.getCategoryBothLocales).mockResolvedValue(mockBothLocales as never);
+
+      render(<CategoryModal {...defaultProps} editItem={mockEditItem} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText("Cargando traducciones...")).not.toBeInTheDocument();
+      });
+
+      expect(screen.queryByTestId("category-image-panel")).not.toBeInTheDocument();
     });
 
     it("llama a update y updateTranslations al guardar en edición", async () => {

@@ -325,6 +325,25 @@ public class ComponentRepositoryTests : IDisposable
         noStock.StockQuantity.Should().Be(0);
     }
 
+    [Fact]
+    public async Task GetComponents_NullOrEmptySearch_ReturnsAllComponents()
+    {
+        // Arrange
+        await SeedComponent(sku: "COMP-001", name: "Grip Rojo");
+        await SeedComponent(sku: "COMP-002", name: "Botonera 12");
+
+        var filterNull = new ComponentFilterDto { Locale = "es", Search = null };
+        var filterEmpty = new ComponentFilterDto { Locale = "es", Search = "" };
+
+        // Act
+        var resultNull = await _repository.GetComponentsAsync(filterNull);
+        var resultEmpty = await _repository.GetComponentsAsync(filterEmpty);
+
+        // Assert
+        resultNull.Items.Should().HaveCount(2);
+        resultEmpty.Items.Should().HaveCount(2);
+    }
+
     #endregion
 
     #region GetComponentsByProductIdAsync Tests

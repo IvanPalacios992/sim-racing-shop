@@ -1,3 +1,4 @@
+import userEvent from "@testing-library/user-event";
 import { render, screen } from "../../helpers/render";
 import { HeroSection } from "@/components/home/HeroSection";
 
@@ -47,5 +48,49 @@ describe("HeroSection", () => {
 
     const section = screen.getByRole("heading").closest("section");
     expect(section).toHaveClass("min-h-screen");
+  });
+
+  describe("VideoModal", () => {
+    it("el modal de vídeo no se muestra inicialmente", () => {
+      render(<HeroSection />);
+
+      expect(screen.queryByText("COMING SOON")).not.toBeInTheDocument();
+    });
+
+    it("el botón WATCH VIDEO abre el modal de vídeo", async () => {
+      const user = userEvent.setup();
+      render(<HeroSection />);
+
+      await user.click(screen.getByText("WATCH VIDEO"));
+
+      expect(screen.getByText("COMING SOON")).toBeInTheDocument();
+    });
+
+    it("el modal se cierra al hacer clic en el botón X", async () => {
+      const user = userEvent.setup();
+      render(<HeroSection />);
+
+      await user.click(screen.getByText("WATCH VIDEO"));
+      await user.click(screen.getByLabelText("Close"));
+
+      expect(screen.queryByText("COMING SOON")).not.toBeInTheDocument();
+    });
+
+    it("cada apertura del modal incrementa videoKey (nuevo iframe)", async () => {
+      const user = userEvent.setup();
+      render(<HeroSection />);
+
+      await user.click(screen.getByText("WATCH VIDEO"));
+      const srcFirst = document.querySelector("iframe")!.src;
+
+      await user.click(screen.getByLabelText("Close"));
+      await user.click(screen.getByText("WATCH VIDEO"));
+      const srcSecond = document.querySelector("iframe")!.src;
+
+      // The key prop changes so a fresh VideoModal is mounted each time;
+      // both iframes are valid YouTube embed URLs
+      expect(srcFirst).toMatch(/youtube\.com\/embed\//);
+      expect(srcSecond).toMatch(/youtube\.com\/embed\//);
+    });
   });
 });

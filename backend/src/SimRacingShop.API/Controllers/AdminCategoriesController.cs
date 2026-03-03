@@ -121,8 +121,9 @@ namespace SimRacingShop.API.Controllers
                 return NotFound(new { message = _categoryNotFoundError });
             }
 
-            // Delete associated image files
-            await _fileStorage.DeleteFileAsync(category.Image.ImageUrl);
+            // Delete associated image files (if any)
+            if (category.Image != null)
+                await _fileStorage.DeleteFileAsync(category.Image.ImageUrl);
 
             await _adminRepository.DeleteAsync(category);
             await InvalidateCategoryCacheAsync(category);
@@ -184,6 +185,82 @@ namespace SimRacingShop.API.Controllers
             };
 
             return Created($"/api/admin/categories/{id}/images", result);
+        }
+
+        // ── Image URL endpoints ───────────────────────────────────────────────
+
+        /// <summary>
+        /// Obtener imagen actual de una categoría
+        /// </summary>
+        [HttpGet("{id:guid}/image")]
+        [ProducesResponseType(typeof(AdminCategoryImageDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetImage(Guid id)
+        {
+            var category = await _adminRepository.GetByIdAsync(id);
+            if (category == null)
+                return NotFound(new { message = _categoryNotFoundError });
+
+            var image = await _adminRepository.GetImageAsync(id);
+            if (image == null)
+                return NotFound(new { message = "Sin imagen" });
+
+            return Ok(new AdminCategoryImageDto { Id = image.Id, ImageUrl = image.ImageUrl, AltText = image.AltText });
+        }
+
+        /// <summary>
+        /// Establecer imagen de una categoría por URL (reemplaza si ya existe)
+        /// </summary>
+        [HttpPut("{id:guid}/image/url")]
+        [ProducesResponseType(typeof(AdminCategoryImageDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SetImageByUrl(Guid id, [FromBody] SetCategoryImageByUrlDto dto)
+        {
+            _logger.LogInformation("Setting image by URL for category: {CategoryId}", id);
+
+            var category = await _adminRepository.GetByIdAsync(id);
+            if (category == null)
+                return NotFound(new { message = _categoryNotFoundError });
+
+            var image = new CategoryImage
+            {
+                Id = Guid.NewGuid(),
+                CategoryId = id,
+                ImageUrl = dto.ImageUrl,
+                AltText = dto.AltText
+            };
+
+            var saved = await _adminRepository.SetImageByUrlAsync(image);
+            await InvalidateCategoryCacheAsync(category);
+
+            _logger.LogInformation("Image set by URL for category: {CategoryId}", id);
+
+            return Ok(new AdminCategoryImageDto { Id = saved.Id, ImageUrl = saved.ImageUrl, AltText = saved.AltText });
+        }
+
+        /// <summary>
+        /// Eliminar imagen de una categoría
+        /// </summary>
+        [HttpDelete("{id:guid}/image")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteImage(Guid id)
+        {
+            _logger.LogInformation("Deleting image for category: {CategoryId}", id);
+
+            var category = await _adminRepository.GetByIdAsync(id);
+            if (category == null)
+                return NotFound(new { message = _categoryNotFoundError });
+
+            var image = await _adminRepository.GetImageAsync(id);
+            if (image == null)
+                return NotFound(new { message = "Sin imagen" });
+
+            await _adminRepository.DeleteImageAsync(image);
+            await InvalidateCategoryCacheAsync(category);
+
+            _logger.LogInformation("Image deleted for category: {CategoryId}", id);
+            return NoContent();
         }
 
         /// <summary>

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using SimRacingShop.Core.DTOs;
 using SimRacingShop.Core.Entities;
 using SimRacingShop.Core.Repositories;
 using SimRacingShop.Core.Services;
+using SimRacingShop.Core.Settings;
 
 namespace SimRacingShop.API.Controllers
 {
@@ -18,15 +20,21 @@ namespace SimRacingShop.API.Controllers
         private const string _orderNotFoundError = "Pedido no encontrado";
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderService _orderService;
+        private readonly IEmailService _emailService;
+        private readonly ResendSettings _resendSettings;
         private readonly ILogger<OrdersController> _logger;
 
         public OrdersController(
             IOrderRepository orderRepository,
             IOrderService orderService,
+            IEmailService emailService,
+            IOptions<ResendSettings> resendSettings,
             ILogger<OrdersController> logger)
         {
             _orderRepository = orderRepository;
             _orderService = orderService;
+            _emailService = emailService;
+            _resendSettings = resendSettings.Value;
             _logger = logger;
         }
 
@@ -50,6 +58,12 @@ namespace SimRacingShop.API.Controllers
             {
                 // El servicio maneja todas las validaciones y la creación del pedido
                 var order = await _orderService.CreateOrderAsync(dto, userId);
+
+                // Fire-and-forget: no bloqueamos la respuesta si el email falla
+                var locale = User.FindFirst("language")?.Value ?? "es";
+                var orderUrl = $"{_resendSettings.FrontendBaseUrl}/{locale}/pedidos/{order.Id}";
+                var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? "";
+                _ = _emailService.SendOrderConfirmationEmailAsync(userEmail, userEmail, order.OrderNumber, orderUrl, order.TotalAmount, locale);
 
                 var result = MapToOrderDetailDto(order);
 

@@ -224,6 +224,39 @@ describe("ProductDetailContent", () => {
       ).not.toBeInTheDocument();
     });
 
+    it("shows ADD TO CART button for non-customizable products", async () => {
+      const product = createMockProductDetail({ isCustomizable: false });
+      vi.mocked(productsApi.getProductBySlug).mockResolvedValue(product);
+
+      render(<ProductDetailContent slug="test" />);
+
+      await waitFor(() => {
+        expect(
+          screen.getByRole("button", { name: "ADD TO CART" })
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("clicking ADD TO CART calls addItem with empty component arrays for non-customizable products", async () => {
+      const mockAddItem = vi.fn().mockResolvedValue(undefined);
+      useCartStore.setState({ addItem: mockAddItem } as never);
+
+      const product = createMockProductDetail({ isCustomizable: false, id: "prod-nc" });
+      vi.mocked(productsApi.getProductBySlug).mockResolvedValue(product);
+      const user = userEvent.setup();
+
+      render(<ProductDetailContent slug="test" />);
+
+      await waitFor(() =>
+        expect(screen.getByRole("button", { name: "ADD TO CART" })).toBeInTheDocument()
+      );
+      await user.click(screen.getByRole("button", { name: "ADD TO CART" }));
+
+      await waitFor(() => {
+        expect(mockAddItem).toHaveBeenCalledWith("prod-nc", 1, "en", [], []);
+      });
+    });
+
     it("opens the configurator overlay when CUSTOMIZE is clicked", async () => {
       const product = createMockProductDetail({ isCustomizable: true });
       vi.mocked(productsApi.getProductBySlug).mockResolvedValue(product);

@@ -9,10 +9,10 @@ import type {
 } from "@/types/admin";
 
 export const adminComponentsApi = {
-  async list(locale = "es", page = 1, pageSize = 10): Promise<PaginatedResult<AdminComponentListItem>> {
-    const response = await apiClient.get<PaginatedResult<AdminComponentListItem>>("/components", {
-      params: { Locale: locale, PageSize: pageSize, Page: page },
-    });
+  async list(locale = "es", page = 1, pageSize = 10, search?: string): Promise<PaginatedResult<AdminComponentListItem>> {
+    const params: Record<string, unknown> = { Locale: locale, PageSize: pageSize, Page: page };
+    if (search) params.Search = search;
+    const response = await apiClient.get<PaginatedResult<AdminComponentListItem>>("/components", { params });
     return response.data;
   },
 

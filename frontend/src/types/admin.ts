@@ -162,3 +162,53 @@ export interface ProductCategoryItem {
 export interface SetProductCategoriesDto {
   categoryIds: string[];
 }
+
+// ─── PRODUCT IMAGES ───────────────────────────────────────────────────────────
+
+export interface AdminProductImageItem {
+  id: string;
+  imageUrl: string;
+  altText: string | null;
+  displayOrder: number;
+}
+
+export interface AddProductImageDto {
+  imageUrl: string;
+  altText?: string | null;
+  displayOrder: number;
+}
+
+// ─── ORDERS (ADMIN) ───────────────────────────────────────────────────────────
+
+import type { OrderStatus, OrderDetailDto } from "@/types/orders";
+
+export interface AdminOrderSummaryDto {
+  id: string;
+  orderNumber: string;
+  userEmail: string | null;
+  totalAmount: number;
+  orderStatus: OrderStatus;
+  createdAt: string;
+  itemCount: number;
+}
+
+export interface UpdateOrderStatusDto {
+  status: OrderStatus;
+}
+
+export interface AdminOrderDetailDto extends OrderDetailDto {
+  userEmail?: string | null;
+}
+
+// ─── CATEGORY IMAGES ──────────────────────────────────────────────────────────
+
+export interface AdminCategoryImageItem {
+  id: string;
+  imageUrl: string;
+  altText: string | null;
+}
+
+export interface SetCategoryImageDto {
+  imageUrl: string;
+  altText?: string | null;
+}

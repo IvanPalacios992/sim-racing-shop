@@ -54,6 +54,32 @@ namespace SimRacingShop.Infrastructure.Repositories
             return images;
         }
 
+        public async Task<List<ProductImage>> GetImagesAsync(Guid productId)
+        {
+            return await _context.ProductImages
+                .Where(i => i.ProductId == productId)
+                .OrderBy(i => i.DisplayOrder)
+                .ToListAsync();
+        }
+
+        public async Task<ProductImage> AddImageByUrlAsync(ProductImage image)
+        {
+            _context.ProductImages.Add(image);
+            await _context.SaveChangesAsync();
+            return image;
+        }
+
+        public async Task<ProductImage?> GetImageByIdAsync(Guid imageId)
+        {
+            return await _context.ProductImages.FirstOrDefaultAsync(i => i.Id == imageId);
+        }
+
+        public async Task DeleteImageAsync(ProductImage image)
+        {
+            _context.ProductImages.Remove(image);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<bool> SkuExistsAsync(string sku)
         {
             return await _context.Products.AnyAsync(p => p.Sku == sku);
