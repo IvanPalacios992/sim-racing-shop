@@ -29,6 +29,12 @@ namespace SimRacingShop.Infrastructure.Repositories
             if (filter.IsActive.HasValue)
                 query = query.Where(x => x.Category.IsActive == filter.IsActive.Value);
 
+            if (!string.IsNullOrWhiteSpace(filter.Search))
+            {
+                var pattern = $"%{filter.Search.Trim()}%";
+                query = query.Where(x => EF.Functions.ILike(x.Translation.Name, pattern));
+            }
+
             // Sorting
             query = filter.SortBy?.ToLowerInvariant() switch
             {

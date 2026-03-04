@@ -9,6 +9,12 @@ namespace SimRacingShop.Core.Repositories
         Task UpdateAsync(Product product);
         Task DeleteAsync(Product product);
         Task<List<ProductImage>> AddImagesAsync(Guid productId, List<ProductImage> images);
+
+        // Image URL management
+        Task<List<ProductImage>> GetImagesAsync(Guid productId);
+        Task<ProductImage> AddImageByUrlAsync(ProductImage image);
+        Task<ProductImage?> GetImageByIdAsync(Guid imageId);
+        Task DeleteImageAsync(ProductImage image);
         Task ReplaceTranslationsAsync(Guid productId, List<ProductTranslation> translations);
         Task<bool> SkuExistsAsync(string sku);
         bool SkuExists(string sku);

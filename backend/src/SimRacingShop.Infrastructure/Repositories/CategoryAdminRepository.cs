@@ -51,6 +51,29 @@ namespace SimRacingShop.Infrastructure.Repositories
             return image;
         }
 
+        public async Task<CategoryImage?> GetImageAsync(Guid categoryId)
+        {
+            return await _context.CategoriesImages.FirstOrDefaultAsync(i => i.CategoryId == categoryId);
+        }
+
+        public async Task<CategoryImage> SetImageByUrlAsync(CategoryImage image)
+        {
+            var existing = await _context.CategoriesImages
+                .FirstOrDefaultAsync(i => i.CategoryId == image.CategoryId);
+            if (existing != null)
+                _context.CategoriesImages.Remove(existing);
+
+            _context.CategoriesImages.Add(image);
+            await _context.SaveChangesAsync();
+            return image;
+        }
+
+        public async Task DeleteImageAsync(CategoryImage image)
+        {
+            _context.CategoriesImages.Remove(image);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task ReplaceTranslationsAsync(Guid categoryId, List<CategoryTranslation> translations)
         {
             var existing = await _context.CategoriesTranslations

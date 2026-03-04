@@ -32,4 +32,17 @@ namespace SimRacingShop.Core.DTOs
         public string ImageUrl { get; init; } = null!;
         public string? AltText { get; init; }
     }
+
+    public record AdminCategoryImageDto
+    {
+        public Guid Id { get; init; }
+        public string ImageUrl { get; init; } = null!;
+        public string? AltText { get; init; }
+    }
+
+    public record SetCategoryImageByUrlDto
+    {
+        public string ImageUrl { get; init; } = null!;
+        public string? AltText { get; init; }
+    }
 }

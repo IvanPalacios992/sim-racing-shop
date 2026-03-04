@@ -796,4 +796,192 @@ public class ProductAdminRepositoryTests : IDisposable
     }
 
     #endregion
+
+    #region GetImagesAsync Tests
+
+    [Fact]
+    public async Task GetImagesAsync_WithImages_ReturnsImagesOrderedByDisplayOrder()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+
+        _context.ProductImages.AddRange(
+            new ProductImage { Id = Guid.NewGuid(), ProductId = product.Id, ImageUrl = "https://example.com/b.jpg", DisplayOrder = 1 },
+            new ProductImage { Id = Guid.NewGuid(), ProductId = product.Id, ImageUrl = "https://example.com/a.jpg", DisplayOrder = 0 }
+        );
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetImagesAsync(product.Id);
+
+        // Assert
+        result.Should().HaveCount(2);
+        result[0].DisplayOrder.Should().Be(0);
+        result[1].DisplayOrder.Should().Be(1);
+    }
+
+    [Fact]
+    public async Task GetImagesAsync_WithNoImages_ReturnsEmptyList()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetImagesAsync(product.Id);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetImagesAsync_DoesNotReturnImagesFromOtherProducts()
+    {
+        // Arrange
+        var product1 = BuildProduct(sku: "SKU-001");
+        var product2 = BuildProduct(sku: "SKU-002");
+        _context.Products.AddRange(product1, product2);
+
+        _context.ProductImages.Add(new ProductImage
+        {
+            Id = Guid.NewGuid(),
+            ProductId = product2.Id,
+            ImageUrl = "https://example.com/other.jpg",
+            DisplayOrder = 0
+        });
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetImagesAsync(product1.Id);
+
+        // Assert
+        result.Should().BeEmpty();
+    }
+
+    #endregion
+
+    #region AddImageByUrlAsync Tests
+
+    [Fact]
+    public async Task AddImageByUrlAsync_SavesImageToDatabase()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var image = new ProductImage
+        {
+            Id = Guid.NewGuid(),
+            ProductId = product.Id,
+            ImageUrl = "https://example.com/img.jpg",
+            AltText = "Alt text",
+            DisplayOrder = 0
+        };
+
+        // Act
+        var result = await _repository.AddImageByUrlAsync(image);
+
+        // Assert
+        result.Id.Should().Be(image.Id);
+        result.ImageUrl.Should().Be("https://example.com/img.jpg");
+
+        var saved = await _context.ProductImages.FindAsync(new object[] { image.Id }, TestContext.Current.CancellationToken);
+        saved.Should().NotBeNull();
+        saved!.AltText.Should().Be("Alt text");
+        saved.ProductId.Should().Be(product.Id);
+    }
+
+    #endregion
+
+    #region GetImageByIdAsync Tests
+
+    [Fact]
+    public async Task GetImageByIdAsync_WithExistingImage_ReturnsImage()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+
+        var image = new ProductImage
+        {
+            Id = Guid.NewGuid(),
+            ProductId = product.Id,
+            ImageUrl = "https://example.com/img.jpg",
+            DisplayOrder = 0
+        };
+        _context.ProductImages.Add(image);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        var result = await _repository.GetImageByIdAsync(image.Id);
+
+        // Assert
+        result.Should().NotBeNull();
+        result!.Id.Should().Be(image.Id);
+        result.ProductId.Should().Be(product.Id);
+    }
+
+    [Fact]
+    public async Task GetImageByIdAsync_WithNonExistentId_ReturnsNull()
+    {
+        // Act
+        var result = await _repository.GetImageByIdAsync(Guid.NewGuid());
+
+        // Assert
+        result.Should().BeNull();
+    }
+
+    #endregion
+
+    #region DeleteImageAsync (product) Tests
+
+    [Fact]
+    public async Task DeleteImageAsync_RemovesImageFromDatabase()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+
+        var image = new ProductImage
+        {
+            Id = Guid.NewGuid(),
+            ProductId = product.Id,
+            ImageUrl = "https://example.com/img.jpg",
+            DisplayOrder = 0
+        };
+        _context.ProductImages.Add(image);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        await _repository.DeleteImageAsync(image);
+
+        // Assert
+        var deleted = await _context.ProductImages.FindAsync(new object[] { image.Id }, TestContext.Current.CancellationToken);
+        deleted.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task DeleteImageAsync_DoesNotDeleteOtherImages()
+    {
+        // Arrange
+        var product = BuildProduct();
+        _context.Products.Add(product);
+
+        var image1 = new ProductImage { Id = Guid.NewGuid(), ProductId = product.Id, ImageUrl = "https://example.com/img1.jpg", DisplayOrder = 0 };
+        var image2 = new ProductImage { Id = Guid.NewGuid(), ProductId = product.Id, ImageUrl = "https://example.com/img2.jpg", DisplayOrder = 1 };
+        _context.ProductImages.AddRange(image1, image2);
+        await _context.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        // Act
+        await _repository.DeleteImageAsync(image1);
+
+        // Assert
+        var remaining = await _context.ProductImages.FindAsync(new object[] { image2.Id }, TestContext.Current.CancellationToken);
+        remaining.Should().NotBeNull();
+    }
+
+    #endregion
 }

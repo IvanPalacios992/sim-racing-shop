@@ -152,6 +152,10 @@ try
 
     builder.Services.Configure<ResendSettings>(builder.Configuration.GetSection("ResendSettings"));
     builder.Services.AddOptions();
+    builder.Services.Configure<Resend.ResendClientOptions>(o =>
+    {
+        o.ApiToken = builder.Configuration["ResendSettings:ApiKey"]!;
+    });
     builder.Services.AddHttpClient<Resend.IResend, Resend.ResendClient>();
     builder.Services.AddScoped<IEmailService, ResendEmailService>();
 

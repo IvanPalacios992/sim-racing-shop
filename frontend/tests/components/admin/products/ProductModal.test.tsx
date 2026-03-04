@@ -11,6 +11,9 @@ vi.mock("@/lib/api/admin-products", () => ({
     updateTranslations: vi.fn(),
     getProductBothLocales: vi.fn(),
     getComponentOptions: vi.fn(),
+    getImages: vi.fn(),
+    addImage: vi.fn(),
+    deleteImage: vi.fn(),
   },
 }));
 
@@ -45,6 +48,11 @@ vi.mock("@/components/admin/products/ComponentOptionsPanel", () => ({
 vi.mock("@/components/admin/products/CategoryAssignPanel", () => ({
   default: ({ productId }: { productId: string }) =>
     React.createElement("div", { "data-testid": "category-assign-panel" }, productId),
+}));
+
+vi.mock("@/components/admin/products/ProductImagesPanel", () => ({
+  default: ({ productId }: { productId: string }) =>
+    React.createElement("div", { "data-testid": "product-images-panel" }, productId),
 }));
 
 import ProductModal from "@/components/admin/products/ProductModal";
@@ -129,7 +137,7 @@ describe("ProductModal", () => {
       expect(screen.getByText("Nuevo producto")).toBeInTheDocument();
     });
 
-    it("muestra pestañas General, Español, English (sin Componentes ni Categorías en modo creación)", () => {
+    it("muestra pestañas General, Español, English (sin Componentes, Categorías ni Imágenes en modo creación)", () => {
       render(<ProductModal {...defaultProps} />);
 
       expect(screen.getByRole("button", { name: "General" })).toBeInTheDocument();
@@ -137,6 +145,7 @@ describe("ProductModal", () => {
       expect(screen.getByRole("button", { name: "English" })).toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Componentes" })).not.toBeInTheDocument();
       expect(screen.queryByRole("button", { name: "Categorías" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: "Imágenes" })).not.toBeInTheDocument();
     });
 
     it("en pestaña General muestra campo SKU", () => {
@@ -373,6 +382,37 @@ describe("ProductModal", () => {
       await user.click(screen.getByRole("button", { name: "Categorías" }));
 
       expect(screen.getByTestId("category-assign-panel")).toBeInTheDocument();
+    });
+
+    it("muestra pestaña 'Imágenes' en modo edición", async () => {
+      vi.mocked(adminProductsApi.getProductBothLocales).mockResolvedValue({
+        es: mockProductDetail,
+        en: { ...mockProductDetail, name: "GT3 Steering Wheel", slug: "gt3-steering-wheel" },
+      } as never);
+
+      render(<ProductModal {...defaultProps} editItem={mockEditItem} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Imágenes" })).toBeInTheDocument();
+      });
+    });
+
+    it("muestra el panel de imágenes al hacer clic en la pestaña Imágenes", async () => {
+      const user = userEvent.setup();
+      vi.mocked(adminProductsApi.getProductBothLocales).mockResolvedValue({
+        es: mockProductDetail,
+        en: { ...mockProductDetail, name: "GT3 Steering Wheel", slug: "gt3-steering-wheel" },
+      } as never);
+
+      render(<ProductModal {...defaultProps} editItem={mockEditItem} />);
+
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: "Imágenes" })).toBeInTheDocument();
+      });
+
+      await user.click(screen.getByRole("button", { name: "Imágenes" }));
+
+      expect(screen.getByTestId("product-images-panel")).toBeInTheDocument();
     });
 
     it("el panel de categorías no se muestra cuando la pestaña activa es otra", async () => {

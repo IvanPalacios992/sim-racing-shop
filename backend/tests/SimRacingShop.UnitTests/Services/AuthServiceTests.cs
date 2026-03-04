@@ -954,7 +954,7 @@ public class AuthServiceTests : IDisposable
         _userManagerMock.Setup(x => x.GeneratePasswordResetTokenAsync(user))
             .ReturnsAsync(resetToken);
 
-        _emailServiceMock.Setup(x => x.SendPasswordResetEmailAsync(email, resetToken, user.FirstName))
+        _emailServiceMock.Setup(x => x.SendPasswordResetEmailAsync(email, resetToken, user.FirstName, It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -962,7 +962,7 @@ public class AuthServiceTests : IDisposable
 
         // Assert
         _emailServiceMock.Verify(
-            x => x.SendPasswordResetEmailAsync(email, resetToken, user.FirstName),
+            x => x.SendPasswordResetEmailAsync(email, resetToken, user.FirstName, It.IsAny<string>()),
             Times.Once);
     }
 
@@ -980,7 +980,7 @@ public class AuthServiceTests : IDisposable
 
         // Assert
         _emailServiceMock.Verify(
-            x => x.SendPasswordResetEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+            x => x.SendPasswordResetEmailAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
             Times.Never);
     }
 
@@ -1003,7 +1003,7 @@ public class AuthServiceTests : IDisposable
         _userManagerMock.Setup(x => x.GeneratePasswordResetTokenAsync(user))
             .ReturnsAsync(resetToken);
 
-        _emailServiceMock.Setup(x => x.SendPasswordResetEmailAsync(email, resetToken, email))
+        _emailServiceMock.Setup(x => x.SendPasswordResetEmailAsync(email, resetToken, email, It.IsAny<string>()))
             .Returns(Task.CompletedTask);
 
         // Act
@@ -1011,7 +1011,121 @@ public class AuthServiceTests : IDisposable
 
         // Assert
         _emailServiceMock.Verify(
-            x => x.SendPasswordResetEmailAsync(email, resetToken, email),
+            x => x.SendPasswordResetEmailAsync(email, resetToken, email, It.IsAny<string>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ForgotPassword_WithSpanishUser_SendsEmailInSpanish()
+    {
+        // Arrange
+        var email = "test@example.com";
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = email,
+            FirstName = "Test",
+            Language = "es"
+        };
+        var resetToken = "reset-token-123";
+
+        _userManagerMock.Setup(x => x.FindByEmailAsync(email)).ReturnsAsync(user);
+        _userManagerMock.Setup(x => x.GeneratePasswordResetTokenAsync(user)).ReturnsAsync(resetToken);
+        _emailServiceMock.Setup(x => x.SendPasswordResetEmailAsync(email, resetToken, user.FirstName, "es"))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _authService.ForgotPasswordAsync(email);
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendPasswordResetEmailAsync(email, resetToken, user.FirstName, "es"),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task ForgotPassword_WithEnglishUser_SendsEmailInEnglish()
+    {
+        // Arrange
+        var email = "test@example.com";
+        var user = new User
+        {
+            Id = Guid.NewGuid(),
+            Email = email,
+            FirstName = "Test",
+            Language = "en"
+        };
+        var resetToken = "reset-token-123";
+
+        _userManagerMock.Setup(x => x.FindByEmailAsync(email)).ReturnsAsync(user);
+        _userManagerMock.Setup(x => x.GeneratePasswordResetTokenAsync(user)).ReturnsAsync(resetToken);
+        _emailServiceMock.Setup(x => x.SendPasswordResetEmailAsync(email, resetToken, user.FirstName, "en"))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _authService.ForgotPasswordAsync(email);
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendPasswordResetEmailAsync(email, resetToken, user.FirstName, "en"),
+            Times.Once);
+    }
+
+    #endregion
+
+    #region Email Language Tests
+
+    [Fact]
+    public async Task Register_WithSpanishLanguage_SendsWelcomeEmailInSpanish()
+    {
+        // Arrange
+        var dto = new RegisterDto
+        {
+            Email = "test@example.com",
+            Password = "Password123!",
+            ConfirmPassword = "Password123!",
+            FirstName = "Test",
+            Language = "es"
+        };
+
+        _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync((User?)null);
+        _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<User>(), dto.Password)).ReturnsAsync(IdentityResult.Success);
+        _userManagerMock.Setup(x => x.AddToRoleAsync(It.IsAny<User>(), "Customer")).ReturnsAsync(IdentityResult.Success);
+        _userManagerMock.Setup(x => x.GetRolesAsync(It.IsAny<User>())).ReturnsAsync(new List<string> { "Customer" });
+
+        // Act
+        await _authService.RegisterAsync(dto);
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendWelcomeEmailAsync(dto.Email, dto.FirstName, "es"),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task Register_WithEnglishLanguage_SendsWelcomeEmailInEnglish()
+    {
+        // Arrange
+        var dto = new RegisterDto
+        {
+            Email = "test@example.com",
+            Password = "Password123!",
+            ConfirmPassword = "Password123!",
+            FirstName = "Test",
+            Language = "en"
+        };
+
+        _userManagerMock.Setup(x => x.FindByEmailAsync(dto.Email)).ReturnsAsync((User?)null);
+        _userManagerMock.Setup(x => x.CreateAsync(It.IsAny<User>(), dto.Password)).ReturnsAsync(IdentityResult.Success);
+        _userManagerMock.Setup(x => x.AddToRoleAsync(It.IsAny<User>(), "Customer")).ReturnsAsync(IdentityResult.Success);
+        _userManagerMock.Setup(x => x.GetRolesAsync(It.IsAny<User>())).ReturnsAsync(new List<string> { "Customer" });
+
+        // Act
+        await _authService.RegisterAsync(dto);
+
+        // Assert
+        _emailServiceMock.Verify(
+            x => x.SendWelcomeEmailAsync(dto.Email, dto.FirstName, "en"),
             Times.Once);
     }
 

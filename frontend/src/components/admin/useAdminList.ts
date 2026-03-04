@@ -16,7 +16,10 @@ interface UseAdminListReturn<T> {
   editItem: T | undefined;
   confirmDeleteId: string | null;
   deleting: boolean;
+  search: string;
+  debouncedSearch: string;
   setPage: (page: number) => void;
+  setSearch: (search: string) => void;
   setConfirmDeleteId: (id: string | null) => void;
   handleDelete: (id: string) => Promise<void>;
   handleSuccess: () => void;
@@ -27,7 +30,7 @@ interface UseAdminListReturn<T> {
 }
 
 export function useAdminList<T>(
-  fetchFn: (page: number) => Promise<AdminListResult<T>>,
+  fetchFn: (page: number, search: string) => Promise<AdminListResult<T>>,
   deleteFn: (id: string) => Promise<void>,
 ): UseAdminListReturn<T> {
   const { _hasHydrated } = useAuthStore();
@@ -40,6 +43,8 @@ export function useAdminList<T>(
   const [editItem, setEditItem] = useState<T | undefined>(undefined);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
   const isMountedRef = useRef(true);
   useEffect(() => {
@@ -53,9 +58,17 @@ export function useAdminList<T>(
   deleteFnRef.current = deleteFn;
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
     if (!_hasHydrated) return;
     setFetchStatus("loading");
-    fetchFnRef.current(page).then(
+    fetchFnRef.current(page, debouncedSearch).then(
       (result) => {
         if (isMountedRef.current) {
           setItems(result.items);
@@ -68,7 +81,7 @@ export function useAdminList<T>(
       },
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_hasHydrated, page, retryCount]);
+  }, [_hasHydrated, page, debouncedSearch, retryCount]);
 
   const handleDelete = async (id: string) => {
     setDeleting(true);
@@ -112,7 +125,10 @@ export function useAdminList<T>(
     editItem,
     confirmDeleteId,
     deleting,
+    search,
+    debouncedSearch,
     setPage,
+    setSearch,
     setConfirmDeleteId,
     handleDelete,
     handleSuccess,
