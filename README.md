@@ -1,14 +1,14 @@
-# 🏎️ SimRacing Shop - E-commerce de Hardware Personalizado
+# 🏎️ SimRacing Shop - E-commerce de hardware personalizado
 
 Plataforma e-commerce especializada en hardware de sim racing personalizable con visor 3D interactivo.
 
-## 🎯 Descripción del Proyecto
+## 🎯 Descripción del proyecto
 
 SimRacing Shop es una tienda online que permite a los usuarios configurar y comprar hardware de simulación de carreras totalmente personalizado. La plataforma incluye un visor 3D interactivo donde los clientes pueden personalizar colores, componentes y accesorios en tiempo real antes de realizar la compra.
 
-## ✨ Características Principales
+## ✨ Características principales
 
-### Para Clientes
+### Para clientes
 - 🛒 Catálogo de productos con filtros y búsqueda
 - 🎨 Configurador 3D interactivo en tiempo real
 - 💳 Múltiples métodos de pago (Stripe, PayPal, Bizum)
@@ -17,7 +17,7 @@ SimRacing Shop es una tienda online que permite a los usuarios configurar y comp
 - 🔐 Área de usuario con historial de pedidos
 - 🔗 URLs compartibles de configuraciones
 
-### Para Administradores
+### Para administradores
 - 📊 Panel de administración completo
 - 🏭 Gestión de productos y componentes
 - 📈 Dashboard con métricas de ventas
@@ -25,11 +25,11 @@ SimRacing Shop es una tienda online que permite a los usuarios configurar y comp
 - 📦 Gestión de stock e inventario
 - 👥 Administración de usuarios
 
-## 🛠️ Stack Tecnológico
+## 🛠️ Stack tecnológico
 
 ### Frontend
-- **Framework:** Next.js 15 (App Router)
-- **UI:** React 18 + Tailwind CSS + shadcn/ui
+- **Framework:** Next.js 16 (App Router)
+- **UI:** React 19 + Tailwind CSS + shadcn/ui
 - **3D:** React Three Fiber + Drei
 - **State:** Zustand
 - **i18n:** next-intl
@@ -45,18 +45,18 @@ SimRacing Shop es una tienda online que permite a los usuarios configurar y comp
 ### Infraestructura
 - **Frontend Hosting:** Vercel
 - **Backend Hosting:** Railway
-- **Database:** Supabase / Railway
+- **Database:** Railway
 - **CDN:** Cloudflare
 - **Monitoring:** Sentry + Better Stack
 - **CI/CD:** GitHub Actions
 
-### Servicios Externos
+### Servicios externos
 - **Pagos:** Stripe
 - **Email:** Resend
 - **Analytics:** Google Analytics 4
 - **Captcha:** hCaptcha
 
-## 📁 Estructura del Proyecto
+## 📁 Estructura del proyecto
 
 ```
 sim-racing-shop/
@@ -82,7 +82,7 @@ sim-racing-shop/
 └── .github/              # Workflows de CI/CD
 ```
 
-## 🚀 Inicio Rápido
+## 🚀 Inicio rápido
 
 ### Prerequisitos
 - Node.js 20+
@@ -95,7 +95,7 @@ sim-racing-shop/
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/sim-racing-shop.git
+git clone https://github.com/IvanPalacios992/sim-racing-shop.git
 cd sim-racing-shop
 
 # Levantar servicios con Docker Compose
@@ -122,22 +122,18 @@ cd backend && dotnet run
 
 La aplicación estará disponible en:
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:5000
-- API Docs: http://localhost:5000/swagger
-
-### Instalación Manual
-
-Ver [docs/setup/local-development.md](docs/setup/local-development.md) para instrucciones detalladas.
+- Backend API: https://localhost:7002
+- API Docs: https://localhost:7002/swagger
 
 ## 📖 Documentación
 
-- [**Guía de Inicio**](docs/setup/getting-started.md) - Configuración inicial
-- [**Arquitectura del Sistema**](docs/architecture/system-architecture.md) - Visión general
-- [**Diseño de Base de Datos**](docs/architecture/database-design.md) - Esquema y relaciones
-- [**Roadmap MVP**](docs/project-management/mvp-roadmap.md) - Plan de desarrollo
-- [**Stack Tecnológico**](docs/project-management/tech-stack.md) - Detalles técnicos
-- [**Workflow Git**](docs/development/git-workflow.md) - Proceso de desarrollo
-- [**Guía de Herramientas IA**](docs/development/ai-tools-guide.md) - Acelerar desarrollo
+- [**Guía de Inicio**](docs/setup/01.%20getting-started.md) - Configuración inicial
+- [**Arquitectura del Sistema**](docs/architecture/01.%20system-architecture.md) - Visión general
+- [**Diseño de Base de Datos**](docs/architecture/02.%20database-design.md) - Esquema y relaciones
+- [**Roadmap MVP**](docs/project-management/05.%20mvp-roadmap.md) - Plan de desarrollo
+- [**Stack Tecnológico**](docs/project-management/03.%20tech-stack.md) - Detalles técnicos
+- [**Workflow Git**](docs/development/02.%20git-workflow.md) - Proceso de desarrollo
+- [**Guía de Herramientas IA**](docs/development/03.%20ai-tools-guide.md) - Acelerar desarrollo
 
 ## 🧪 Testing
 
@@ -157,7 +153,7 @@ dotnet test
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
-## 🔒 Variables de Entorno
+## 🔒 Variables de entorno
 
 Copia los archivos de ejemplo y configura tus credenciales:
 
@@ -169,7 +165,7 @@ cp frontend/.env.example frontend/.env.local
 cp backend/appsettings.example.json backend/appsettings.Development.json
 ```
 
-Ver [docs/setup/environment-variables.md](docs/setup/environment-variables.md) para detalles completos.
+Ver [docs/setup/environment-variables.md](docs/setup/02.%20environment-variables.md) para detalles completos.
 
 ## 🚢 Deployment
 
@@ -184,7 +180,7 @@ git push origin main
 # Requiere aprobación en GitHub
 ```
 
-Ver [docs/deployment/deployment-guide.md](docs/deployment/deployment-guide.md) para más información.
+Ver [docs/deployment/deployment-guide.md](docs/deployment/01.%20deplyment-guide.md) para más información.
 
 ## 📊 Roadmap
 
@@ -209,7 +205,7 @@ Ver [docs/deployment/deployment-guide.md](docs/deployment/deployment-guide.md) p
 - Programa de afiliados
 - Marketplace multi-vendedor
 
-Ver [docs/project-management/mvp-roadmap.md](docs/project-management/mvp-roadmap.md) para detalles completos.
+Ver [docs/project-management/mvp-roadmap.md](docs/project-management/05.%20mvp-roadmap.md) para detalles completos.
 
 ## 🤝 Contribución
 
@@ -219,31 +215,8 @@ Ver [docs/project-management/mvp-roadmap.md](docs/project-management/mvp-roadmap
 4. Push al branch (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-Ver [docs/development/git-workflow.md](docs/development/git-workflow.md) para el proceso detallado.
+Ver [docs/development/git-workflow.md](docs/development/02.%20git-workflow.md) para el proceso detallado.
 
 ## 📄 Licencia
 
 Este proyecto es privado y confidencial. Todos los derechos reservados.
-
-## 👥 Equipo
-
-- **Desarrollo:** [Tu Nombre]
-- **Arquitectura:** [Tu Nombre]
-- **DevOps:** [Tu Nombre]
-
-## 📞 Contacto
-
-- Email: contact@simracingshop.com
-- Website: https://simracingshop.com
-
-## 🙏 Agradecimientos
-
-- [Next.js](https://nextjs.org/)
-- [.NET](https://dotnet.microsoft.com/)
-- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber)
-- [shadcn/ui](https://ui.shadcn.com/)
-- [Stripe](https://stripe.com/)
-
----
-
-**⚠️ Nota:** Este es un proyecto en desarrollo activo. Para comenzar el desarrollo, consulta la [Guía de Inicio](docs/setup/getting-started.md).
